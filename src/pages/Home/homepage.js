@@ -9,6 +9,7 @@ const BUILTIN = new Set([
   "features",
   "how",
   "showcase",
+  "why",
   "workout",
   "nutrition",
   "coaches",
@@ -19,21 +20,35 @@ const BUILTIN = new Set([
 ]);
 
 export function useHomepage() {
-  const [state, setState] = useState({ blocks: {}, sections: [] });
+  const [state, setState] = useState({
+    blocks: {},
+    sections: [],
+    loading: true,
+  });
 
   useEffect(() => {
     let active = true;
 
-    api("/api/v1/homepage").then((body) => {
-      if (!active || !body?.blocks || typeof body.blocks !== "object") {
-        return;
-      }
+    api("/api/v1/homepage")
+      .then((body) => {
+        if (!active) return;
 
-      setState({
-        blocks: body.blocks,
-        sections: Array.isArray(body.sections) ? body.sections : [],
+        setState({
+          blocks: body?.blocks ?? {},
+          sections: Array.isArray(body?.sections)
+            ? body.sections
+            : [],
+          loading: false,
+        });
+      })
+      .catch(() => {
+        if (!active) return;
+
+        setState((prev) => ({
+          ...prev,
+          loading: false,
+        }));
       });
-    }, () => {});
 
     return () => {
       active = false;
@@ -62,22 +77,18 @@ export function regionStyle(sections, key) {
 
   const section = sections.find((item) => item.key === key);
 
-  if (!section) {
-    return undefined;
-  }
+  if (!section) return undefined;
 
   if (section.visible === false) {
     return { display: "none" };
   }
 
-  // Hero همیشه اولین بخش باشد
-  if (key === "hero") {
-    return { order: -1 };
-  }
+  const sort = Number(section.sort);
 
-  return { order: Number(section.sort) || 0 };
+  return {
+    order: Number.isFinite(sort) ? sort : 0,
+  };
 }
-
 export function customSections(sections) {
   if (!Array.isArray(sections)) {
     return [];

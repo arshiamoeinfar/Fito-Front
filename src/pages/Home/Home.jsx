@@ -36,8 +36,9 @@ import {
 import ProfileImg from "../../assets/imges/image 11.png";
 import imgBody from "../../assets/imges/auth.png";
 import ImgAnatomi from "../../assets/imges/image 24 (1).png";
-import FitoImgCoach from "../../assets/imges/Futuristic AI Fitness Coach Mascot.png"
+import FitoImgCoach from "../../assets/imges/Futuristic AI Fitness Coach Mascot.png";
 import ThemeSwitcher from "../../Components/shared/ThemeSwitcher/ThemeSwitcher";
+
 /* =========================
    Fade In Up (unchanged)
 ========================= */
@@ -136,8 +137,8 @@ function FitoLogo({ name = "Fito", light = false, sub = false }) {
   );
 }
 
-const Badge = ({ children }) => (
-  <span className="inline-block rounded-full bg-[#007BFF]/10 px-3 py-1 text-xs font-bold text-[#007BFF]">
+const Badge = ({ children, className = "" }) => (
+  <span className={`inline-block rounded-full bg-[#007BFF]/10 px-3 py-1 text-xs font-bold text-[#007BFF] ${className}`}>
     {children}
   </span>
 );
@@ -190,42 +191,6 @@ function Ring({ v, size = 48, children }) {
   );
 }
 
-function CircularProgress({ value, caption = "امروز" }) {
-  const radius = 42;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (value / 100) * circumference;
-
-  return (
-    <div className="relative h-28 w-28">
-      <svg className="h-full w-full -rotate-90">
-        <circle
-          cx="56"
-          cy="56"
-          r={radius}
-          stroke="rgba(255,255,255,0.08)"
-          strokeWidth="8"
-          fill="none"
-        />
-        <circle
-          cx="56"
-          cy="56"
-          r={radius}
-          stroke="#007BFF"
-          strokeWidth="8"
-          fill="none"
-          strokeLinecap="round"
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-        />
-      </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-2xl font-bold text-white">{value}%</span>
-        <span className="text-[10px] text-white/40">{caption}</span>
-      </div>
-    </div>
-  );
-}
-
 function FHead({ icon, title, text: desc, dark }) {
   return (
     <>
@@ -260,23 +225,8 @@ const Window = ({ children }) => (
 );
 
 /* =========================
-   Dashboard preview (live data + CMS driven, same props as before)
+   Dashboard preview
 ========================= */
-
-function MiniStat({ icon, title, value, unit }) {
-  return (
-    <div className="rounded-2xl border border-white/5 bg-white/[0.05] p-3">
-      <div className="mb-2 flex items-center justify-between">
-        <span className="text-[#4da3ff]">{icon}</span>
-        <span className="text-[9px] text-white/35">{title}</span>
-      </div>
-      <div className="flex items-end gap-1">
-        <span className="text-base font-bold text-white">{value}</span>
-        <span className="mb-0.5 text-[9px] text-white/35">{unit}</span>
-      </div>
-    </div>
-  );
-}
 
 function DashboardPreview({ blocks, overrides = null }) {
   const line = (key, fallback) =>
@@ -291,7 +241,6 @@ function DashboardPreview({ blocks, overrides = null }) {
         [35, 42, 39, 50, 47, 63, 58, 72, 67, 82, 78, 92],
       );
   const bodyDelta = line("preview_body_delta", "+2.4%");
-  const panel = "rounded-2xl border border-white/5 bg-white/[0.05] p-4";
 
   return (
     <div className="relative mx-auto w-full max-w-[620px] py-6">
@@ -335,24 +284,18 @@ function DashboardPreview({ blocks, overrides = null }) {
 
       <div className="absolute -top-2 -left-5 hidden w-60 rounded-2xl bg-white p-4 shadow-2xl ring-1 ring-slate-100 sm:block">
         <div className="flex items-center gap-3">
-          {/* Avatar */}
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-50 text-sm font-bold text-[#007BFF]">
             م
           </div>
-
-          {/* Athlete Info */}
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <p className="truncate text-xs font-bold text-slate-800">
                 محمد رضایی
               </p>
-
-              {/* Completed Icon */}
               <div className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-green-500 text-white">
                 <Check size={11} strokeWidth={3} />
               </div>
             </div>
-
             <p className="mt-1 text-[10px] text-slate-400">
               تمرین امروز را تکمیل کرد
             </p>
@@ -365,23 +308,19 @@ function DashboardPreview({ blocks, overrides = null }) {
             <p className={`text-xs font-bold ${INK}`}>وضعیت شاگردان</p>
             <p className="text-[9px] text-slate-400">گزارش عملکرد هفتگی</p>
           </div>
-
           <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-50 text-[#007BFF]">
             <Users size={16} />
           </div>
         </div>
-
         <div className="mb-3 flex items-end justify-between">
           <div>
             <p className="text-2xl font-black text-slate-800">۸۴</p>
             <p className="text-[9px] text-slate-400">شاگرد فعال</p>
           </div>
-
           <span className="rounded-lg bg-green-50 px-2 py-1 text-[9px] font-bold text-green-600">
             +۱۲٪ رشد
           </span>
         </div>
-
         <div className="flex h-12 items-end gap-1.5">
           {[35, 55, 42, 75, 58, 90, 100].map((height, i) => (
             <div
@@ -396,22 +335,11 @@ function DashboardPreview({ blocks, overrides = null }) {
             </div>
           ))}
         </div>
-
-        <div className="mt-2 flex justify-between text-[8px] text-slate-400">
-          <span>شنبه</span>
-          <span>یکشنبه</span>
-          <span>دوشنبه</span>
-          <span>سه‌شنبه</span>
-          <span>چهارشنبه</span>
-          <span>پنجشنبه</span>
-          <span>جمعه</span>
-        </div>
       </div>
     </div>
   );
 }
 
-/* Hero visual: real product screenshot + floating cards; live/CMS preview when data exists */
 function HeroVisual({ blocks, overrides }) {
   const [failed, setFailed] = useState(false);
   const src = text(blocks, "preview_image", "/images/dash.png");
@@ -438,11 +366,7 @@ function HeroVisual({ blocks, overrides }) {
             {text(blocks, "hero_float_done", "مریم تمرین امروز را تمام کرد")}
           </b>
           <span className="text-slate-400">
-            {text(
-              blocks,
-              "hero_float_done_sub",
-              "روز پا · ۵۸ دقیقه · ۴۲۰ کالری",
-            )}
+            {text(blocks, "hero_float_done_sub", "روز پا · ۵۸ دقیقه · ۴۲۰ کالری")}
           </span>
         </span>
       </Float>
@@ -509,7 +433,7 @@ function HeroVisual({ blocks, overrides }) {
 }
 
 /* =========================
-   Features bento (live data plugged in)
+   Features
 ========================= */
 
 function Features({ blocks, sections, athleteLive, coachLive }) {
@@ -545,774 +469,532 @@ function Features({ blocks, sections, athleteLive, coachLive }) {
   const barColors = ["bg-[#007BFF]", "bg-sky-400", "bg-amber-400"];
 
   return (
-    <section
-      id="features"
-      style={regionStyle(sections, "features")}
-      className="mx-auto max-w-[1200px] px-5 py-24 lg:px-8"
+  <section
+  id="features"
+  style={regionStyle(sections, "features")}
+  className="mx-auto max-w-[1200px] px-5 py-24 lg:px-8"
+>
+  <FadeInUp className="mb-12">
+    <SecHead
+      eyebrow={text(blocks, "features_eyebrow", "امکانات فیتو")}
+      title={`${text(blocks, "features_title", "یک اکوسیستم کامل،")} ${text(blocks, "features_title_muted", "نه فقط یک برنامه‌ساز تمرین")}`}
+      lead={text(
+        blocks,
+        "features_lead",
+        "هر چیزی که برای مربیگری حرفه‌ای لازم دارید، به‌صورت یکپارچه و متصل به هم در اختیار شماست.",
+      )}
+    />
+  </FadeInUp>
+
+  <div className="grid gap-5 md:grid-cols-3">
+    {/* 1. مدیریت شاگردان - ۲ ستون */}
+    <div
+      id="coaches"
+      className={`${CARD} md:col-span-2 dark:border dark:border-slate-800 dark:bg-[--surface]`}
     >
-      <FadeInUp className="mb-12">
-        <SecHead
-          eyebrow={text(blocks, "features_eyebrow", "امکانات فیتو")}
-          title={`${text(blocks, "features_title", "یک اکوسیستم کامل،")} ${text(blocks, "features_title_muted", "نه فقط یک برنامه‌ساز تمرین")}`}
-          lead={text(
-            blocks,
-            "features_lead",
-            "هر چیزی که برای مربیگری حرفه‌ای لازم دارید، به‌صورت یکپارچه و متصل به هم در اختیار شماست.",
-          )}
-        />
-      </FadeInUp>
-
-      <div className="grid gap-5 md:grid-cols-3">
-        {/* مدیریت شاگردان */}
-
-        <div
-          id="coaches"
-          style={regionStyle(sections, "coaches")}
-          className={`${CARD} md:col-span-2 dark:border dark:border-slate-800 dark:bg-[--surface]`}
-        >
-          <div className="grid items-center gap-7 md:grid-cols-2">
-            {/* معرفی امکانات */}
-            <div className="space-y-5">
-              <FHead
-                icon="users"
-                title={text(blocks, "coaches_title", "مدیریت شاگردان")}
-                text={text(
-                  blocks,
-                  "coaches_lead",
-                  "همه‌ی شاگردان در یک داشبورد متمرکز؛ وضعیت، اهداف، پرداخت‌ها و میزان پایبندی هر نفر در یک نگاه.",
-                )}
-              />
-
-              <ul className="space-y-3 text-xs font-semibold text-slate-600 dark:text-slate-300">
-                {[
-                  "پروفایل کامل و سوابق هر شاگرد",
-                  "فیلتر بر اساس هدف و وضعیت",
-                  "هشدار خودکار برای شاگردان غیرفعال",
-                ].map((t) => (
-                  <li key={t} className="flex items-center gap-2.5">
-                    <span className="grid h-5 w-5 shrink-0 place-items-center rounded-lg bg-blue-50 text-[#007BFF] dark:bg-blue-500/15 dark:text-blue-400">
-                      <Ico n="check" s={11} />
-                    </span>
-                    {t}
-                  </li>
-                ))}
-              </ul>
-
-              <div className="flex items-center gap-3 rounded-xl border border-blue-100 bg-blue-50/70 p-3 dark:border-blue-900/50 dark:bg-blue-500/5">
-                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-blue-100 text-[#007BFF] dark:bg-blue-500/15 dark:text-blue-400">
-                  <Ico n="users" s={17} />
-                </span>
-                <div>
-                  <p className="text-[11px] font-extrabold text-slate-800 dark:text-slate-100">
-                    تمام شاگردانت، یک‌جا
-                  </p>
-                  <p className="mt-1 text-[10px] text-slate-500 dark:text-slate-400">
-                    مدیریت ساده‌تر، پیگیری دقیق‌تر
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* پیش‌نمایش پنل شاگردان */}
-            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900/70">
-              {/* Header */}
-              <div className="mb-4 flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-extrabold text-slate-800 dark:text-white">
-                    شاگردان من
-                  </p>
-                  <p className="mt-1 text-[10px] text-slate-400">
-                    مدیریت و پیگیری عملکرد
-                  </p>
-                </div>
-
-                <span className="flex items-center gap-1.5 rounded-xl bg-[#007BFF] px-3 py-2 text-[10px] font-bold text-white shadow-lg shadow-blue-500/20">
-                  <Ico n="plus" s={12} />
-                  شاگرد جدید
-                </span>
-              </div>
-
-              {/* Search */}
-              <div className="mb-3 flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-[10px] text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-500">
-                <Ico n="search" s={13} />
-                جستجوی شاگرد...
-                <span className="mr-auto rounded-md bg-slate-100 px-1.5 py-0.5 text-[9px] dark:bg-slate-700">
-                  <Ico n="sliders-horizontal" s={11} />
-                </span>
-              </div>
-
-              {/* Student list */}
-              <ul className="space-y-2">
-                {students.map((s) => {
-                  const ok = s.status !== "نیاز به بررسی";
-
-                  return (
-                    <li
-                      key={s.name}
-                      className="rounded-xl border border-slate-100 bg-white p-3 transition-colors hover:border-blue-200 dark:border-slate-700/80 dark:bg-slate-800/80 dark:hover:border-blue-500/40"
-                    >
-                      <div className="mb-2.5 flex items-center gap-2.5">
-                        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-blue-50 text-[10px] font-extrabold text-[#007BFF] dark:bg-blue-500/15 dark:text-blue-400">
-                          {/* {s.avatar} */}
-                          <img src={imgBody} alt="" />
-                        </span>
-
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-[11px] font-extrabold text-slate-800 dark:text-slate-100">
-                            {s.name}
-                          </p>
-                          <p className="mt-1 text-[9px] text-slate-400">
-                            میزان پیشرفت
-                          </p>
-                        </div>
-
-                        <span
-                          className={`shrink-0 rounded-lg px-2 py-1 text-[9px] font-bold ${
-                            ok
-                              ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400"
-                              : "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
-                          }`}
-                        >
-                          {s.status}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
-                          <div
-                            className={`h-full rounded-full ${
-                              ok ? "bg-[#007BFF]" : "bg-amber-400"
-                            }`}
-                            style={{ width: s.percent || "70%" }}
-                          />
-                        </div>
-                        <span className="w-8 text-left text-[9px] font-bold text-slate-500 dark:text-slate-400">
-                          {s.percent || "70%"}
-                        </span>
-                      </div>
-                    </li>
-                  );
-                })}
-
-                {coachLive && students.length === 0 && (
-                  <li className="rounded-xl border border-dashed border-slate-300 py-8 text-center dark:border-slate-700">
-                    <span className="mx-auto mb-2 grid h-9 w-9 place-items-center rounded-xl bg-slate-100 text-slate-400 dark:bg-slate-800">
-                      <Ico n="users" s={17} />
-                    </span>
-                    <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
-                      شاگردی ثبت نشده
-                    </p>
-                  </li>
-                )}
-              </ul>
-
-              {/* Footer */}
-              <div className="mt-3 flex items-center justify-between border-t border-slate-200 pt-3 dark:border-slate-700">
-                <span className="text-[9px] text-slate-400">وضعیت شاگردان</span>
-                <span className="flex items-center gap-1 text-[9px] font-bold text-emerald-600 dark:text-emerald-400">
-                  <Ico n="activity" s={12} />
-                  پیگیری عملکرد
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* طراحی برنامه تمرینی */}
-        <div
-          id="workout"
-          style={regionStyle(sections, "workout")}
-          className={`${CARD} dark:border dark:border-slate-800 dark:bg-[--surface]`}
-        >
+      <div className="grid items-center gap-7 md:grid-cols-2">
+        <div className="space-y-5">
           <FHead
-            icon="dumbbell"
-            title="طراحی برنامه تمرینی"
+            icon="users"
+            title={text(blocks, "coaches_title", "مدیریت شاگردان")}
             text={text(
               blocks,
-              "workout_lead",
-              "برنامه‌های حرفه‌ای را بسازید، شخصی‌سازی کنید و با یک کلیک برای شاگرد ارسال کنید.",
+              "coaches_lead",
+              "همه‌ی شاگردان در یک داشبورد متمرکز؛ وضعیت، اهداف، پرداخت‌ها و میزان پایبندی هر نفر در یک نگاه.",
             )}
           />
-
-          {/* Days */}
-          <div className="mb-4 flex gap-2">
-            {["شنبه", "یکشنبه", "دوشنبه"].map((d, i) => (
-              <span
-                key={d}
-                className={`flex-1 rounded-xl px-2 py-2.5 text-center text-[10px] font-bold transition-colors ${
-                  i === 0
-                    ? "bg-[#007BFF] text-white shadow-md shadow-blue-500/20"
-                    : "border border-slate-100 bg-slate-50 text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400"
-                }`}
-              >
-                {d}
-              </span>
+          <ul className="space-y-3 text-xs font-semibold text-slate-600 dark:text-slate-300">
+            {[
+              "پروفایل کامل و سوابق هر شاگرد",
+              "فیلتر بر اساس هدف و وضعیت",
+              "هشدار خودکار برای شاگردان غیرفعال",
+            ].map((t) => (
+              <li key={t} className="flex items-center gap-2.5">
+                <span className="grid h-5 w-5 shrink-0 place-items-center rounded-lg bg-blue-50 text-[#007BFF] dark:bg-blue-500/15 dark:text-blue-400">
+                  <Ico n="check" s={11} />
+                </span>
+                {t}
+              </li>
             ))}
-          </div>
-
-          {/* Workout Header */}
-          <div className="mb-3 flex items-center justify-between">
+          </ul>
+          <div className="flex items-center gap-3 rounded-xl border border-blue-100 bg-blue-50/70 p-3 dark:border-blue-900/50 dark:bg-blue-500/5">
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-blue-100 text-[#007BFF] dark:bg-blue-500/15 dark:text-blue-400">
+              <Ico n="users" s={17} />
+            </span>
             <div>
-              <b className="text-xs text-slate-800 dark:text-white">
-                برنامه تمرینی
-              </b>
-              <p className="mt-1 text-[9px] text-slate-400">تمرینات روز شنبه</p>
+              <p className="text-[11px] font-extrabold text-slate-800 dark:text-slate-100">
+                تمام شاگردانت، یک‌جا
+              </p>
+              <p className="mt-1 text-[10px] text-slate-500 dark:text-slate-400">
+                مدیریت ساده‌تر، پیگیری دقیق‌تر
+              </p>
             </div>
+          </div>
+        </div>
 
-            <span className="rounded-lg bg-blue-50 px-2 py-1 text-[9px] font-bold text-[#007BFF] dark:bg-blue-950/40 dark:text-blue-400">
-              {exercises.length} حرکت
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900/70">
+          <div className="mb-4 flex items-center justify-between">
+            <div>
+              <p className="text-xs font-extrabold text-slate-800 dark:text-white">
+                شاگردان من
+              </p>
+              <p className="mt-1 text-[10px] text-slate-400">
+                مدیریت و پیگیری عملکرد
+              </p>
+            </div>
+            <span className="flex items-center gap-1.5 rounded-xl bg-[#007BFF] px-3 py-2 text-[10px] font-bold text-white shadow-lg shadow-blue-500/20">
+              <Ico n="plus" s={12} />
+              شاگرد جدید
             </span>
           </div>
 
-          {/* Exercises */}
-          <div className="space-y-2">
-            {exercises.map((e, i) => (
-              <div
-                key={e.name}
-                className="group flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 p-3 transition-all hover:border-blue-200 hover:bg-blue-50/50 dark:border-slate-800 dark:bg-slate-900/70 dark:hover:border-blue-900 dark:hover:bg-blue-950/20"
-              >
-                <div className="flex min-w-0 items-center gap-3">
-                  <div
-                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
-                      i === 0
-                        ? "bg-blue-100 text-[#007BFF] dark:bg-blue-950/60 dark:text-blue-400"
-                        : "bg-slate-200/70 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
-                    }`}
-                  >
-                    {/* <Ico n="dumbbell" s={19} /> */}
-                    <img src={imgBody} alt="" />
-                  </div>
+          <div className="mb-3 flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-[10px] text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-500">
+            <Ico n="search" s={13} />
+            جستجوی شاگرد...
+            <span className="mr-auto rounded-md bg-slate-100 px-1.5 py-0.5 text-[9px] dark:bg-slate-700">
+              <Ico n="sliders-horizontal" s={11} />
+            </span>
+          </div>
 
-                  <div className="min-w-0">
-                    <b className="block truncate text-xs text-slate-800 dark:text-white">
-                      {e.name}
-                    </b>
-
-                    <span className="mt-1 block text-[10px] text-slate-400">
-                      {e.sets}
+          <ul className="space-y-2">
+            {students.map((s) => {
+              const ok = s.status !== "نیاز به بررسی";
+              return (
+                <li
+                  key={s.name}
+                  className="rounded-xl border border-slate-100 bg-white p-3 transition-colors hover:border-blue-200 dark:border-slate-700/80 dark:bg-slate-800/80 dark:hover:border-blue-500/40"
+                >
+                  <div className="mb-2.5 flex items-center gap-2.5">
+                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-blue-50 text-[10px] font-extrabold text-[#007BFF] dark:bg-blue-500/15 dark:text-blue-400">
+                      <img src={imgBody} alt="" />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[11px] font-extrabold text-slate-800 dark:text-slate-100">
+                        {s.name}
+                      </p>
+                      <p className="mt-1 text-[9px] text-slate-400">
+                        میزان پیشرفت
+                      </p>
+                    </div>
+                    <span
+                      className={`shrink-0 rounded-lg px-2 py-1 text-[9px] font-bold ${
+                        ok
+                          ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400"
+                          : "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
+                      }`}
+                    >
+                      {s.status}
                     </span>
                   </div>
-                </div>
-
-                <Ico
-                  n="chevron-left"
-                  s={15}
-                  className="shrink-0 text-slate-300 transition-colors group-hover:text-[#007BFF]"
-                />
-              </div>
-            ))}
-          </div>
-
-          {/* Add Exercise */}
-          <div className="mt-3 flex items-center justify-center gap-2 rounded-xl border border-dashed border-blue-300 bg-blue-50/40 py-3 text-[10px] font-bold text-[#007BFF] transition-colors hover:bg-blue-50 dark:border-blue-900/60 dark:bg-blue-950/20 dark:text-blue-400 dark:hover:bg-blue-950/40">
-            <Ico n="plus" s={15} />
-            افزودن تمرین
-          </div>
-
-          {/* Footer */}
-          <div className="mt-4 flex items-center justify-between rounded-xl bg-[#0b1530] px-3 py-3 dark:bg-slate-900 dark:ring-1 dark:ring-slate-700">
-            <div className="flex items-center gap-2">
-              <Ico n="check-circle" s={16} className="text-emerald-400" />
-              <span className="text-[10px] font-medium text-slate-200">
-                برنامه آماده ارسال است
-              </span>
-            </div>
-
-            <span className="text-[10px] font-bold text-blue-400">Fito</span>
-          </div>
-        </div>
-
-        {/* برنامه تغذیه */}
-        <div
-          id="nutrition"
-          style={regionStyle(sections, "nutrition")}
-          className={`${CARD} dark:border dark:border-slate-800 dark:bg-[--surface]`}
-        >
-          <FHead
-            icon="apple"
-            title="برنامه تغذیه"
-            text={text(
-              blocks,
-              "nutrition_lead",
-              "برنامه غذایی شخصی‌سازی‌شده بسازید و کالری و درشت‌مغذی‌های روزانه را دنبال کنید.",
-            )}
-          />
-
-          {/* Nutrition Summary */}
-          <div className="rounded-2xl border border-slate-100 bg-gradient-to-br from-blue-50/70 via-white to-sky-50/50 p-4 dark:border-slate-800 dark:from-blue-950/30 dark:via-slate-900 dark:to-slate-950">
-            <div className="mb-4 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-100 text-[#007BFF] dark:bg-blue-950/60 dark:text-blue-400">
-                  <Ico n="utensils" s={16} />
-                </div>
-                <div>
-                  <b className="block text-xs text-slate-800 dark:text-white">
-                    کالری روزانه
-                  </b>
-                  <span className="text-[9px] text-slate-400">
-                    میزان مصرف امروز
-                  </span>
-                </div>
-              </div>
-
-              <span className="rounded-full bg-emerald-50 px-2 py-1 text-[9px] font-bold text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
-                <Ico n="activity" s={11} className="me-1 inline" />
-                ۷۷٪ تکمیل
-              </span>
-            </div>
-
-            <div className="flex items-center gap-5">
-              <div className="shrink-0">
-                <Ring v={77} size={88}>
-                  <div className="text-center">
-                    <b
-                      dir="ltr"
-                      className="block text-sm font-black text-slate-800 dark:text-white"
-                    >
-                      {athleteLive?.kcalLabel ||
-                        text(blocks, "nutrition_card_value", "1,850")}
-                    </b>
-                    <span className="text-[8px] text-slate-400">kcal</span>
-                  </div>
-                </Ring>
-              </div>
-
-              <div className="min-w-0 flex-1 space-y-3">
-                {macros.map((m, i) => {
-                  const colors = [
-                    {
-                      dot: "bg-blue-500",
-                      text: "text-blue-600 dark:text-blue-400",
-                    },
-                    {
-                      dot: "bg-emerald-500",
-                      text: "text-emerald-600 dark:text-emerald-400",
-                    },
-                    {
-                      dot: "bg-amber-500",
-                      text: "text-amber-600 dark:text-amber-400",
-                    },
-                  ][i % 3];
-
-                  return (
-                    <div key={m.label}>
-                      <div className="mb-1 flex items-center justify-between gap-2">
-                        <span className="flex items-center gap-1.5 text-[10px] text-slate-500 dark:text-slate-400">
-                          <span
-                            className={`h-2 w-2 rounded-full ${colors.dot}`}
-                          />
-                          {m.label}
-                        </span>
-
-                        <b className={`text-[10px] ${colors.text}`}>
-                          {m.percent}%
-                        </b>
-                      </div>
-
-                      <Bar w={m.percent} c={barColors[i % 3]} />
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
-          {/* Footer */}
-          <div className="mt-3 flex items-center gap-2 rounded-xl bg-emerald-50/70 px-3 py-2.5 dark:bg-emerald-950/20">
-            <Ico
-              n="check-circle"
-              s={15}
-              className="shrink-0 text-emerald-500"
-            />
-            <span className="text-[10px] leading-5 text-emerald-700 dark:text-emerald-400">
-              برنامه غذایی متناسب با اهداف شاگرد تنظیم شده است.
-            </span>
-          </div>
-        </div>
-
-        {/* آنالیز بدن */}
-        <div
-          className={`${CARD} dark:border dark:border-slate-800 dark:bg-[--surface]`}
-        >
-          <FHead
-            icon="scan"
-            title="آنالیز بدن"
-            text="اندازه‌های ترکیب بدنی و پیشرفت ظاهری را با عکس‌های دوره‌ای ثبت و مقایسه کنید."
-          />
-
-          <div className="relative grid h-40 place-items-center overflow-hidden rounded-2xl border border-blue-100/70 bg-gradient-to-br from-blue-50 via-white to-sky-50 dark:border-blue-900/40 dark:from-blue-950/40 dark:via-slate-900 dark:to-slate-950">
-            {/* Background decoration */}
-            <div className="absolute h-32 w-32 rounded-full bg-blue-200/30 blur-2xl dark:bg-blue-500/10" />
-
-            <img
-              src={ImgAnatomi}
-              alt="آنالیز بدن"
-              className="relative z-10 h-36 drop-shadow-lg"
-            />
-
-            {/* Body scan points */}
-            {[
-              [-20, 40],
-              [20, 40],
-              [-10, 112],
-              [10, 112],
-            ].map(([dx, dy]) => (
-              <i
-                key={`${dx}${dy}`}
-                className="absolute z-20 h-2.5 w-2.5 rounded-full border-2 border-white bg-[#007BFF] shadow-[0_0_12px_#007BFF] dark:border-slate-900"
-                style={{
-                  left: `calc(50% + ${dx}px)`,
-                  top: dy,
-                }}
-              />
-            ))}
-
-            {/* Body fat */}
-            <span className="absolute right-3 top-3 z-20 flex items-center gap-1.5 rounded-xl border border-slate-100 bg-white/95 px-2.5 py-1.5 text-[10px] font-bold text-[#0b1530] shadow-sm backdrop-blur dark:border-slate-700 dark:bg-slate-800/95 dark:text-white">
-              <Activity size={13} className="text-[#007BFF]" />
-              18.6٪ چربی
-            </span>
-
-            {/* Weight */}
-            <span className="absolute bottom-3 left-3 z-20 flex items-center gap-1.5 rounded-xl border border-slate-100 bg-white/95 px-2.5 py-1.5 text-[10px] font-bold text-[#0b1530] shadow-sm backdrop-blur dark:border-slate-700 dark:bg-slate-800/95 dark:text-white">
-              <Weight size={13} className="text-emerald-500" />
-              78.4 kg
-            </span>
-
-            {/* Scan label */}
-            <span className="absolute bottom-3 right-3 z-20 rounded-lg bg-blue-100/80 px-2 py-1 text-[9px] font-bold text-blue-700 dark:bg-blue-950/80 dark:text-blue-300">
-              Body Scan
-            </span>
-          </div>
-        </div>
-
-        {/* گزارش پیشرفت */}
-        <div
-          className={`${CARD} dark:border dark:border-slate-800 dark:bg-[--surface]`}
-        >
-          <FHead
-            icon="trend"
-            title="گزارش پیشرفت"
-            text="نمودارها و آمار تصویری برای پایش دقیق روند رشد هر شاگرد در طول زمان."
-          />
-
-          <div className="relative overflow-hidden rounded-2xl border border-blue-100/70 bg-gradient-to-br from-blue-50 via-white to-sky-50 p-4 dark:border-blue-900/40 dark:from-blue-950/40 dark:via-slate-900 dark:to-slate-950">
-            {/* Header */}
-            <div className="mb-3 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-100 text-[#007BFF] dark:bg-blue-900/50 dark:text-blue-400">
-                  <TrendingUp size={16} />
-                </div>
-                <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400">
-                  روند تغییرات وزن
-                </span>
-              </div>
-
-              <span className="rounded-full bg-emerald-50 px-2 py-1 text-[9px] font-bold text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
-                <TrendingUp size={11} className="me-1 inline" />
-                روند صعودی
-              </span>
-            </div>
-
-            {/* Main Value */}
-            <div className="mb-2 flex items-end justify-between">
-              <div>
-                <b
-                  dir="ltr"
-                  className="block text-2xl font-black text-slate-900 dark:text-white"
-                >
-                  {athleteLive?.bodyValue || "125 kg"}
-                </b>
-                <span className="text-[9px] text-slate-400">
-                  آخرین اندازه‌گیری
-                </span>
-              </div>
-
-              <span className="text-[10px] font-semibold text-[#007BFF]">
-                گزارش هفتگی
-              </span>
-            </div>
-
-            {/* Chart */}
-            <svg viewBox="0 0 200 80" className="w-full overflow-visible">
-              <defs>
-                <linearGradient
-                  id="progressGradient"
-                  x1="0"
-                  y1="0"
-                  x2="0"
-                  y2="1"
-                >
-                  <stop offset="0%" stopColor="#007BFF" stopOpacity=".3" />
-                  <stop offset="100%" stopColor="#007BFF" stopOpacity="0" />
-                </linearGradient>
-              </defs>
-
-              {[20, 40, 60].map((y) => (
-                <line
-                  key={y}
-                  x1="0"
-                  y1={y}
-                  x2="200"
-                  y2={y}
-                  stroke="currentColor"
-                  strokeOpacity=".08"
-                  strokeDasharray="3 4"
-                />
-              ))}
-
-              <polygon
-                points="0,70 0,60 30,52 60,56 90,40 120,32 150,22 200,6 200,70"
-                fill="url(#progressGradient)"
-              />
-
-              <polyline
-                points="0,60 30,52 60,56 90,40 120,32 150,22 200,6"
-                fill="none"
-                stroke="#007BFF"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-
-              <circle
-                cx="200"
-                cy="6"
-                r="4"
-                fill="#007BFF"
-                stroke="white"
-                strokeWidth="2"
-              />
-            </svg>
-
-            {/* Footer */}
-            <div className="mt-2 flex justify-between text-[9px] font-medium text-slate-400">
-              <span>شروع</span>
-              <span>هفته دوم</span>
-              <span>هفته چهارم</span>
-              <span>اکنون</span>
-            </div>
-          </div>
-        </div>
-
-        {/* ارتباط مستقیم */}
-        <div
-          className={`${CARD} dark:border dark:border-slate-800 dark:bg-[--surface]`}
-        >
-          <FHead
-            icon="chat"
-            title="ارتباط مستقیم"
-            text="گفتگوی داخلی بین مربی و شاگرد، بدون نیاز به پیام‌رسان‌های بیرونی."
-          />
-
-          <div className="space-y-3">
-            {[
-              {
-                sender: "coach",
-                name: "مربی",
-                message: "امروز تمرین سینه چطور پیش رفت؟",
-                time: "۱۰:۳۰",
-              },
-              {
-                sender: "athlete",
-                name: "شاگرد",
-                message: "عالی بود، فقط ست آخر دمبل کمی سنگین بود.",
-                time: "۱۰:۳۲",
-              },
-              {
-                sender: "coach",
-                name: "مربی",
-                message: "دفعه بعد ۲ کیلو کمتر بزن و روی تکنیک تمرکز کن.",
-                time: "۱۰:۳۳",
-              },
-              {
-                sender: "athlete",
-                name: "شاگرد",
-                message: "حتماً مربی، ممنون از راهنماییت 🙌",
-                time: "۱۰:۳۴",
-              },
-            ].map((item, index) => {
-              const isCoach = item.sender === "coach";
-
-              return (
-                <div
-                  key={index}
-                  className={`flex ${isCoach ? "justify-start" : "justify-end"}`}
-                >
-                  <div
-                    className={`max-w-[88%] rounded-2xl px-3 py-2.5 ${
-                      isCoach
-                        ? "rounded-se-sm bg-blue-50 text-slate-700 dark:bg-blue-950/40 dark:text-slate-200"
-                        : "rounded-ss-sm bg-[#007BFF] text-white"
-                    }`}
-                  >
-                    <div className="mb-1 flex items-center justify-between gap-5">
-                      <span
-                        className={`text-[9px] font-bold ${
-                          isCoach
-                            ? "text-[#007BFF] dark:text-blue-400"
-                            : "text-blue-100"
+                  <div className="flex items-center gap-2">
+                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
+                      <div
+                        className={`h-full rounded-full ${
+                          ok ? "bg-[#007BFF]" : "bg-amber-400"
                         }`}
-                      >
-                        {item.name}
-                      </span>
-
-                      <span
-                        className={`text-[8px] ${
-                          isCoach
-                            ? "text-slate-400 dark:text-slate-500"
-                            : "text-blue-100"
-                        }`}
-                      >
-                        {item.time}
-                      </span>
+                        style={{ width: s.percent || "70%" }}
+                      />
                     </div>
-
-                    <p className="text-[11px] leading-6">{item.message}</p>
+                    <span className="w-8 text-left text-[9px] font-bold text-slate-500 dark:text-slate-400">
+                      {s.percent || "70%"}
+                    </span>
                   </div>
-                </div>
+                </li>
               );
             })}
-
-            {/* Message Input Preview */}
-            <div className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5 dark:border-slate-700 dark:bg-slate-900">
-              <span className="text-[10px] text-slate-400">
-                پیام خود را بنویسید...
-              </span>
-              <Ico n="send" s={15} className="text-[#007BFF]" />
-            </div>
-          </div>
-        </div>
-
-        {/* دستیار هوشمند AI */}
-      
-<div
-  style={regionStyle(sections, "ai")}
-  className="relative isolate overflow-hidden rounded-3xl border border-blue-900/40 bg-gradient-to-br from-[#0b1530] via-[#10234b] to-[#0b2a6b] p-6 text-white shadow-xl shadow-blue-950/10 md:col-span-2"
->
-  {/* Background effects */}
-  <div className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-blue-500/20 blur-3xl" />
-  <div className="pointer-events-none absolute -bottom-24 -left-20 h-64 w-64 rounded-full bg-cyan-400/10 blur-3xl" />
-
-  <div className="relative grid items-center gap-7 md:grid-cols-[0.8fr_1.2fr]">
-    {/* Robot image */}
-    <div className="relative flex items-center justify-center">
-      <div className="absolute h-44 w-44 rounded-full bg-blue-500/20 blur-3xl" />
-
-      <img
-        src={FitoImgCoach}
-        alt="دستیار هوشمند فیتو"
-        loading="lazy"
-        className="relative mx-auto max-w-[250px] drop-shadow-[0_0_20px_rgba(59,130,246,0.35)] [mask-image:radial-gradient(closest-side,#000_80%,transparent)]"
-      />
-
-      <span className="absolute bottom-2 left-1/2 flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 text-[9px] font-bold text-emerald-300 backdrop-blur-md">
-        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
-        Fito AI Online
-      </span>
-    </div>
-
-    {/* AI content */}
-    <div className="space-y-5">
-      <FHead
-        dark
-        icon="bolt"
-        title={text(blocks, "ai_name", "دستیار هوشمند AI")}
-        text={text(
-          blocks,
-          "ai_lead",
-          "دستیار هوشمند فیتو داده‌های تمرین، تغذیه و آنالیز بدن را تحلیل می‌کند و پیشنهاد عملی برای هر شاگرد می‌دهد.",
-        )}
-      />
-
-      {/* Chat preview */}
-      <div className="space-y-3">
-        {/* Coach message */}
-        <div className="flex items-start gap-2.5">
-          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/10 text-blue-300">
-            <Ico n="user-round" s={15} />
-          </span>
-
-          <div className="min-w-0 flex-1 rounded-2xl rounded-tr-sm border border-white/10 bg-white/[0.06] p-3">
-            <div className="mb-1.5 flex items-center gap-2">
-              <span className="text-[10px] font-bold text-blue-300">
-                مربی
-              </span>
-              <span className="text-[9px] text-slate-500">
-                پیام جدید
-              </span>
-            </div>
-
-            <p className="text-xs leading-6 text-slate-200">
-              {text(
-                blocks,
-                "ai_user",
-                "⚠ رضا ۳ روز است تمرین ثبت نکرده؛ پیام یادآوری بفرستم؟",
-              )}
-            </p>
-          </div>
-        </div>
-
-        {/* AI response */}
-        <div className="flex items-start gap-2.5">
-          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl border border-blue-400/20 bg-blue-500/20 text-blue-300">
-            <Ico n="bot" s={16} />
-          </span>
-
-          <div className="min-w-0 flex-1 rounded-2xl rounded-tl-sm border border-blue-400/20 bg-blue-500/10 p-3">
-            <div className="mb-1.5 flex items-center gap-2">
-              <span className="text-[10px] font-bold text-blue-300">
-                فیتو AI
-              </span>
-              <Ico n="sparkles" s={11} className="text-cyan-300" />
-            </div>
-
-            <p className="text-xs leading-6 text-slate-200">
-              {text(
-                blocks,
-                "ai_reply",
-                "پیشرفت مریم برای این هفته ۱۵٪ بیشتر از هفته قبل است.",
-              )}
-            </p>
-          </div>
-        </div>
-
-        {/* Input preview */}
-        <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.07] p-3 transition hover:border-blue-400/40">
-          <Ico n="message-circle" s={16} className="text-slate-400" />
-
-          <span className="flex-1 text-xs text-slate-400">
-            {text(blocks, "ai_placeholder", "از من هر چیزی بپرس…")}
-          </span>
-
-          <span className="grid h-8 w-8 place-items-center rounded-xl bg-[#007BFF] text-white shadow-lg shadow-blue-500/20">
-            <Ico n="send" s={14} />
-          </span>
+          </ul>
         </div>
       </div>
+    </div>
 
-      {/* Bottom feature labels */}
-      <div className="flex flex-wrap gap-2">
-        {[
-          { icon: "activity", label: "تحلیل عملکرد" },
-          { icon: "utensils", label: "تحلیل تغذیه" },
-          { icon: "brain", label: "پیشنهاد هوشمند" },
-        ].map((item) => (
+    {/* 2. طراحی برنامه تمرینی - ۱ ستون */}
+    <div
+      id="workout"
+      className={`${CARD} dark:border dark:border-slate-800 dark:bg-[--surface]`}
+    >
+      <FHead
+        icon="dumbbell"
+        title="طراحی برنامه تمرینی"
+        text={text(
+          blocks,
+          "workout_lead",
+          "برنامه‌های حرفه‌ای را بسازید، شخصی‌سازی کنید و با یک کلیک برای شاگرد ارسال کنید.",
+        )}
+      />
+      <div className="mb-4 flex gap-2">
+        {["شنبه", "یکشنبه", "دوشنبه"].map((d, i) => (
           <span
-            key={item.label}
-            className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-2 text-[9px] font-semibold text-slate-300"
+            key={d}
+            className={`flex-1 rounded-xl px-2 py-2.5 text-center text-[10px] font-bold transition-colors ${
+              i === 0
+                ? "bg-[#007BFF] text-white shadow-md shadow-blue-500/20"
+                : "border border-slate-100 bg-slate-50 text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400"
+            }`}
           >
-            <Ico n={item.icon} s={12} className="text-blue-300" />
-            {item.label}
+            {d}
           </span>
         ))}
       </div>
+      <div className="mb-3 flex items-center justify-between">
+        <div>
+          <b className="text-xs text-slate-800 dark:text-white">
+            برنامه تمرینی
+          </b>
+          <p className="mt-1 text-[9px] text-slate-400">تمرینات روز شنبه</p>
+        </div>
+        <span className="rounded-lg bg-blue-50 px-2 py-1 text-[9px] font-bold text-[#007BFF] dark:bg-blue-950/40 dark:text-blue-400">
+          {exercises.length} حرکت
+        </span>
+      </div>
+      <div className="space-y-2">
+        {exercises.map((e, i) => (
+          <div
+            key={e.name}
+            className="group flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 p-3 transition-all hover:border-blue-200 hover:bg-blue-50/50 dark:border-slate-800 dark:bg-slate-900/70 dark:hover:border-blue-900 dark:hover:bg-blue-950/20"
+          >
+            <div className="flex min-w-0 items-center gap-3">
+              <div
+                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
+                  i === 0
+                    ? "bg-blue-100 text-[#007BFF] dark:bg-blue-950/60 dark:text-blue-400"
+                    : "bg-slate-200/70 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                }`}
+              >
+                <img src={imgBody} alt="" />
+              </div>
+              <div className="min-w-0">
+                <b className="block truncate text-xs text-slate-800 dark:text-white">
+                  {e.name}
+                </b>
+                <span className="mt-1 block text-[10px] text-slate-400">
+                  {e.sets}
+                </span>
+              </div>
+            </div>
+            <Ico
+              n="chevron-left"
+              s={15}
+              className="shrink-0 text-slate-300 transition-colors group-hover:text-[#007BFF]"
+            />
+          </div>
+        ))}
+      </div>
+      <div className="mt-3 flex items-center justify-center gap-2 rounded-xl border border-dashed border-blue-300 bg-blue-50/40 py-3 text-[10px] font-bold text-[#007BFF] transition-colors hover:bg-blue-50 dark:border-blue-900/60 dark:bg-blue-950/20 dark:text-blue-400 dark:hover:bg-blue-950/40">
+        <Ico n="plus" s={15} />
+        افزودن تمرین
+      </div>
+      <div className="mt-4 flex items-center justify-between rounded-xl bg-[#0b1530] px-3 py-3 dark:bg-slate-900 dark:ring-1 dark:ring-slate-700">
+        <div className="flex items-center gap-2">
+          <Ico n="check-circle" s={16} className="text-emerald-400" />
+          <span className="text-[10px] font-medium text-slate-200">
+            برنامه آماده ارسال است
+          </span>
+        </div>
+        <span className="text-[10px] font-bold text-blue-400">Fito</span>
+      </div>
+    </div>
+
+    {/* 3. برنامه تغذیه - ۱ ستون */}
+    <div
+      id="nutrition"
+      className={`${CARD} dark:border dark:border-slate-800 dark:bg-[--surface]`}
+    >
+      <FHead
+        icon="apple"
+        title="برنامه تغذیه"
+        text={text(
+          blocks,
+          "nutrition_lead",
+          "برنامه غذایی شخصی‌سازی‌شده بسازید و کالری و درشت‌مغذی‌های روزانه را دنبال کنید.",
+        )}
+      />
+      <div className="rounded-2xl border border-slate-100 bg-gradient-to-br from-blue-50/70 via-white to-sky-50/50 p-4 dark:border-slate-800 dark:from-blue-950/30 dark:via-slate-900 dark:to-slate-950">
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-100 text-[#007BFF] dark:bg-blue-950/60 dark:text-blue-400">
+              <Ico n="utensils" s={16} />
+            </div>
+            <div>
+              <b className="block text-xs text-slate-800 dark:text-white">
+                کالری روزانه
+              </b>
+              <span className="text-[9px] text-slate-400">
+                میزان مصرف امروز
+              </span>
+            </div>
+          </div>
+          <span className="rounded-full bg-emerald-50 px-2 py-1 text-[9px] font-bold text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
+            <Ico n="activity" s={11} className="me-1 inline" />
+            ۷۷٪ تکمیل
+          </span>
+        </div>
+        <div className="flex items-center gap-5">
+          <div className="shrink-0">
+            <Ring v={77} size={88}>
+              <div className="text-center">
+                <b
+                  dir="ltr"
+                  className="block text-sm font-black text-slate-800 dark:text-white"
+                >
+                  {athleteLive?.kcalLabel ||
+                    text(blocks, "nutrition_card_value", "1,850")}
+                </b>
+                <span className="text-[8px] text-slate-400">kcal</span>
+              </div>
+            </Ring>
+          </div>
+          <div className="min-w-0 flex-1 space-y-3">
+            {macros.map((m, i) => {
+              const colors = [
+                { dot: "bg-blue-500", text: "text-blue-600 dark:text-blue-400" },
+                { dot: "bg-emerald-500", text: "text-emerald-600 dark:text-emerald-400" },
+                { dot: "bg-amber-500", text: "text-amber-600 dark:text-amber-400" },
+              ][i % 3];
+              return (
+                <div key={m.label}>
+                  <div className="mb-1 flex items-center justify-between gap-2">
+                    <span className="flex items-center gap-1.5 text-[10px] text-slate-500 dark:text-slate-400">
+                      <span className={`h-2 w-2 rounded-full ${colors.dot}`} />
+                      {m.label}
+                    </span>
+                    <b className={`text-[10px] ${colors.text}`}>
+                      {m.percent}%
+                    </b>
+                  </div>
+                  <Bar w={m.percent} c={barColors[i % 3]} />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+      <div className="mt-3 flex items-center gap-2 rounded-xl bg-emerald-50/70 px-3 py-2.5 dark:bg-emerald-950/20">
+        <Ico n="check-circle" s={15} className="shrink-0 text-emerald-500" />
+        <span className="text-[10px] leading-5 text-emerald-700 dark:text-emerald-400">
+          برنامه غذایی متناسب با اهداف شاگرد تنظیم شده است.
+        </span>
+      </div>
+    </div>
+
+    {/* 4. آنالیز بدن - ۱ ستون */}
+    <div className={`${CARD} dark:border dark:border-slate-800 dark:bg-[--surface]`}>
+      <FHead
+        icon="scan"
+        title="آنالیز بدن"
+        text="اندازه‌های ترکیب بدنی و پیشرفت ظاهری را با عکس‌های دوره‌ای ثبت و مقایسه کنید."
+      />
+      <div className="relative grid h-40 place-items-center overflow-hidden rounded-2xl border border-blue-100/70 bg-gradient-to-br from-blue-50 via-white to-sky-50 dark:border-blue-900/40 dark:from-blue-950/40 dark:via-slate-900 dark:to-slate-950">
+        <div className="absolute h-32 w-32 rounded-full bg-blue-200/30 blur-2xl dark:bg-blue-500/10" />
+        <img src={ImgAnatomi} alt="آنالیز بدن" className="relative z-10 h-36 drop-shadow-lg" />
+        {[[-20, 40], [20, 40], [-10, 112], [10, 112]].map(([dx, dy]) => (
+          <i
+            key={`${dx}${dy}`}
+            className="absolute z-20 h-2.5 w-2.5 rounded-full border-2 border-white bg-[#007BFF] shadow-[0_0_12px_#007BFF] dark:border-slate-900"
+            style={{ left: `calc(50% + ${dx}px)`, top: dy }}
+          />
+        ))}
+        <span className="absolute right-3 top-3 z-20 flex items-center gap-1.5 rounded-xl border border-slate-100 bg-white/95 px-2.5 py-1.5 text-[10px] font-bold text-[#0b1530] shadow-sm backdrop-blur dark:border-slate-700 dark:bg-slate-800/95 dark:text-white">
+          <Activity size={13} className="text-[#007BFF]" />
+          18.6٪ چربی
+        </span>
+        <span className="absolute bottom-3 left-3 z-20 flex items-center gap-1.5 rounded-xl border border-slate-100 bg-white/95 px-2.5 py-1.5 text-[10px] font-bold text-[#0b1530] shadow-sm backdrop-blur dark:border-slate-700 dark:bg-slate-800/95 dark:text-white">
+          <Weight size={13} className="text-emerald-500" />
+          78.4 kg
+        </span>
+        <span className="absolute bottom-3 right-3 z-20 rounded-lg bg-blue-100/80 px-2 py-1 text-[9px] font-bold text-blue-700 dark:bg-blue-950/80 dark:text-blue-300">
+          Body Scan
+        </span>
+      </div>
+    </div>
+
+    {/* 5. گزارش پیشرفت - ۱ ستون */}
+    <div className={`${CARD} dark:border dark:border-slate-800 dark:bg-[--surface]`}>
+      <FHead
+        icon="trend"
+        title="گزارش پیشرفت"
+        text="نمودارها و آمار تصویری برای پایش دقیق روند رشد هر شاگرد در طول زمان."
+      />
+      <div className="relative overflow-hidden rounded-2xl border border-blue-100/70 bg-gradient-to-br from-blue-50 via-white to-sky-50 p-4 dark:border-blue-900/40 dark:from-blue-950/40 dark:via-slate-900 dark:to-slate-950">
+        <div className="mb-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-100 text-[#007BFF] dark:bg-blue-900/50 dark:text-blue-400">
+              <TrendingUp size={16} />
+            </div>
+            <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400">
+              روند تغییرات وزن
+            </span>
+          </div>
+          <span className="rounded-full bg-emerald-50 px-2 py-1 text-[9px] font-bold text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
+            <TrendingUp size={11} className="me-1 inline" />
+            روند صعودی
+          </span>
+        </div>
+        <div className="mb-2 flex items-end justify-between">
+          <div>
+            <b dir="ltr" className="block text-2xl font-black text-slate-900 dark:text-white">
+              {athleteLive?.bodyValue || "125 kg"}
+            </b>
+            <span className="text-[9px] text-slate-400">آخرین اندازه‌گیری</span>
+          </div>
+          <span className="text-[10px] font-semibold text-[#007BFF]">گزارش هفتگی</span>
+        </div>
+        <svg viewBox="0 0 200 80" className="w-full overflow-visible">
+          <defs>
+            <linearGradient id="progressGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#007BFF" stopOpacity=".3" />
+              <stop offset="100%" stopColor="#007BFF" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          {[20, 40, 60].map((y) => (
+            <line key={y} x1="0" y1={y} x2="200" y2={y} stroke="currentColor" strokeOpacity=".08" strokeDasharray="3 4" />
+          ))}
+          <polygon points="0,70 0,60 30,52 60,56 90,40 120,32 150,22 200,6 200,70" fill="url(#progressGradient)" />
+          <polyline points="0,60 30,52 60,56 90,40 120,32 150,22 200,6" fill="none" stroke="#007BFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          <circle cx="200" cy="6" r="4" fill="#007BFF" stroke="white" strokeWidth="2" />
+        </svg>
+        <div className="mt-2 flex justify-between text-[9px] font-medium text-slate-400">
+          <span>شروع</span>
+          <span>هفته دوم</span>
+          <span>هفته چهارم</span>
+          <span>اکنون</span>
+        </div>
+      </div>
+    </div>
+
+    {/* 6. ارتباط مستقیم - ۱ ستون */}
+    <div className={`${CARD} dark:border dark:border-slate-800 dark:bg-[--surface]`}>
+      <FHead
+        icon="chat"
+        title="ارتباط مستقیم"
+        text="گفتگوی داخلی بین مربی و شاگرد، بدون نیاز به پیام‌رسان‌های بیرونی."
+      />
+      <div className="space-y-3">
+        {[
+          { sender: "coach", name: "مربی", message: "امروز تمرین سینه چطور پیش رفت؟", time: "۱۰:۳۰" },
+          { sender: "athlete", name: "شاگرد", message: "عالی بود، فقط ست آخر دمبل کمی سنگین بود.", time: "۱۰:۳۲" },
+          { sender: "coach", name: "مربی", message: "دفعه بعد ۲ کیلو کمتر بزن و روی تکنیک تمرکز کن.", time: "۱۰:۳۳" },
+          { sender: "athlete", name: "شاگرد", message: "حتماً مربی، ممنون از راهنماییت 🙌", time: "۱۰:۳۴" },
+        ].map((item, index) => {
+          const isCoach = item.sender === "coach";
+          return (
+            <div key={index} className={`flex ${isCoach ? "justify-start" : "justify-end"}`}>
+              <div
+                className={`max-w-[88%] rounded-2xl px-3 py-2.5 ${
+                  isCoach
+                    ? "rounded-se-sm bg-blue-50 text-slate-700 dark:bg-blue-950/40 dark:text-slate-200"
+                    : "rounded-ss-sm bg-[#007BFF] text-white"
+                }`}
+              >
+                <div className="mb-1 flex items-center justify-between gap-5">
+                  <span className={`text-[9px] font-bold ${isCoach ? "text-[#007BFF] dark:text-blue-400" : "text-blue-100"}`}>
+                    {item.name}
+                  </span>
+                  <span className={`text-[8px] ${isCoach ? "text-slate-400 dark:text-slate-500" : "text-blue-100"}`}>
+                    {item.time}
+                  </span>
+                </div>
+                <p className="text-[11px] leading-6">{item.message}</p>
+              </div>
+            </div>
+          );
+        })}
+        <div className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5 dark:border-slate-700 dark:bg-slate-900">
+          <span className="text-[10px] text-slate-400">پیام خود را بنویسید...</span>
+          <Ico n="send" s={15} className="text-[#007BFF]" />
+        </div>
+      </div>
+    </div>
+
+    {/* 7. دستیار هوشمند AI - ۲ ستون */}
+    <div
+      className="relative isolate overflow-hidden rounded-3xl border border-blue-900/40 bg-gradient-to-br from-[#0b1530] via-[#10234b] to-[#0b2a6b] p-6 text-white shadow-xl shadow-blue-950/10 md:col-span-2"
+    >
+      <div className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-blue-500/20 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-24 -left-20 h-64 w-64 rounded-full bg-cyan-400/10 blur-3xl" />
+
+      {/* متن سمت راست (1.2fr) و ربات سمت چپ (0.8fr) */}
+      <div className="relative grid items-center gap-7 md:grid-cols-[1.2fr_0.8fr]">
+        <div className="space-y-5">
+          <FHead
+            dark
+            icon="bolt"
+            title={text(blocks, "ai_name", "دستیار هوشمند AI")}
+            text={text(
+              blocks,
+              "ai_lead",
+              "دستیار هوشمند فیتو داده‌های تمرین، تغذیه و آنالیز بدن را تحلیل می‌کند و پیشنهاد عملی برای هر شاگرد می‌دهد.",
+            )}
+          />
+          <div className="space-y-3">
+            <div className="flex items-start gap-2.5">
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/10 text-blue-300">
+                <Ico n="user-round" s={15} />
+              </span>
+              <div className="min-w-0 flex-1 rounded-2xl rounded-tr-sm border border-white/10 bg-white/[0.06] p-3">
+                <div className="mb-1.5 flex items-center gap-2">
+                  <span className="text-[10px] font-bold text-blue-300">مربی</span>
+                  <span className="text-[9px] text-slate-500">پیام جدید</span>
+                </div>
+                <p className="text-xs leading-6 text-slate-200">
+                  {text(blocks, "ai_user", "⚠ رضا ۳ روز است تمرین ثبت نکرده؛ پیام یادآوری بفرستم؟")}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-2.5">
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl border border-blue-400/20 bg-blue-500/20 text-blue-300">
+                <Ico n="bot" s={16} />
+              </span>
+              <div className="min-w-0 flex-1 rounded-2xl rounded-tl-sm border border-blue-400/20 bg-blue-500/10 p-3">
+                <div className="mb-1.5 flex items-center gap-2">
+                  <span className="text-[10px] font-bold text-blue-300">فیتو AI</span>
+                  <Ico n="sparkles" s={11} className="text-cyan-300" />
+                </div>
+                <p className="text-xs leading-6 text-slate-200">
+                  {text(blocks, "ai_reply", "پیشرفت مریم برای این هفته ۱۵٪ بیشتر از هفته قبل است.")}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.07] p-3 transition hover:border-blue-400/40">
+              <Ico n="message-circle" s={16} className="text-slate-400" />
+              <span className="flex-1 text-xs text-slate-400">
+                {text(blocks, "ai_placeholder", "از من هر چیزی بپرس…")}
+              </span>
+              <span className="grid h-8 w-8 place-items-center rounded-xl bg-[#007BFF] text-white shadow-lg shadow-blue-500/20">
+                <Ico n="send" s={14} />
+              </span>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { icon: "activity", label: "تحلیل عملکرد" },
+              { icon: "utensils", label: "تحلیل تغذیه" },
+              { icon: "brain", label: "پیشنهاد هوشمند" },
+            ].map((item) => (
+              <span key={item.label} className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-2 text-[9px] font-semibold text-slate-300">
+                <Ico n={item.icon} s={12} className="text-blue-300" />
+                {item.label}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div className="relative flex items-center justify-center">
+          <div className="absolute h-44 w-44 rounded-full bg-blue-500/20 blur-3xl" />
+          <img
+            src={FitoImgCoach}
+            alt="دستیار هوشمند فیتو"
+            loading="lazy"
+            className="relative mx-auto max-w-[250px] drop-shadow-[0_0_20px_rgba(59,130,246,0.35)] [mask-image:radial-gradient(closest-side,#000_80%,transparent)]"
+          />
+          <span className="absolute bottom-2 left-1/2 flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 text-[9px] font-bold text-emerald-300 backdrop-blur-md">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
+            Fito AI Online
+          </span>
+        </div>
+      </div>
     </div>
   </div>
-</div>
-
-      </div>
-    </section>
+</section>
   );
 }
 
@@ -1320,25 +1002,17 @@ function Features({ blocks, sections, athleteLive, coachLive }) {
    Steps / Showcase / Why / Pricing
 ========================= */
 
-function Steps({ blocks }) {
+function Steps({ blocks, sections }) {
   const steps = items(blocks, "steps", [
-    {
-      title: "پروفایل مربیگری بسازید",
-      text: "اهداف، تخصص‌ها و سوابق‌تان را ثبت کنید تا شاگردان شما را بهتر بشناسند.",
-    },
-    {
-      title: "شاگردان را اضافه کنید",
-      text: "شاگردانتان را دعوت کنید یا از طریق فیتو شاگرد جدید پیدا کنید.",
-    },
-    {
-      title: "پیشرفت را پایش کنید",
-      text: "برنامه تمرین و تغذیه بسازید و روند پیشرفت هر نفر را لحظه‌ای دنبال کنید.",
-    },
+    { title: "پروفایل مربیگری بسازید", text: "اهداف، تخصص‌ها و سوابق‌تان را ثبت کنید تا شاگردان شما را بهتر بشناسند." },
+    { title: "شاگردان را اضافه کنید", text: "شاگردانتان را دعوت کنید یا از طریق فیتو شاگرد جدید پیدا کنید." },
+    { title: "پیشرفت را پایش کنید", text: "برنامه تمرین و تغذیه بسازید و روند پیشرفت هر نفر را لحظه‌ای دنبال کنید." },
   ]);
 
   return (
     <section
       id="how"
+      style={regionStyle(sections, "how")}
       className="bg-gradient-to-b from-transparent to-blue-50/70 px-5 py-24 lg:px-8"
     >
       <div className="mx-auto max-w-[1200px]">
@@ -1346,122 +1020,63 @@ function Steps({ blocks }) {
           <SecHead
             eyebrow={text(blocks, "steps_eyebrow", "نحوه کار")}
             title={text(blocks, "steps_title", "در سه قدم ساده شروع کنید")}
-            lead={text(
-              blocks,
-              "steps_lead",
-              "راه‌اندازی فیتو کمتر از ۱۰ دقیقه زمان می‌برد.",
-            )}
+            lead={text(blocks, "steps_lead", "راه‌اندازی فیتو کمتر از ۱۰ دقیقه زمان می‌برد.")}
           />
         </FadeInUp>
         <ol className="grid gap-5 md:grid-cols-3">
           {steps.map((s, i) => (
             <li key={s.title} className={`${CARD} relative overflow-hidden`}>
-              <span className="absolute end-4 top-1 text-7xl font-black text-[#007BFF]/[0.06]">
-                {i + 1}
-              </span>
-              <span className="relative mb-4 grid h-9 w-9 place-items-center rounded-xl bg-[#007BFF] font-black text-white">
-                {i + 1}
-              </span>
-              <h3 className={`relative mb-2 font-extrabold ${INK}`}>
-                {s.title}
-              </h3>
-              <p className="relative text-sm leading-7 text-slate-500">
-                {s.text}
-              </p>
+              <span className="absolute end-4 top-1 text-7xl font-black text-[#007BFF]/[0.06]">{i + 1}</span>
+              <span className="relative mb-4 grid h-9 w-9 place-items-center rounded-xl bg-[#007BFF] font-black text-white">{i + 1}</span>
+              <h3 className={`relative mb-2 font-extrabold ${INK}`}>{s.title}</h3>
+              <p className="relative text-sm leading-7 text-slate-500">{s.text}</p>
               <div className="relative mt-5 flex items-center gap-2 rounded-2xl bg-slate-50 p-3">
                 {i === 0 && (
-                  <>
-                    <div className="flex justify-between items-center gap-3 w-full">
-                      <div className="flex items-center gap-1.5">
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-100 text-[#007BFF]">
-                          {/* <UserRound size={18} /> */}
-                          <img className="w-full" src={ProfileImg} alt="" />
-                        </div>
-
-                        <span className="flex-1 text-xs font-bold text-slate-700">
-                          محمد رضایی
-                        </span>
+                  <div className="flex justify-between items-center gap-3 w-full">
+                    <div className="flex items-center gap-1.5">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-100 text-[#007BFF]">
+                        <img className="w-full" src={ProfileImg} alt="" />
                       </div>
-
-                      <span className="rounded-lg bg-green-50 px-2.5 py-1.5 text-[9px] font-bold text-green-600 ">
-                        حساب ایجاد شده
-                      </span>
+                      <span className="flex-1 text-xs font-bold text-slate-700">محمد رضایی</span>
                     </div>
-                  </>
+                    <span className="rounded-lg bg-green-50 px-2.5 py-1.5 text-[9px] font-bold text-green-600 ">حساب ایجاد شده</span>
+                  </div>
                 )}
                 {i === 1 && (
                   <div className="flex flex-col items-center justify-between gap-2">
-                    {/* Student Profiles */}
                     <div className="flex items-center">
                       {[0, 1, 2].map((k) => (
-                        <span
-                          key={k}
-                          className={`-ms-2 h-7 w-7 overflow-hidden rounded-full ring-2 ring-white first:ms-0 ${
-                            ["bg-sky-300", "bg-[#007BFF]", "bg-amber-300"][k]
-                          }`}
-                        >
-                          <img
-                            className="h-full w-full object-cover"
-                            src={ProfileImg}
-                            alt="پروفایل شاگرد"
-                          />
+                        <span key={k} className={`-ms-2 h-7 w-7 overflow-hidden rounded-full ring-2 ring-white first:ms-0 ${["bg-sky-300", "bg-[#007BFF]", "bg-amber-300"][k]}`}>
+                          <img className="h-full w-full object-cover" src={ProfileImg} alt="پروفایل شاگرد" />
                         </span>
                       ))}
                     </div>
-
-                    {/* Buttons */}
-                    <div className="flex  items-center gap-1.5">
+                    <div className="flex items-center gap-1.5">
                       <button className="flex items-center gap-0.5 rounded-full bg-transparent w-11 h-11 px-0.5 text-[7px] border border-dashed text-center justify-center font-bold text-white">
-                        <Plus size={11} />
-                        افزودن
+                        <Plus size={11} /> افزودن
                       </button>
-
                       <button className="flex items-center gap-1 rounded-lg border border-slate-200 px-2 py-1.5 text-[9px] font-bold text-slate-600">
-                        <Pencil size={11} />
-                        ویرایش
+                        <Pencil size={11} /> ویرایش
                       </button>
                     </div>
                   </div>
                 )}
                 {i === 2 && (
-                  <div className="grid  grid-cols-3 gap-2">
-                    {/* Adherence */}
+                  <div className="grid grid-cols-3 gap-2">
                     <div className="rounded-xl border border-blue-100 bg-blue-50/80 p-2.5 dark:border-blue-900/50 dark:bg-blue-950/30">
-                      <div className="mb-2 flex h-7 w-7 items-center justify-center rounded-lg bg-blue-100 text-[#007BFF] dark:bg-blue-900/50 dark:text-blue-400">
-                        <Target size={15} />
-                      </div>
-                      <p className="text-lg font-black text-slate-800 dark:text-white">
-                        92%
-                      </p>
-                      <p className="mt-0.5 text-[9px] font-medium text-slate-500 dark:text-slate-400">
-                        پایبندی به برنامه
-                      </p>
+                      <div className="mb-2 flex h-7 w-7 items-center justify-center rounded-lg bg-blue-100 text-[#007BFF] dark:bg-blue-900/50 dark:text-blue-400"><Target size={15} /></div>
+                      <p className="text-lg font-black text-slate-800 dark:text-white">92%</p>
+                      <p className="mt-0.5 text-[9px] font-medium text-slate-500 dark:text-slate-400">پایبندی به برنامه</p>
                     </div>
-
-                    {/* Workout */}
                     <div className="rounded-xl border border-emerald-100 bg-emerald-50/80 p-2.5 dark:border-emerald-900/50 dark:bg-emerald-950/30">
-                      <div className="mb-2 flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600 dark:bg-emerald-900/50 dark:text-emerald-400">
-                        <Dumbbell size={15} />
-                      </div>
-                      <p className="text-lg font-black text-slate-800 dark:text-white">
-                        78%
-                      </p>
-                      <p className="mt-0.5 text-[9px] font-medium text-slate-500 dark:text-slate-400">
-                        تکمیل تمرین‌ها
-                      </p>
+                      <div className="mb-2 flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600 dark:bg-emerald-900/50 dark:text-emerald-400"><Dumbbell size={15} /></div>
+                      <p className="text-lg font-black text-slate-800 dark:text-white">78%</p>
+                      <p className="mt-0.5 text-[9px] font-medium text-slate-500 dark:text-slate-400">تکمیل تمرین‌ها</p>
                     </div>
-
-                    {/* New Students */}
                     <div className="rounded-xl border border-violet-100 bg-violet-50/80 p-2.5 dark:border-violet-900/50 dark:bg-violet-950/30">
-                      <div className="mb-2 flex h-7 w-7 items-center justify-center rounded-lg bg-violet-100 text-violet-600 dark:bg-violet-900/50 dark:text-violet-400">
-                        <UserPlus size={15} />
-                      </div>
-                      <p className="text-lg font-black text-slate-800 dark:text-white">
-                        +۳
-                      </p>
-                      <p className="mt-0.5 text-[9px] font-medium text-slate-500 dark:text-slate-400">
-                        شاگرد جدید
-                      </p>
+                      <div className="mb-2 flex h-7 w-7 items-center justify-center rounded-lg bg-violet-100 text-violet-600 dark:bg-violet-900/50 dark:text-violet-400"><UserPlus size={15} /></div>
+                      <p className="text-lg font-black text-slate-800 dark:text-white">+۳</p>
+                      <p className="mt-0.5 text-[9px] font-medium text-slate-500 dark:text-slate-400">شاگرد جدید</p>
                     </div>
                   </div>
                 )}
@@ -1474,39 +1089,32 @@ function Steps({ blocks }) {
   );
 }
 
-function Showcase({ blocks }) {
-  const [tab, setTab] = useState(0);
+function Showcase({ blocks, sections }) {
+  const [tab, setTab] = useState(1);
   const tabs = items(blocks, "showcase_tabs", [
-    { label: "داشبورد مربی", image: "progress.png" },
     { label: "داشبورد شاگرد", image: "dashboard.png" },
+    { label: "داشبورد مربی", image: "progress.png" },
     { label: "آنالیز بدن", image: "body-analysis.png" },
   ]);
   const cur = tabs[tab] || tabs[0];
   if (!cur) return null;
 
   return (
-    <section id="product" className="px-5 py-24 lg:px-8">
+    <section
+      id="product"
+      style={regionStyle(sections, "showcase")}
+      className="px-5 py-24 lg:px-8"
+    >
       <div className="mx-auto max-w-[1000px]">
         <FadeInUp>
           <SecHead
             eyebrow={text(blocks, "showcase_eyebrow", "یک پلتفرم")}
-            title={text(
-              blocks,
-              "showcase_title",
-              "یک پلتفرم، برای مربی و شاگرد",
-            )}
-            lead={text(
-              blocks,
-              "showcase_lead",
-              "رابط کاربری دقیق، سریع و زیبا؛ طراحی‌شده برای روزمرگی مربیان حرفه‌ای.",
-            )}
+            title={text(blocks, "showcase_title", "یک پلتفرم، برای مربی و شاگرد")}
+            lead={text(blocks, "showcase_lead", "رابط کاربری دقیق، سریع و زیبا؛ طراحی‌شده برای روزمرگی مربیان حرفه‌ای.")}
           />
         </FadeInUp>
 
-        <div
-          role="tablist"
-          className="mx-auto mb-8 mt-10 flex w-fit max-w-full gap-1 overflow-x-auto rounded-2xl bg-white p-1.5 shadow ring-1 ring-slate-100"
-        >
+        <div role="tablist" className="mx-auto mb-8 mt-10 flex w-fit max-w-full gap-1 overflow-x-auto rounded-2xl bg-white p-1.5 shadow ring-1 ring-slate-100">
           {tabs.map((t, i) => (
             <button
               key={t.label}
@@ -1522,19 +1130,10 @@ function Showcase({ blocks }) {
 
         <div className="relative">
           <Window>
-            <img
-              key={cur.image}
-              src={imgDash}
-              alt={cur.label}
-              className={`w-full ${cur.image === "dashboard.png" ? "" : "max-h-[800px]"}`}
-            />
+            <img key={cur.image} src={imgDash} alt={cur.label} className={`w-full ${cur.image === "dashboard.png" ? "" : "max-h-[800px]"}`} />
           </Window>
           {cur.image !== "body-analysis.png" && (
-            <img
-              src="/images/body-analysis.png"
-              alt=""
-              className="absolute -bottom-8 -left-4 hidden w-44 rounded-2xl shadow-2xl ring-1 ring-slate-200 md:block"
-            />
+            <img src="/images/body-analysis.png" alt="" className="absolute -bottom-8 -left-4 hidden w-44 rounded-2xl shadow-2xl ring-1 ring-slate-200 md:block" />
           )}
           <span className="absolute -top-3 left-6 hidden items-center gap-2 rounded-xl bg-[#0b1530] px-3 py-2 text-[11px] font-bold text-white shadow-xl md:flex">
             <i className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
@@ -1545,12 +1144,8 @@ function Showcase({ blocks }) {
               <Ico n="activity" s={18} />
             </span>
             <span>
-              <b className={`block ${INK}`}>
-                {text(blocks, "showcase_stat", "۲,۱۰۰ کالری")}
-              </b>
-              <span className="text-slate-400">
-                {text(blocks, "showcase_stat_sub", "مصرف امروز")}
-              </span>
+              <b className={`block ${INK}`}>{text(blocks, "showcase_stat", "۲,۱۰۰ کالری")}</b>
+              <span className="text-slate-400">{text(blocks, "showcase_stat_sub", "مصرف امروز")}</span>
             </span>
           </div>
         </div>
@@ -1559,37 +1154,21 @@ function Showcase({ blocks }) {
   );
 }
 
-function Why({ blocks }) {
+function Why({ blocks, sections }) {
   const list = items(blocks, "why_items", [
-    {
-      icon: "activity",
-      title: "صرفه‌جویی در زمان",
-      text: "کارهای تکراری مثل ساخت برنامه و پیگیری پیشرفت را خودکار کنید.",
-    },
-    {
-      icon: "grid",
-      title: "همه‌چیز در یک‌جا",
-      text: "برنامه، تغذیه، پیام‌ها و گزارش‌ها بدون جابه‌جایی بین ابزارها.",
-    },
-    {
-      icon: "trend",
-      title: "تصمیم‌گیری مبتنی بر داده",
-      text: "با نمودارها و تحلیل AI بدانید هر شاگرد کجاست و چه چیزی باید تغییر کند.",
-    },
-    {
-      icon: "star",
-      title: "تجربه‌ای حرفه‌ای‌تر",
-      text: "شاگردانتان اپلیکیشنی مرتب و یکپارچه از مربی‌شان دریافت می‌کنند.",
-    },
-    {
-      icon: "users",
-      title: "رشد کسب‌وکار مربیگری",
-      text: "شاگردان بیشتری را با همان کیفیت مدیریت کنید.",
-    },
+    { icon: "activity", title: "صرفه‌جویی در زمان", text: "کارهای تکراری مثل ساخت برنامه و پیگیری پیشرفت را خودکار کنید." },
+    { icon: "grid", title: "همه‌چیز در یک‌جا", text: "برنامه، تغذیه، پیام‌ها و گزارش‌ها بدون جابه‌جایی بین ابزارها." },
+    { icon: "trend", title: "تصمیم‌گیری مبتنی بر داده", text: "با نمودارها و تحلیل AI بدانید هر شاگرد کجاست و چه چیزی باید تغییر کند." },
+    { icon: "star", title: "تجربه‌ای حرفه‌ای‌تر", text: "شاگردانتان اپلیکیشنی مرتب و یکپارچه از مربی‌شان دریافت می‌کنند." },
+    { icon: "users", title: "رشد کسب‌وکار مربیگری", text: "شاگردان بیشتری را با همان کیفیت مدیریت کنید." },
   ]);
 
   return (
-    <section id="why" className="px-5 py-24 lg:px-8">
+  <section
+      id="why"
+      style={regionStyle(sections, "why")}
+      className="px-5 py-24 lg:px-8"
+    >
       <div className="mx-auto grid max-w-[1200px] items-center gap-14 lg:grid-cols-2">
         <FadeInUp>
           <Badge>{text(blocks, "why_eyebrow", "چرا فیتو؟")}</Badge>
@@ -1627,14 +1206,14 @@ function Why({ blocks }) {
         </FadeInUp>
 
         <FadeInUp delay={200}>
-          <img className="rounded-2xlF" src={imgBody} alt="" />
+          <img className="rounded-3xl" src={imgBody} alt="" />
         </FadeInUp>
       </div>
     </section>
   );
 }
 
-function Pricing({ blocks, onSelect }) {
+function Pricing({ blocks, sections, onSelect }) {
   const [yearly, setYearly] = useState(false);
   const plans = items(blocks, "pricing_plans", [
     {
@@ -1642,12 +1221,7 @@ function Pricing({ blocks, onSelect }) {
       price: "رایگان",
       desc: "برای مربی‌هایی که تازه شروع کرده‌اند",
       cta: "شروع رایگان",
-      features: [
-        "تعداد محدود شاگرد",
-        "طراحی برنامه تمرینی",
-        "برنامه تغذیه پایه",
-        "گزارش پیشرفت ساده",
-      ],
+      features: ["تعداد محدود شاگرد", "طراحی برنامه تمرینی", "برنامه تغذیه پایه", "گزارش پیشرفت ساده"],
     },
     {
       name: "مربی حرفه‌ای",
@@ -1655,58 +1229,35 @@ function Pricing({ blocks, onSelect }) {
       desc: "برای مربی‌هایی که کسب‌وکارشان در حال رشد است",
       cta: "شروع ۱۴ روز رایگان",
       hot: true,
-      features: [
-        "شاگرد نامحدود",
-        "آنالیز بدن با هوش مصنوعی",
-        "دستیار هوشمند AI",
-        "پیام‌رسان داخلی",
-        "گزارش‌های پیشرفته",
-      ],
+      features: ["شاگرد نامحدود", "آنالیز بدن با هوش مصنوعی", "دستیار هوشمند AI", "پیام‌رسان داخلی", "گزارش‌های پیشرفته"],
     },
     {
       name: "مربی پیشرفته",
       price: "[ قیمت ]",
       desc: "برای باشگاه‌ها و تیم‌های مربیگری",
       cta: "ارتباط با فروش",
-      features: [
-        "همه امکانات حرفه‌ای",
-        "چند مربی در یک حساب",
-        "برند اختصاصی",
-        "پشتیبانی اولویت‌دار",
-      ],
+      features: ["همه امکانات حرفه‌ای", "چند مربی در یک حساب", "برند اختصاصی", "پشتیبانی اولویت‌دار"],
     },
   ]);
 
   return (
-    <section id="pricing" className="bg-blue-50/70 px-5 py-24 lg:px-8">
+    <section
+      id="pricing"
+      style={regionStyle(sections, "pricing")}
+      className="bg-blue-50/70 px-5 py-24 lg:px-8"
+    >
       <div className="mx-auto max-w-[1100px]">
         <FadeInUp>
           <SecHead
             eyebrow={text(blocks, "pricing_eyebrow", "تعرفه‌ها")}
-            title={text(
-              blocks,
-              "pricing_title",
-              "پلنی متناسب با مسیر مربیگری شما",
-            )}
-            lead={text(
-              blocks,
-              "pricing_lead",
-              "رایگان شروع کنید و هر زمان که رشد کردید، ارتقا دهید.",
-            )}
+            title={text(blocks, "pricing_title", "پلنی متناسب با مسیر مربیگری شما")}
+            lead={text(blocks, "pricing_lead", "رایگان شروع کنید و هر زمان که رشد کردید، ارتقا دهید.")}
           />
         </FadeInUp>
 
         <div className="mx-auto mb-10 mt-8 flex w-fit gap-1 rounded-xl bg-white p-1 text-xs font-bold shadow ring-1 ring-slate-100">
-          {[
-            ["ماهانه", false],
-            ["سالانه", true],
-          ].map(([l, y]) => (
-            <button
-              key={l}
-              type="button"
-              onClick={() => setYearly(y)}
-              className={`rounded-lg px-5 py-2 ${yearly === y ? "bg-[#0b1530] text-white" : "text-slate-500"}`}
-            >
+          {[["ماهانه", false], ["سالانه", true]].map(([l, y]) => (
+            <button key={l} type="button" onClick={() => setYearly(y)} className={`rounded-lg px-5 py-2 ${yearly === y ? "bg-[#0b1530] text-white" : "text-slate-500"}`}>
               {l}
             </button>
           ))}
@@ -1714,46 +1265,23 @@ function Pricing({ blocks, onSelect }) {
 
         <div className="grid items-start gap-5 md:grid-cols-3">
           {plans.map((p) => (
-            <div
-              key={p.name}
-              className={`rounded-3xl p-7 ${p.hot ? "bg-gradient-to-b from-[#007BFF] to-[#0856cc] text-white shadow-2xl shadow-[#007BFF]/40 md:-mt-4 md:pb-10" : "bg-white ring-1 ring-slate-100"}`}
-            >
-              {p.hot && (
-                <span className="mb-3 inline-block rounded-full bg-white px-3 py-1 text-[10px] font-bold text-[#007BFF]">
-                  پیشنهاد ویژه
-                </span>
-              )}
+            <div key={p.name} className={`rounded-3xl p-7 ${p.hot ? "bg-gradient-to-b from-[#007BFF] to-[#0856cc] text-white shadow-2xl shadow-[#007BFF]/40 md:-mt-4 md:pb-10" : "bg-white ring-1 ring-slate-100"}`}>
+              {p.hot && <span className="mb-3 inline-block rounded-full bg-white px-3 py-1 text-[10px] font-bold text-[#007BFF]">پیشنهاد ویژه</span>}
               <h3 className="text-lg font-extrabold">{p.name}</h3>
-              <p
-                className={`mt-1 text-sm ${p.hot ? "text-blue-100" : "text-slate-400"}`}
-              >
-                {p.desc}
-              </p>
+              <p className={`mt-1 text-sm ${p.hot ? "text-blue-100" : "text-slate-400"}`}>{p.desc}</p>
               <div className="my-6 text-4xl font-black">
                 {p.price}
                 {p.price !== "رایگان" && (
-                  <small
-                    className={`ms-2 text-xs font-medium ${p.hot ? "text-blue-100" : "text-slate-400"}`}
-                  >
-                    تومان / {yearly ? "سال" : "ماه"}
-                  </small>
+                  <small className={`ms-2 text-xs font-medium ${p.hot ? "text-blue-100" : "text-slate-400"}`}>تومان / {yearly ? "سال" : "ماه"}</small>
                 )}
               </div>
-              <button
-                type="button"
-                onClick={onSelect}
-                className={`${BTN} w-full ${p.hot ? "bg-white text-[#007BFF] hover:bg-blue-50" : "bg-white text-[#0b1530] ring-1 ring-slate-200 hover:ring-[#007BFF]"}`}
-              >
+              <button type="button" onClick={onSelect} className={`${BTN} w-full ${p.hot ? "bg-white text-[#007BFF] hover:bg-blue-50" : "bg-white text-[#0b1530] ring-1 ring-slate-200 hover:ring-[#007BFF]"}`}>
                 {p.cta}
               </button>
               <ul className="mt-6 space-y-3 text-sm">
                 {(p.features || []).map((f) => (
                   <li key={f} className="flex items-center gap-2">
-                    <Ico
-                      n="check"
-                      s={16}
-                      className={p.hot ? "text-sky-200" : "text-[#007BFF]"}
-                    />
+                    <Ico n="check" s={16} className={p.hot ? "text-sky-200" : "text-[#007BFF]"} />
                     {f}
                   </li>
                 ))}
@@ -1772,36 +1300,22 @@ function Pricing({ blocks, onSelect }) {
 
 function panelsFor(account) {
   const links = [];
-
-  if (account?.profiles?.coach) {
-    links.push({ to: "/coach/dashboard", label: "پنل مربی" });
-  }
-
-  if (account?.profiles?.athlete) {
-    links.push({ to: "/dashboardAthlete", label: "پنل ورزشکار" });
-  }
-
-  if (
-    Array.isArray(account?.roles) &&
-    account.roles.includes("platform_admin")
-  ) {
+  if (account?.profiles?.coach) links.push({ to: "/coach/dashboard", label: "پنل مربی" });
+  if (account?.profiles?.athlete) links.push({ to: "/dashboardAthlete", label: "پنل ورزشکار" });
+  if (Array.isArray(account?.roles) && account.roles.includes("platform_admin")) {
     links.push({ to: "/admin/plans", label: "پنل مدیر" });
   }
-
-  if (links.length === 1) {
-    return [{ ...links[0], label: "ورود به پنل" }];
-  }
-
+  if (links.length === 1) return [{ ...links[0], label: "ورود به پنل" }];
   return links;
 }
 
 export default function Home() {
+  const { blocks, sections, loading } = useHomepage();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [authMode, setAuthMode] = useState(null);
   const { status, account, refresh } = useSession();
-  const { blocks, sections } = useHomepage();
   const live = useLiveHome(account);
   const athleteLive = live?.athlete ?? null;
   const coachLive = live?.coach ?? null;
@@ -1818,8 +1332,7 @@ export default function Home() {
         preview_calories_value: athleteLive.kcal,
         preview_water_value: athleteLive.waterLiters,
         preview_goal_percent: String(athleteLive.percent),
-        preview_goal_title:
-          athleteLive.percent >= 100 ? "امروز کامل شد" : "تمرین امروز",
+        preview_goal_title: athleteLive.percent >= 100 ? "امروز کامل شد" : "تمرین امروز",
         preview_goal_remain: athleteLive.remain,
         preview_body_value: athleteLive.bodyValue,
         preview_body_delta: athleteLive.bodyDelta,
@@ -1840,10 +1353,7 @@ export default function Home() {
     setMenuOpen(false);
     navigate(to);
   }
-  const accountName =
-    account?.profiles?.coach?.display_name ||
-    account?.profiles?.athlete?.display_name ||
-    "حساب من";
+  const accountName = account?.profiles?.coach?.display_name || account?.profiles?.athlete?.display_name || "حساب من";
 
   const openAuth = (mode) => {
     setMenuOpen(false);
@@ -1852,7 +1362,6 @@ export default function Home() {
 
   const logout = async () => {
     setMenuOpen(false);
-
     try {
       await api("/api/v1/auth/logout", { method: "POST" });
     } finally {
@@ -1861,70 +1370,40 @@ export default function Home() {
   };
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
-
+    const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
-
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const scrollTo = (id) => {
     setMenuOpen(false);
-
-    document.getElementById(id)?.scrollIntoView({
-      behavior: "smooth",
-    });
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const mainAction = () =>
-    signedIn && panels[0] ? openPanel(panels[0].to) : openAuth("signup");
-  const mainLabel = (fallback) =>
-    signedIn && panels[0] ? panels[0].label : fallback;
+  const mainAction = () => signedIn && panels[0] ? openPanel(panels[0].to) : openAuth("signup");
+  const mainLabel = (fallback) => signedIn && panels[0] ? panels[0].label : fallback;
   const footerCols = items(blocks, "footer_columns", [
-    {
-      title: "محصول",
-      links: ["امکانات", "داشبورد مربی", "اپلیکیشن شاگرد", "تعرفه‌ها"],
-    },
-    {
-      title: "منابع",
-      links: ["مرکز آموزش", "وبلاگ", "سوالات متداول", "راهنمای شروع"],
-    },
-    {
-      title: "شرکت",
-      links: ["درباره ما", "فرصت‌های شغلی", "قوانین و مقررات", "حریم خصوصی"],
-    },
+    { title: "محصول", links: ["امکانات", "داشبورد مربی", "اپلیکیشن شاگرد", "تعرفه‌ها"] },
+    { title: "منابع", links: ["مرکز آموزش", "وبلاگ", "سوالات متداول", "راهنمای شروع"] },
+    { title: "شرکت", links: ["درباره ما", "فرصت‌های شغلی", "قوانین و مقررات", "حریم خصوصی"] },
   ]);
 
-  return (
-    <div
-      dir="rtl"
-      className="min-h-screen overflow-x-hidden bg-[#f4f8ff] text-[#0b1530]"
-    >
-      {/* ================= NAVBAR ================= */}
+  if (loading) {
+    return <div className="min-h-screen bg-white dark:bg-[#0B1120]" />;
+  }
 
-      <nav
-        style={regionStyle(sections, "nav")}
-        className="fixed inset-x-0 top-0 z-50 px-3 pt-3"
-      >
-        <div
-          className={`mx-auto max-w-[1200px] rounded-2xl ring-1 ring-slate-100 backdrop-blur-xl transition-all duration-300 ${scrolled ? "bg-white/90 shadow-lg shadow-slate-900/5" : "bg-white/70"}`}
-        >
+  return (
+    <div dir="rtl" className="min-h-screen overflow-x-hidden bg-[#f4f8ff] text-[#0b1530]">
+      {/* ================= NAVBAR ================= */}
+      <nav style={regionStyle(sections, "nav")} className="fixed inset-x-0 top-0 z-50 px-3 pt-3">
+        <div className={`mx-auto max-w-[1200px] rounded-2xl ring-1 ring-slate-100 backdrop-blur-xl transition-all duration-300 ${scrolled ? "bg-white/90 shadow-lg shadow-slate-900/5" : "bg-white/70"}`}>
           <div className="flex h-16 items-center justify-between px-4 lg:px-5">
             <button onClick={() => scrollTo("home")}>
-              <FitoLogo
-                name={text(blocks, "logo_name", "FITO")}
-                sub={text(blocks, "logo_sub", "پلتفرم مدیریت مربیگری")}
-              />
+              <FitoLogo name={text(blocks, "logo_name", "FITO")} sub={text(blocks, "logo_sub", "پلتفرم مدیریت مربیگری")} />
             </button>
             <div className="hidden items-center gap-8 md:flex">
               {navigation.map((item) => (
-                <button
-                  key={item.target}
-                  onClick={() => scrollTo(item.target)}
-                  className="text-sm font-semibold text-slate-500 transition hover:text-[#007BFF]"
-                >
+                <button key={item.target} onClick={() => scrollTo(item.target)} className="text-sm font-semibold text-slate-500 transition hover:text-[#007BFF]">
                   {item.label}
                 </button>
               ))}
@@ -1933,62 +1412,31 @@ export default function Home() {
             <div className="hidden items-center gap-3 md:flex">
               {signedIn ? (
                 <>
-                  <span className="text-sm font-semibold text-slate-600">
-                    {accountName}
-                  </span>
+                  <span className="text-sm font-semibold text-slate-600">{accountName}</span>
                   {panels.map((panel, index) => (
-                    <button
-                      key={panel.to}
-                      type="button"
-                      onClick={() => openPanel(panel.to)}
-                      className={
-                        index === 0
-                          ? `${PRIMARY} ${SMALL}`
-                          : `${GHOST} ${SMALL}`
-                      }
-                    >
+                    <button key={panel.to} type="button" onClick={() => openPanel(panel.to)} className={index === 0 ? `${PRIMARY} ${SMALL}` : `${GHOST} ${SMALL}`}>
                       {panel.label}
                     </button>
                   ))}
-                  <button
-                    type="button"
-                    onClick={logout}
-                    className="rounded-xl px-4 py-2.5 text-sm text-slate-500 transition hover:text-[#0b1530]"
-                  >
+                  <button type="button" onClick={logout} className="rounded-xl px-4 py-2.5 text-sm text-slate-500 transition hover:text-[#0b1530]">
                     {text(blocks, "logout_label", "خروج")}
                   </button>
                 </>
               ) : (
                 <>
-                  <button
-                    type="button"
-                    onClick={() => openAuth("login")}
-                    className="rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:text-[#007BFF]"
-                  >
+                  <button type="button" onClick={() => openAuth("login")} className="rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:text-[#007BFF]">
                     {text(blocks, "login_label", "ورود")}
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => openAuth("signup")}
-                    className={`${PRIMARY} ${SMALL}`}
-                  >
+                  <button type="button" onClick={() => openAuth("signup")} className={`${PRIMARY} ${SMALL}`}>
                     {text(blocks, "signup_label", "شروع رایگان")}
-                    <Ico
-                      n="arrow"
-                      s={16}
-                      className="transition-transform group-hover:-translate-x-1"
-                    />
+                    <Ico n="arrow" s={16} className="transition-transform group-hover:-translate-x-1" />
                   </button>
                 </>
               )}
-          <ThemeSwitcher/>
+              <ThemeSwitcher />
             </div>
 
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              aria-label="منو"
-              className="flex h-10 w-10 items-center justify-center rounded-xl ring-1 ring-slate-200 md:hidden"
-            >
+            <button onClick={() => setMenuOpen(!menuOpen)} aria-label="منو" className="flex h-10 w-10 items-center justify-center rounded-xl ring-1 ring-slate-200 md:hidden">
               <div className="space-y-1.5">
                 <span className="block h-px w-5 bg-[#0b1530]" />
                 <span className="block h-px w-5 bg-[#0b1530]" />
@@ -1997,55 +1445,31 @@ export default function Home() {
             </button>
           </div>
 
-
-
           {menuOpen && (
             <div className="border-t border-slate-100 px-5 py-5 md:hidden">
               <div className="flex flex-col gap-4">
                 {navigation.map((item) => (
-                  <button
-                    key={item.target}
-                    onClick={() => scrollTo(item.target)}
-                    className="border-b border-slate-100 pb-3 text-right text-sm font-semibold text-slate-600"
-                  >
+                  <button key={item.target} onClick={() => scrollTo(item.target)} className="border-b border-slate-100 pb-3 text-right text-sm font-semibold text-slate-600">
                     {item.label}
                   </button>
                 ))}
-
                 {signedIn ? (
                   <>
                     {panels.map((panel) => (
-                      <button
-                        key={panel.to}
-                        type="button"
-                        onClick={() => openPanel(panel.to)}
-                        className={`${PRIMARY} mt-2`}
-                      >
+                      <button key={panel.to} type="button" onClick={() => openPanel(panel.to)} className={`${PRIMARY} mt-2`}>
                         {panel.label}
                       </button>
                     ))}
-                    <button
-                      type="button"
-                      onClick={logout}
-                      className={`${GHOST} mt-2`}
-                    >
+                    <button type="button" onClick={logout} className={`${GHOST} mt-2`}>
                       خروج از {accountName}
                     </button>
                   </>
                 ) : (
                   <>
-                    <button
-                      type="button"
-                      onClick={() => openAuth("login")}
-                      className={`${GHOST} mt-2`}
-                    >
+                    <button type="button" onClick={() => openAuth("login")} className={`${GHOST} mt-2`}>
                       {text(blocks, "login_label", "ورود")}
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => openAuth("signup")}
-                      className={PRIMARY}
-                    >
+                    <button type="button" onClick={() => openAuth("signup")} className={PRIMARY}>
                       {text(blocks, "signup_label", "شروع رایگان")}
                     </button>
                   </>
@@ -2056,95 +1480,54 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* ================= HERO ================= */}
-
-      <main id="home" className="flex w-full flex-col">
-        <section
-          style={regionStyle(sections, "hero")}
-          className="relative overflow-hidden bg-gradient-to-b from-[#dbe9ff] via-[#eef4ff] to-[#f4f8ff] px-5 pb-28 pt-36 lg:px-8 lg:pt-40"
-        >
+      {/* 
+        ================= MAIN CONTENT =================
+        کلاس flex flex-col را حذف کردم تا ترتیب سکشن‌ها دقیقاً طبق کد HTML باشد
+        و ویژگی order که از دیتابیس (regionStyle) می‌آید نتواند چینش را به هم بزند.
+      */}
+      <main id="home" className="w-full">
+        
+        {/* 1. HERO */}
+        <section style={regionStyle(sections, "hero")} className="relative overflow-hidden bg-gradient-to-b from-[#dbe9ff] via-[#eef4ff] to-[#f4f8ff] px-5 pb-28 pt-36 lg:px-8 lg:pt-40">
           <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(0,123,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(0,123,255,0.05)_1px,transparent_1px)] bg-[size:48px_48px] [mask-image:linear-gradient(to_bottom,#000,transparent)]" />
-
           <div className="relative mx-auto max-w-[1200px]">
             <div className="grid items-center gap-16 lg:grid-cols-[0.95fr_1.05fr]">
               <FadeInUp className="order-2 text-center lg:order-1 lg:text-right">
                 <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-slate-500 ring-1 ring-slate-200">
-                  <b className="rounded-full bg-[#007BFF] px-2 py-0.5 text-white">
-                    {text(blocks, "hero_badge_tag", "جدید")}
-                  </b>
-                  {text(
-                    blocks,
-                    "hero_badge",
-                    "دستیار هوشمند AI به فیتو اضافه شد",
-                  )}
+                  <b className="rounded-full bg-[#007BFF] px-2 py-0.5 text-white">{text(blocks, "hero_badge_tag", "جدید")}</b>
+                  {text(blocks, "hero_badge", "دستیار هوشمند AI به فیتو اضافه شد")}
                 </div>
-
                 <h1 className="max-w-2xl text-5xl font-black leading-[1.45] tracking-tight sm:text-6xl lg:text-[64px]">
                   {text(blocks, "hero_title", "مدیریت هوشمند مربیگری،")}
                   <br />
-                  <span className="text-[#007BFF]">
-                    {text(blocks, "hero_accent", "یک قدم جلوتر")}
-                  </span>{" "}
+                  <span className="text-[#007BFF]">{text(blocks, "hero_accent", "یک قدم جلوتر")}</span>{" "}
                   {text(blocks, "hero_title_tail", "از همیشه")}
                 </h1>
-
                 <p className="mt-7 max-w-xl text-base leading-8 text-slate-500">
-                  {text(
-                    blocks,
-                    "hero_lead",
-                    "فیتو همه‌ی ابزارهای یک مربی حرفه‌ای را در یک‌جا جمع کرده است؛ از مدیریت شاگردان و طراحی برنامه تمرینی تا برنامه تغذیه، آنالیز بدن و گزارش پیشرفت. کمتر درگیر کارهای تکراری شوید و بیشتر روی نتیجه‌ی شاگردانتان تمرکز کنید.",
-                  )}
+                  {text(blocks, "hero_lead", "فیتو همه‌ی ابزارهای یک مربی حرفه‌ای را در یک‌جا جمع کرده است؛ از مدیریت شاگردان و طراحی برنامه تمرینی تا برنامه تغذیه، آنالیز بدن و گزارش پیشرفت. کمتر درگیر کارهای تکراری شوید و بیشتر روی نتیجه‌ی شاگردانتان تمرکز کنید.")}
                 </p>
-
                 <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
-                  <button
-                    type="button"
-                    onClick={mainAction}
-                    className={PRIMARY}
-                  >
+                  <button type="button" onClick={mainAction} className={PRIMARY}>
                     {mainLabel(text(blocks, "signup_label", "شروع رایگان"))}
                     <span className="grid h-6 w-6 place-items-center rounded-md bg-white/20">
-                      <Ico
-                        n="arrow"
-                        s={14}
-                        className="transition-transform group-hover:-translate-x-1"
-                      />
+                      <Ico n="arrow" s={14} className="transition-transform group-hover:-translate-x-1" />
                     </span>
                   </button>
-                  <button
-                    onClick={() => scrollTo("features")}
-                    className={GHOST}
-                  >
+                  <button onClick={() => scrollTo("features")} className={GHOST}>
                     <Ico n="grid" s={16} />
                     {text(blocks, "hero_secondary", "مشاهده امکانات")}
                   </button>
                 </div>
-
                 <div className="mt-9 flex items-center justify-center gap-3 lg:justify-start">
-                  <span className="grid h-9 w-9 place-items-center rounded-full bg-[#007BFF] text-[11px] font-bold text-white">
-                    1k+
-                  </span>
+                  <span className="grid h-9 w-9 place-items-center rounded-full bg-[#007BFF] text-[11px] font-bold text-white">1k+</span>
                   <div className="text-start text-xs text-slate-500">
                     <div className="flex items-center gap-1 font-bold text-[#0b1530]">
-                      4.9{" "}
-                      {[0, 1, 2, 3, 4].map((i) => (
-                        <Ico
-                          key={i}
-                          n="star"
-                          s={12}
-                          className="fill-amber-400 text-amber-400"
-                        />
-                      ))}
+                      4.9 {[0, 1, 2, 3, 4].map((i) => <Ico key={i} n="star" s={12} className="fill-amber-400 text-amber-400" />)}
                     </div>
-                    {text(
-                      blocks,
-                      "hero_note_1",
-                      "مورد اعتماد مربیان و باشگاه‌های حرفه‌ای",
-                    )}
+                    {text(blocks, "hero_note_1", "مورد اعتماد مربیان و باشگاه‌های حرفه‌ای")}
                   </div>
                 </div>
               </FadeInUp>
-
               <FadeInUp delay={250} className="order-1 lg:order-2">
                 <HeroVisual blocks={blocks} overrides={previewOverrides} />
               </FadeInUp>
@@ -2152,96 +1535,59 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ================= STATS ================= */}
-
-        <section
-          style={regionStyle(sections, "stats")}
-          className="relative z-10 -mt-12 px-5 lg:px-8"
-        >
-          <div
-            className={`${CARD} mx-auto grid max-w-[1100px] grid-cols-2 !p-2 lg:grid-cols-4 lg:divide-x lg:divide-x-reverse lg:divide-slate-100`}
-          >
+        {/* 2. STATS */}
+        <section style={regionStyle(sections, "stats")} className="relative z-10 -mt-12 px-5 lg:px-8">
+          <div className={`${CARD} mx-auto grid max-w-[1100px] grid-cols-2 !p-2 lg:grid-cols-4 lg:divide-x lg:divide-x-reverse lg:divide-slate-100`}>
             {items(blocks, "stats", [
               { number: "1,200+", label: "مربی فعال" },
               { number: "35,000+", label: "شاگرد مدیریت‌شده" },
               { number: "12 ساعت", label: "صرفه‌جویی هفتگی هر مربی" },
               { number: "98%", label: "رضایت مربیان" },
             ]).map((item, index) => (
-              <FadeInUp
-                key={item.label}
-                delay={index * 100}
-                className="px-5 py-7 text-center"
-              >
-                <div
-                  dir="ltr"
-                  className={`text-3xl font-black ${index === 2 ? "text-[#007BFF]" : ""}`}
-                >
-                  {item.number}
-                </div>
+              <FadeInUp key={item.label} delay={index * 100} className="px-5 py-7 text-center">
+                <div dir="ltr" className={`text-3xl font-black ${index === 2 ? "text-[#007BFF]" : ""}`}>{item.number}</div>
                 <div className="mt-2 text-xs text-slate-400">{item.label}</div>
               </FadeInUp>
             ))}
           </div>
         </section>
 
-        <Features
-          blocks={blocks}
-          sections={sections}
-          athleteLive={athleteLive}
-          coachLive={coachLive}
-        />
-        <Steps blocks={blocks} />
-        <Showcase blocks={blocks} />
-        <Why blocks={blocks} />
-        <Pricing blocks={blocks} onSelect={mainAction} />
+        {/* 3. FEATURES */}
+        <Features blocks={blocks} sections={sections} athleteLive={athleteLive} coachLive={coachLive} />
 
-        {/* ================= FINAL CTA ================= */}
+        {/* 4. STEPS */}
+        <Steps blocks={blocks} sections={sections} />
 
-        <section
-          style={regionStyle(sections, "cta")}
-          className="px-5 py-24 lg:px-8"
-        >
+        {/* 5. SHOWCASE */}
+        <Showcase blocks={blocks} sections={sections} />
+
+        {/* 6. WHY */}
+        <Why blocks={blocks} sections={sections} />
+
+        {/* 7. PRICING */}
+        <Pricing blocks={blocks} sections={sections} onSelect={mainAction} />
+
+        {/* 8. FINAL CTA */}
+        <section style={regionStyle(sections, "cta")} className="px-5 py-24 lg:px-8">
           <FadeInUp>
             <div className="relative mx-auto max-w-[1100px] overflow-hidden rounded-[36px] bg-gradient-to-br from-[#007BFF] to-[#0856cc] px-6 py-16 text-center text-white">
               <span className="absolute -bottom-24 -start-16 h-64 w-64 rounded-full border-[28px] border-white/10" />
               <span className="absolute -end-10 -top-16 h-52 w-52 rounded-full border-[24px] border-white/10" />
               <div className="relative">
                 <span className="inline-block rounded-full bg-white/15 px-4 py-1.5 text-xs font-semibold">
-                  {text(
-                    blocks,
-                    "cta_eyebrow",
-                    "راه‌اندازی در کمتر از ۱۰ دقیقه",
-                  )}
+                  {text(blocks, "cta_eyebrow", "راه‌اندازی در کمتر از ۱۰ دقیقه")}
                 </span>
                 <h2 className="mx-auto mt-5 max-w-2xl text-3xl font-black leading-[1.5] sm:text-5xl">
-                  {text(
-                    blocks,
-                    "cta_title",
-                    "مربیگری حرفه‌ای، با ابزارهای حرفه‌ای شروع می‌شود.",
-                  )}
+                  {text(blocks, "cta_title", "مربیگری حرفه‌ای، با ابزارهای حرفه‌ای شروع می‌شود.")}
                 </h2>
                 <p className="mx-auto mt-5 max-w-xl text-sm leading-8 text-blue-100">
-                  {text(
-                    blocks,
-                    "cta_lead",
-                    "همین امروز به جمع مربیانی بپیوندید که با فیتو هوشمندتر کار می‌کنند و نتایج بهتری می‌گیرند.",
-                  )}
+                  {text(blocks, "cta_lead", "همین امروز به جمع مربیانی بپیوندید که با فیتو هوشمندتر کار می‌کنند و نتایج بهتری می‌گیرند.")}
                 </p>
                 <div className="mt-8 flex flex-wrap justify-center gap-3">
-                  <button
-                    type="button"
-                    onClick={mainAction}
-                    className={`${BTN} bg-white text-[#007BFF] hover:bg-blue-50`}
-                  >
-                    {mainLabel(
-                      text(blocks, "cta_button", "همین حالا به فیتو بپیوند"),
-                    )}
+                  <button type="button" onClick={mainAction} className={`${BTN} bg-white text-[#007BFF] hover:bg-blue-50`}>
+                    {mainLabel(text(blocks, "cta_button", "همین حالا به فیتو بپیوند"))}
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => scrollTo("product")}
-                    className={`${BTN} text-white ring-1 ring-white/30 hover:bg-white/10`}
-                  >
+                  <button type="button" onClick={() => scrollTo("product")} className={`${BTN} text-white ring-1 ring-white/30 hover:bg-white/10`}>
                     {text(blocks, "cta_secondary", "مشاهده دمو")}
                   </button>
                 </div>
@@ -2250,13 +1596,13 @@ export default function Home() {
           </FadeInUp>
         </section>
 
+        {/* 9. CUSTOM SECTIONS */}
         {customSections(sections).map((section) => (
-          <CustomSection
-            key={section.key}
-            section={section}
-            onAction={mainAction}
-          />
+          <div key={section.key} className="w-full">
+            <CustomSection section={section} onAction={mainAction} />
+          </div>
         ))}
+
       </main>
 
       {authMode && (
@@ -2265,37 +1611,22 @@ export default function Home() {
           onClose={() => setAuthMode(null)}
           onAuthenticated={(nextAccount) => {
             const next = panelsFor(nextAccount);
-            if (next.length === 1) {
-              navigate(next[0].to);
-            }
+            if (next.length === 1) navigate(next[0].to);
           }}
         />
       )}
 
       {/* ================= FOOTER ================= */}
-
-      <footer
-        style={regionStyle(sections, "footer")}
-        className="bg-gradient-to-b from-[#0b1530] to-[#07101f] px-5 pt-16 text-slate-300 lg:px-8"
-      >
+      <footer style={regionStyle(sections, "footer")} className="bg-gradient-to-b from-[#0b1530] to-[#07101f] px-5 pt-16 text-slate-300 lg:px-8">
         <div className="mx-auto grid max-w-[1200px] gap-10 md:grid-cols-[1.4fr_repeat(3,1fr)_1.3fr]">
           <div>
             <FitoLogo light name={text(blocks, "logo_name", "FITO")} />
             <p className="mt-4 text-sm leading-7 text-slate-400">
-              {text(
-                blocks,
-                "footer_about",
-                "فیتو، پلتفرم جامع مدیریت مربیگری برای مربیان حرفه‌ای و شاگردانشان؛ از برنامه تمرینی و تغذیه تا آنالیز بدن و دستیار هوشمند.",
-              )}
+              {text(blocks, "footer_about", "فیتو، پلتفرم جامع مدیریت مربیگری برای مربیان حرفه‌ای و شاگردانشان؛ از برنامه تمرینی و تغذیه تا آنالیز بدن و دستیار هوشمند.")}
             </p>
             <div className="mt-5 flex gap-2">
               {["IG", "TG", "IN", "X"].map((s) => (
-                <span
-                  key={s}
-                  className="grid h-8 w-8 place-items-center rounded-lg bg-white/10 text-[10px] font-bold"
-                >
-                  {s}
-                </span>
+                <span key={s} className="grid h-8 w-8 place-items-center rounded-lg bg-white/10 text-[10px] font-bold">{s}</span>
               ))}
             </div>
           </div>
@@ -2306,12 +1637,7 @@ export default function Home() {
               <ul className="space-y-2.5 text-sm">
                 {(col.links || []).map((l) => (
                   <li key={l}>
-                    <button
-                      type="button"
-                      className="transition hover:text-white"
-                    >
-                      {l}
-                    </button>
+                    <button type="button" className="transition hover:text-white">{l}</button>
                   </li>
                 ))}
               </ul>
@@ -2319,9 +1645,7 @@ export default function Home() {
           ))}
 
           <div className="text-sm">
-            <b className="mb-4 block text-white">
-              {text(blocks, "footer_contact_title", "ارتباط با ما")}
-            </b>
+            <b className="mb-4 block text-white">{text(blocks, "footer_contact_title", "ارتباط با ما")}</b>
             {[
               ["mail", text(blocks, "footer_email", "hello@fito.ir")],
               ["phone", text(blocks, "footer_phone", "021 - XXXX XXXX")],
@@ -2334,29 +1658,15 @@ export default function Home() {
                 <span dir={i === "pin" ? "rtl" : "ltr"}>{t}</span>
               </p>
             ))}
-            <form
-              className="mt-4 flex gap-2"
-              onSubmit={(e) => e.preventDefault()}
-            >
-              <input
-                type="email"
-                placeholder="ایمیل برای خبرنامه"
-                aria-label="ایمیل"
-                className="min-w-0 flex-1 rounded-lg bg-white/10 px-3 py-2 text-xs placeholder:text-slate-500 focus:outline focus:outline-[#007BFF]"
-              />
-              <button className="rounded-lg bg-[#007BFF] px-3 py-2 text-xs font-bold text-white">
-                عضویت
-              </button>
+            <form className="mt-4 flex gap-2" onSubmit={(e) => e.preventDefault()}>
+              <input type="email" placeholder="ایمیل برای خبرنامه" aria-label="ایمیل" className="min-w-0 flex-1 rounded-lg bg-white/10 px-3 py-2 text-xs placeholder:text-slate-500 focus:outline focus:outline-[#007BFF]" />
+              <button className="rounded-lg bg-[#007BFF] px-3 py-2 text-xs font-bold text-white">عضویت</button>
             </form>
           </div>
         </div>
 
         <p className="mx-auto mt-12 max-w-[1200px] border-t border-white/10 py-6 text-center text-[11px] text-slate-500">
-          {text(
-            blocks,
-            "footer_copyright",
-            "© 2026 Fito. All rights reserved.",
-          )}
+          {text(blocks, "footer_copyright", "© 2026 Fito. All rights reserved.")}
         </p>
       </footer>
     </div>
