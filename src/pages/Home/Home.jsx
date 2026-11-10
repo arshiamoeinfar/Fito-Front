@@ -37,6 +37,7 @@ import ProfileImg from "../../assets/imges/image 11.png";
 import imgBody from "../../assets/imges/auth.png";
 import ImgAnatomi from "../../assets/imges/image 24 (1).png";
 import FitoImgCoach from "../../assets/imges/Futuristic AI Fitness Coach Mascot.png"
+import ThemeSwitcher from "../../Components/shared/ThemeSwitcher/ThemeSwitcher";
 /* =========================
    Fade In Up (unchanged)
 ========================= */
@@ -1917,7 +1918,6 @@ export default function Home() {
                 sub={text(blocks, "logo_sub", "پلتفرم مدیریت مربیگری")}
               />
             </button>
-
             <div className="hidden items-center gap-8 md:flex">
               {navigation.map((item) => (
                 <button
@@ -1981,6 +1981,7 @@ export default function Home() {
                   </button>
                 </>
               )}
+          <ThemeSwitcher/>
             </div>
 
             <button
@@ -1995,6 +1996,8 @@ export default function Home() {
               </div>
             </button>
           </div>
+
+
 
           {menuOpen && (
             <div className="border-t border-slate-100 px-5 py-5 md:hidden">
