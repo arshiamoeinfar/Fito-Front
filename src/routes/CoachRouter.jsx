@@ -1,0 +1,27 @@
+import React from 'react'
+import { Routes, Route } from 'react-router-dom'
+import Coach from '../pages/coach/CoachDashboard'
+import CoachAthletes from '../pages/coach/CoachAthletes'
+import ReportPage from '../pages/coach/ReportPage'
+import MessageCoach from '../pages/coach/MessageCoach'
+import ApplyWorkout from '../pages/coach/ApplyWorkout'
+import CoachAthleteProfile from '../pages/coach/CoachAthleteProfile'
+import Setting from '../pages/coach/Setting'
+import WorkoutProgramBuilder from '../pages/coach/WorkoutProgramBuilder'
+
+export default function CoachRouter() {
+  return (
+    <>
+    <Routes>
+        <Route path="/coach/dashboard" element={<Coach />} />
+        <Route path="/coach/athletes" element={<CoachAthletes />} />
+        <Route path="/coach/athletes/:id" element={<CoachAthleteProfile />} />
+        <Route path="/coach/report" element={<ReportPage />} />
+        <Route path="/coach/message" element={<MessageCoach />} />
+        <Route path="/coach/programs" element={<ApplyWorkout />} />
+        <Route path="/coach/builder" element={<WorkoutProgramBuilder />} />
+        <Route path="/coach/settings" element={<Setting />} />
+    </Routes>
+    </>
+  )
+}

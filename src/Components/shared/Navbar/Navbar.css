@@ -1,0 +1,5 @@
+@import "tailwindcss";
+
+.font-primary {
+  font-family: "IRANYekanMMedium", sans-serif;
+}
