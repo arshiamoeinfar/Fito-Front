@@ -1043,7 +1043,7 @@ function Steps({ blocks, sections, profileName }) {
                   </div>
                 )}
                 {i === 2 && (
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid items-center justify-center m-auto grid-cols-3 gap-2">
                     {items(blocks, "step_stats", [
                       { label: "پایبندی به برنامه", value: "92%" },
                       { label: "تکمیل تمرین‌ها", value: "78%" },
@@ -1057,7 +1057,7 @@ function Steps({ blocks, sections, profileName }) {
                       ][index % 3];
 
                       return (
-                        <div key={`${stat.label}-${index}`} className={`rounded-xl border p-2.5 ${tone[0]}`}>
+                        <div key={`${stat.label}-${index}`} className={`rounded-xl border flex flex-col items-center justify-center dark:border-slate-700 bg-amber-200 dark:bg-slate-800 p-2.5 ${tone[0]}`}>
                           <div className={`mb-2 flex h-7 w-7 items-center justify-center rounded-lg ${tone[1]}`}><Icon size={15} /></div>
                           <p className="text-lg font-black text-slate-800 dark:text-white">{stat.value || "ثبت نشده"}</p>
                           <p className="mt-0.5 text-[9px] font-medium text-slate-500 dark:text-slate-400">{stat.label}</p>
