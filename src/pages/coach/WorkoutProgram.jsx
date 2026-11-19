@@ -1,13 +1,23 @@
-import React from "react";
+import React, { useState } from "react";
 import { History } from "lucide-react";
+import WorkoutHistoryModal from "./WorkoutHistoryModal";
 
 export default function WorkoutProgram({
   onHistoryClick,
+  history = [],
+  historyLoading = false,
+  onHistoryMonthChange,
   exercises = [],
   days = [],
   activeDayId = null,
   onDay,
 }) {
+  const [historyOpen, setHistoryOpen] = useState(false);
+
+  function openHistory() {
+    setHistoryOpen(true);
+    onHistoryClick?.();
+  }
 
   return (
     <section
@@ -29,7 +39,8 @@ export default function WorkoutProgram({
 
           <button
             type="button"
-            onClick={onHistoryClick}
+            onClick={openHistory}
+            aria-haspopup="dialog"
             className="
               group
               flex
@@ -197,6 +208,15 @@ export default function WorkoutProgram({
           </tbody>
         </table>
       </div>
+
+      <WorkoutHistoryModal
+        open={historyOpen}
+        onClose={() => setHistoryOpen(false)}
+        sessions={history}
+        loading={historyLoading}
+        onMonthChange={onHistoryMonthChange}
+        exercises={exercises}
+      />
     </section>
   );
 }

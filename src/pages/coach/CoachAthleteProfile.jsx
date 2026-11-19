@@ -1112,7 +1112,6 @@ export default function CoachAthleteProfile() {
                         days={programDays.map((day) => ({ id: day.id, label: day.title || weekdayNames[day.weekday] || "روز" }))}
                         activeDayId={selectedProgramDay?.id}
                         onDay={setPickedDayId}
-                        onHistoryClick={() => setTab("activity")}
                       />
                     </div>
                     <div className="col-span-12 lg:col-span-7">
