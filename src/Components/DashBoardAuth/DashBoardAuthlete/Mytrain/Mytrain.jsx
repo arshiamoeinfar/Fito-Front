@@ -47,7 +47,7 @@ export default function Mytrain({
           تمرینات امروز
         </h2>
 
-        <div className="flex shrink-0 items-center gap-2 rounded-xl bg-[#F5F9FD] px-3 py-2">
+        <div className="flex shrink-0 items-center gap-2 rounded-xl dark:bg-[#0B1220] px-3 py-2">
           <img src={ElementLeg} alt="" className="h-4 w-4 object-contain" />
           <span className="text-xs text-[#6B6F77] sm:text-sm">{dayTitle}</span>
         </div>
