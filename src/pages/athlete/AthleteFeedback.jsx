@@ -1,7 +1,22 @@
+
 import { useEffect, useState } from "react";
 import Navbar from "../../Components/shared/Navbar/Navbar";
 import HeaderDashBoard from "../../Components/DashBoardAuth/HeaderDashBoard/HeaderDashBoard";
 import { api, ApiError } from "../../api/client";
+
+import ForumOutlinedIcon from "@mui/icons-material/ForumOutlined";
+import SendRoundedIcon from "@mui/icons-material/SendRounded";
+import AddRoundedIcon from "@mui/icons-material/AddRounded";
+import PersonOutlineRoundedIcon from "@mui/icons-material/PersonOutlineRounded";
+import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
+import AccessTimeRoundedIcon from "@mui/icons-material/AccessTimeRounded";
+import CheckCircleOutlineRoundedIcon from "@mui/icons-material/CheckCircleOutlineRounded";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import ChatBubbleOutlineRoundedIcon from "@mui/icons-material/ChatBubbleOutlineRounded";
+import FitnessCenterRoundedIcon from "@mui/icons-material/FitnessCenterRounded";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import RefreshRoundedIcon from "@mui/icons-material/RefreshRounded";
+import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 
 function errorText(caught) {
   if (!(caught instanceof ApiError)) {
@@ -12,9 +27,7 @@ function errorText(caught) {
 }
 
 function when(value) {
-  if (!value) {
-    return "—";
-  }
+  if (!value) return "—";
 
   const date = new Date(value);
 
@@ -36,8 +49,40 @@ function statusLabel(status) {
   return status || "—";
 }
 
+function statusStyle(status) {
+  if (status === "open" || status === "active") {
+    return "bg-emerald-50 text-emerald-600";
+  }
+
+  if (status === "resolved" || status === "ended") {
+    return "bg-slate-100 text-slate-500";
+  }
+
+  return "bg-amber-50 text-amber-600";
+}
+
 function sharedMessages(thread) {
-  return (thread?.messages ?? []).filter((message) => message.visibility !== "coach_only");
+  return (thread?.messages ?? []).filter(
+    (message) => message.visibility !== "coach_only"
+  );
+}
+
+function EmptyState({ icon: Icon, title, description }) {
+  return (
+    <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-[#FAFBFD] px-5 py-12 text-center">
+      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-50 text-[#007BFF]">
+        <Icon sx={{ fontSize: 30 }} />
+      </div>
+
+      <h3 className="mt-4 text-sm font-bold text-[#374151]">
+        {title}
+      </h3>
+
+      <p className="mt-2 max-w-sm text-xs leading-7 text-[#9AA1AB]">
+        {description}
+      </p>
+    </div>
+  );
 }
 
 export default function AthleteFeedback() {
@@ -51,24 +96,42 @@ export default function AthleteFeedback() {
   const [notice, setNotice] = useState(null);
   const [pending, setPending] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [detailLoading, setDetailLoading] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
+  const [mobileChatOpen, setMobileChatOpen] = useState(false);
 
   useEffect(() => {
     let active = true;
+
+    setLoaded(false);
 
     Promise.all([
       api("/api/v1/athlete/relationships"),
       api("/api/v1/athlete/feedback-threads"),
     ]).then(
       ([relationshipBody, threadBody]) => {
-        if (!active) {
-          return;
-        }
+        if (!active) return;
 
-        const rows = Array.isArray(relationshipBody?.relationships) ? relationshipBody.relationships : [];
+        const rows = Array.isArray(relationshipBody?.relationships)
+          ? relationshipBody.relationships
+          : [];
+
         setRelationships(rows);
-        setThreads(Array.isArray(threadBody?.threads) ? threadBody.threads : []);
-        setRelationshipId((current) => current || String(rows.find((row) => row.status === "active")?.id ?? rows[0]?.id ?? ""));
+        setThreads(
+          Array.isArray(threadBody?.threads)
+            ? threadBody.threads
+            : []
+        );
+
+        setRelationshipId((current) =>
+          current ||
+          String(
+            rows.find((row) => row.status === "active")?.id ??
+              rows[0]?.id ??
+              ""
+          )
+        );
+
         setLoaded(true);
       },
       (caught) => {
@@ -76,7 +139,7 @@ export default function AthleteFeedback() {
           setError(errorText(caught));
           setLoaded(true);
         }
-      },
+      }
     );
 
     return () => {
@@ -86,23 +149,29 @@ export default function AthleteFeedback() {
 
   useEffect(() => {
     if (!threadId) {
+      setDetail(null);
       return undefined;
     }
 
     let active = true;
 
+    setDetailLoading(true);
+    setDetail(null);
+
     api(`/api/v1/athlete/feedback-threads/${threadId}`).then(
       (thread) => {
         if (active) {
           setDetail(thread);
+          setDetailLoading(false);
         }
       },
       (caught) => {
         if (active) {
           setDetail(null);
+          setDetailLoading(false);
           setError(errorText(caught));
         }
-      },
+      }
     );
 
     return () => {
@@ -110,28 +179,51 @@ export default function AthleteFeedback() {
     };
   }, [threadId, reloadKey]);
 
-  const relationship = relationships.find((row) => String(row.id) === String(relationshipId)) ?? null;
-  const visibleThreads = threads.filter((thread) => String(thread.coaching_relationship_id) === String(relationshipId));
+  const relationship =
+    relationships.find(
+      (row) => String(row.id) === String(relationshipId)
+    ) ?? null;
+
+  const visibleThreads = threads.filter(
+    (thread) =>
+      String(thread.coaching_relationship_id) ===
+      String(relationshipId)
+  );
+
   const activeRelationship = relationship?.status === "active";
   const messages = sharedMessages(detail);
 
+  const openCount = visibleThreads.filter(
+    (thread) => thread.status === "open"
+  ).length;
+
+  const resolvedCount = visibleThreads.filter(
+    (thread) => thread.status === "resolved"
+  ).length;
+
   async function openThread(event) {
     event.preventDefault();
+
     setError(null);
     setNotice(null);
     setPending(true);
 
     try {
-      const created = await api("/api/v1/athlete/feedback-threads", {
-        method: "POST",
-        body: {
-          coaching_relationship_id: Number(relationshipId),
-          body,
-        },
-      });
+      const created = await api(
+        "/api/v1/athlete/feedback-threads",
+        {
+          method: "POST",
+          body: {
+            coaching_relationship_id: Number(relationshipId),
+            body,
+          },
+        }
+      );
+
       setBody("");
       setThreadId(created.id);
-      setNotice("موضوع برای مربی ثبت شد.");
+      setMobileChatOpen(true);
+      setNotice("موضوع جدید با موفقیت برای مربی ثبت شد.");
       setReloadKey((value) => value + 1);
     } catch (caught) {
       setError(errorText(caught));
@@ -142,17 +234,22 @@ export default function AthleteFeedback() {
 
   async function reply(event) {
     event.preventDefault();
+
     setError(null);
     setNotice(null);
     setPending(true);
 
     try {
-      await api(`/api/v1/athlete/feedback-threads/${threadId}/messages`, {
-        method: "POST",
-        body: { body },
-      });
+      await api(
+        `/api/v1/athlete/feedback-threads/${threadId}/messages`,
+        {
+          method: "POST",
+          body: { body },
+        }
+      );
+
       setBody("");
-      setNotice("پاسخ ثبت شد.");
+      setNotice("پاسخ شما با موفقیت ثبت شد.");
       setReloadKey((value) => value + 1);
     } catch (caught) {
       setError(errorText(caught));
@@ -161,120 +258,592 @@ export default function AthleteFeedback() {
     }
   }
 
+  function createNewThread() {
+    setThreadId(null);
+    setDetail(null);
+    setBody("");
+    setNotice(null);
+    setError(null);
+    setMobileChatOpen(true);
+  }
+
+  function selectThread(id) {
+    setThreadId(id);
+    setBody("");
+    setNotice(null);
+    setError(null);
+    setMobileChatOpen(true);
+  }
+
+  const canWrite =
+    activeRelationship &&
+    (!detail || detail.status === "open");
+
   return (
-    <div className="min-h-screen bg-[#F5F7FB] flex justify-center">
-      <div className="w-full max-w-[1600px] grid grid-cols-[90px_1fr] gap-6 px-8 py-6 bg-[#F5F7FB]">
-        <div>
+    <div className="flex min-h-screen justify-center bg-[#F5F7FB]">
+      <div className="grid w-full max-w-[1600px] grid-cols-1 gap-4 px-3 py-4 sm:px-5 md:grid-cols-[90px_minmax(0,1fr)] md:gap-6 md:px-8 md:py-6">
+        {/* Navbar */}
+        <div className="">
           <Navbar />
         </div>
-        <div className="min-w-0 py-3">
-          <div className="grid grid-cols-12 gap-6">
-            <HeaderDashBoard title="بازخورد" description="موضوع‌های رابطه با مربی" />
+
+        {/* Main */}
+        <main className="min-w-0 py-1 md:py-3">
+          <div className="grid grid-cols-12 gap-4 sm:gap-6">
+            <HeaderDashBoard
+              title="بازخورد"
+              description="گفت‌وگو و ارتباط مستقیم با مربی خود"
+            />
+
+            {/* Notifications */}
             {error && (
-              <p className="col-span-12 rounded-3xl bg-red-50 px-6 py-4 text-right text-sm text-red-700" dir="rtl">
-                {error}
-              </p>
-            )}
-            {notice && (
-              <p className="col-span-12 rounded-3xl bg-green-50 px-6 py-4 text-right text-sm text-green-700" dir="rtl">
-                {notice}
-              </p>
+              <div
+                dir="rtl"
+                className="col-span-12 flex items-start gap-3 rounded-2xl border border-red-100 bg-red-50 p-4 text-right"
+              >
+                <InfoOutlinedIcon
+                  sx={{ fontSize: 21 }}
+                  className="shrink-0 text-red-500"
+                />
+
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-red-700">
+                    خطا در انجام عملیات
+                  </p>
+                  <p className="mt-1 break-words text-xs leading-6 text-red-600">
+                    {error}
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setError(null)}
+                  className="shrink-0 text-xs text-red-500"
+                >
+                  بستن
+                </button>
+              </div>
             )}
 
-            <section dir="rtl" className="col-span-4 rounded-3xl bg-white p-6 text-right">
-              <label className="grid gap-2 text-xs text-[#6B6F77]">
-                رابطه
+            {notice && (
+              <div
+                dir="rtl"
+                className="col-span-12 flex items-center gap-3 rounded-2xl border border-emerald-100 bg-emerald-50 p-4 text-right"
+              >
+                <CheckCircleOutlineRoundedIcon
+                  sx={{ fontSize: 22 }}
+                  className="shrink-0 text-emerald-600"
+                />
+                <p className="text-sm text-emerald-700">
+                  {notice}
+                </p>
+              </div>
+            )}
+
+            {/* Relationship selector */}
+            <section
+              dir="rtl"
+              className="col-span-12 flex min-w-0 flex-col gap-4 rounded-3xl border border-slate-100 bg-white p-4 shadow-sm shadow-slate-200/30 sm:flex-row sm:items-center sm:justify-between sm:p-5"
+            >
+              <div className="flex min-w-0 items-center gap-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-[#007BFF]">
+                  <PersonOutlineRoundedIcon sx={{ fontSize: 24 }} />
+                </div>
+
+                <div className="min-w-0">
+                  <p className="text-xs text-[#9AA1AB]">
+                    گفت‌وگو با مربی
+                  </p>
+
+                  <h2 className="mt-1 truncate text-sm font-bold text-[#303741]">
+                    {relationship?.coach?.display_name || "انتخاب مربی"}
+                  </h2>
+                </div>
+              </div>
+
+              <div className="flex min-w-0 flex-col gap-2 sm:w-72">
+                <label className="text-xs text-[#9299A3]">
+                  انتخاب رابطه
+                </label>
+
                 <select
                   value={relationshipId}
                   onChange={(event) => {
                     setRelationshipId(event.target.value);
                     setThreadId(null);
                     setDetail(null);
+                    setBody("");
+                    setMobileChatOpen(false);
+                    setError(null);
+                    setNotice(null);
                   }}
-                  className="rounded-2xl border border-[#F0F2F5] bg-[#F5F7FB] px-4 py-3 text-sm text-[#4B5563]"
+                  className="w-full min-w-0 rounded-2xl border border-slate-200 bg-[#F8FAFC] px-4 py-3 text-sm text-[#4B5563] outline-none transition focus:border-[#007BFF] focus:ring-4 focus:ring-blue-50"
                 >
                   {relationships.map((row) => (
                     <option key={row.id} value={row.id}>
-                      {row.coach?.display_name || "مربی"} — {statusLabel(row.status)}
+                      {row.coach?.display_name || "مربی"} —{" "}
+                      {statusLabel(row.status)}
                     </option>
                   ))}
                 </select>
-              </label>
-              <div className="mt-6 flex items-center justify-between">
-                <h2 className="text-lg font-primary text-[#6B6F77]">موضوع‌ها</h2>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setThreadId(null);
-                    setDetail(null);
-                  }}
-                  className="text-xs text-[#007BFF]"
-                >
-                  موضوع تازه
-                </button>
-              </div>
-              {loaded && visibleThreads.length === 0 && (
-                <p className="mt-4 text-sm text-[#A0A4AA]">موضوعی برای این رابطه نیست.</p>
-              )}
-              <div className="mt-4 grid gap-3">
-                {visibleThreads.map((thread) => (
-                  <button
-                    key={thread.id}
-                    type="button"
-                    onClick={() => setThreadId(thread.id)}
-                    className={`rounded-2xl px-4 py-3 text-right text-sm ${
-                      threadId === thread.id ? "bg-[#EBF5FF] text-[#007BFF]" : "bg-[#F5F7FB] text-[#4B5563]"
-                    }`}
-                  >
-                    موضوع {thread.id} — {statusLabel(thread.status)}
-                    <span className="mt-1 block text-xs text-[#A0A4AA]">{when(thread.created_at)}</span>
-                  </button>
-                ))}
               </div>
             </section>
 
-            <section dir="rtl" className="col-span-8 rounded-3xl bg-white p-6 text-right">
-              {!detail && <p className="text-sm text-[#A0A4AA]">یک موضوع را انتخاب کنید یا موضوع تازه بسازید.</p>}
-              {detail && (
-                <div>
-                  <div className="flex items-center justify-between gap-3">
-                    <h2 className="text-xl font-primary text-[#6B6F77]">موضوع {detail.id}</h2>
-                    <span className="text-xs text-[#A0A4AA]">{statusLabel(detail.status)}</span>
+            {/* Stats */}
+            <section
+              dir="rtl"
+              className="col-span-12 grid grid-cols-1 gap-3 sm:grid-cols-3"
+            >
+              <div className="rounded-3xl border border-slate-100 bg-white p-4 shadow-sm shadow-slate-200/20 sm:p-5">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-xs text-[#9299A3]">
+                      کل موضوع‌ها
+                    </p>
+                    <p className="mt-2 text-2xl font-extrabold text-[#303741]">
+                      {visibleThreads.length.toLocaleString("fa-IR")}
+                    </p>
                   </div>
-                  <div className="mt-4 grid gap-3">
-                    {messages.length === 0 && <p className="text-sm text-[#A0A4AA]">پیام مشترکی در این موضوع نیست.</p>}
-                    {messages.map((message) => (
-                      <article key={message.id} className="rounded-2xl bg-[#F5F7FB] px-4 py-3">
-                        <p className="text-sm text-[#4B5563]">{message.body}</p>
-                        <p className="mt-2 text-xs text-[#A0A4AA]">{when(message.created_at)}</p>
-                      </article>
-                    ))}
+
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-50 text-[#007BFF]">
+                    <ForumOutlinedIcon />
                   </div>
                 </div>
-              )}
+              </div>
 
-              <form onSubmit={detail ? reply : openThread} className="mt-6 grid gap-3">
-                {!activeRelationship && (
-                  <p className="text-sm text-[#A0A4AA]">رابطه فعال نیست؛ پیام تازه ثبت نمی‌شود.</p>
-                )}
-                <textarea
-                  value={body}
-                  onChange={(event) => setBody(event.target.value)}
-                  rows={3}
-                  placeholder="متن بازخورد"
-                  className="rounded-2xl border border-[#F0F2F5] bg-[#F5F7FB] px-4 py-3 text-sm text-[#4B5563]"
-                />
-                <button
-                  type="submit"
-                  disabled={pending || !activeRelationship || body.trim() === "" || (detail && detail.status !== "open")}
-                  className="w-fit rounded-2xl bg-[#007BFF] px-5 py-2 text-sm text-white disabled:opacity-60"
+              <div className="rounded-3xl border border-slate-100 bg-white p-4 shadow-sm shadow-slate-200/20 sm:p-5">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-xs text-[#9299A3]">
+                      موضوع‌های باز
+                    </p>
+                    <p className="mt-2 text-2xl font-extrabold text-emerald-600">
+                      {openCount.toLocaleString("fa-IR")}
+                    </p>
+                  </div>
+
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
+                    <ChatBubbleOutlineRoundedIcon />
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-3xl border border-slate-100 bg-white p-4 shadow-sm shadow-slate-200/20 sm:p-5">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-xs text-[#9299A3]">
+                      موضوع‌های بسته
+                    </p>
+                    <p className="mt-2 text-2xl font-extrabold text-slate-500">
+                      {resolvedCount.toLocaleString("fa-IR")}
+                    </p>
+                  </div>
+
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100 text-slate-500">
+                    <CheckCircleOutlineRoundedIcon />
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Chat application */}
+            <section
+              dir="rtl"
+              className="col-span-12 min-w-0 overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm shadow-slate-200/30"
+            >
+              <div className="grid min-h-[650px] grid-cols-1 lg:grid-cols-[340px_minmax(0,1fr)]">
+                {/* Threads sidebar */}
+                <aside
+                  className={`min-w-0 border-l border-slate-100 bg-white ${
+                    mobileChatOpen ? "hidden lg:block" : "block"
+                  }`}
                 >
-                  {detail ? "ثبت پاسخ" : "شروع موضوع"}
-                </button>
-              </form>
+                  <div className="border-b border-slate-100 p-4 sm:p-5">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <h2 className="font-bold text-[#303741]">
+                          پیام‌ها و موضوع‌ها
+                        </h2>
+                        <p className="mt-1 text-xs text-[#9AA1AB]">
+                          تاریخچه گفت‌وگوهای شما
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={createNewThread}
+                        disabled={!activeRelationship}
+                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#007BFF] text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-50"
+                        title="موضوع جدید"
+                      >
+                        <AddRoundedIcon />
+                      </button>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={createNewThread}
+                      disabled={!activeRelationship}
+                      className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl border border-blue-100 bg-blue-50/70 px-4 py-3 text-sm font-semibold text-[#007BFF] transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <AddRoundedIcon sx={{ fontSize: 19 }} />
+                      شروع موضوع جدید
+                    </button>
+                  </div>
+
+                  <div className="p-3 sm:p-4">
+                    <div className="mb-3 flex items-center justify-between px-1">
+                      <span className="text-xs font-semibold text-[#6B6F77]">
+                        فهرست موضوع‌ها
+                      </span>
+
+                      <span className="text-[11px] text-[#A0A4AA]">
+                        {visibleThreads.length.toLocaleString("fa-IR")} مورد
+                      </span>
+                    </div>
+
+                    {!loaded ? (
+                      <div className="grid gap-3">
+                        {[1, 2, 3].map((item) => (
+                          <div
+                            key={item}
+                            className="h-20 animate-pulse rounded-2xl bg-[#F5F7FB]"
+                          />
+                        ))}
+                      </div>
+                    ) : visibleThreads.length === 0 ? (
+                      <div className="rounded-2xl bg-[#F8FAFC] px-4 py-8 text-center">
+                        <ForumOutlinedIcon
+                          sx={{
+                            fontSize: 28,
+                            color: "#A0A4AA",
+                          }}
+                        />
+                        <p className="mt-3 text-xs font-semibold text-[#6B6F77]">
+                          موضوعی وجود ندارد
+                        </p>
+                        <p className="mt-2 text-[11px] leading-6 text-[#A0A4AA]">
+                          اولین موضوع خود را با مربی شروع کنید.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="grid gap-2">
+                        {visibleThreads.map((thread) => {
+                          const active = threadId === thread.id;
+
+                          return (
+                            <button
+                              key={thread.id}
+                              type="button"
+                              onClick={() => selectThread(thread.id)}
+                              className={`group w-full min-w-0 rounded-2xl border p-3 text-right transition ${
+                                active
+                                  ? "border-blue-100 bg-blue-50"
+                                  : "border-transparent bg-[#F8FAFC] hover:border-slate-200 hover:bg-slate-50"
+                              }`}
+                            >
+                              <div className="flex items-center justify-between gap-2">
+                                <div className="flex min-w-0 items-center gap-2">
+                                  <div
+                                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
+                                      active
+                                        ? "bg-white text-[#007BFF]"
+                                        : "bg-white text-[#9299A3]"
+                                    }`}
+                                  >
+                                    <ForumOutlinedIcon
+                                      sx={{ fontSize: 19 }}
+                                    />
+                                  </div>
+
+                                  <span
+                                    className={`truncate text-sm font-bold ${
+                                      active
+                                        ? "text-[#007BFF]"
+                                        : "text-[#4B5563]"
+                                    }`}
+                                  >
+                                    موضوع {thread.id}
+                                  </span>
+                                </div>
+
+                                <span
+                                  className={`shrink-0 rounded-lg px-2 py-1 text-[10px] font-semibold ${statusStyle(
+                                    thread.status
+                                  )}`}
+                                >
+                                  {statusLabel(thread.status)}
+                                </span>
+                              </div>
+
+                              <div className="mt-3 flex items-center justify-between gap-2">
+                                <span className="flex min-w-0 items-center gap-1 truncate text-[10px] text-[#A0A4AA]">
+                                  <AccessTimeRoundedIcon
+                                    sx={{ fontSize: 13 }}
+                                  />
+                                  {when(thread.created_at)}
+                                </span>
+
+                                <ArrowBackRoundedIcon
+                                  sx={{
+                                    fontSize: 16,
+                                    color: active ? "#007BFF" : "#B8BEC7",
+                                  }}
+                                />
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </aside>
+
+                {/* Chat area */}
+                <div
+                  className={`flex min-w-0 flex-col bg-[#FAFBFD] ${
+                    mobileChatOpen ? "flex" : "hidden lg:flex"
+                  }`}
+                >
+                  {!threadId && !mobileChatOpen ? (
+                    <div className="flex flex-1 flex-col items-center justify-center p-6 text-center">
+                      <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-blue-50 text-[#007BFF]">
+                        <ForumOutlinedIcon sx={{ fontSize: 38 }} />
+                      </div>
+
+                      <h3 className="mt-5 text-lg font-bold text-[#303741]">
+                        گفت‌وگوی خود را شروع کنید
+                      </h3>
+
+                      <p className="mt-2 max-w-sm text-sm leading-7 text-[#9299A3]">
+                        یکی از موضوع‌های قبلی را انتخاب کنید یا برای مطرح کردن یک مسئله جدید، گفت‌وگوی تازه‌ای بسازید.
+                      </p>
+
+                      <button
+                        type="button"
+                        onClick={createNewThread}
+                        disabled={!activeRelationship}
+                        className="mt-6 flex items-center gap-2 rounded-2xl bg-[#007BFF] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-600 disabled:opacity-50"
+                      >
+                        <AddRoundedIcon sx={{ fontSize: 19 }} />
+                        شروع گفت‌وگوی جدید
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Chat header */}
+                      <div className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 bg-white p-4 sm:p-5">
+                        <div className="flex min-w-0 items-center gap-3">
+                          <button
+                            type="button"
+                            onClick={() => setMobileChatOpen(false)}
+                            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#F5F7FB] text-[#6B6F77] lg:hidden"
+                            aria-label="بازگشت به فهرست"
+                          >
+                            <ArrowForwardRoundedIcon />
+                          </button>
+
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[#007BFF]">
+                            <PersonOutlineRoundedIcon />
+                          </div>
+
+                          <div className="min-w-0">
+                            <h3 className="truncate text-sm font-bold text-[#303741]">
+                              {threadId
+                                ? `موضوع ${threadId}`
+                                : "موضوع جدید"}
+                            </h3>
+
+                            <p className="mt-1 truncate text-xs text-[#9299A3]">
+                              {relationship?.coach?.display_name ||
+                                "گفت‌وگو با مربی"}
+                            </p>
+                          </div>
+                        </div>
+
+                        {detail && (
+                          <span
+                            className={`shrink-0 rounded-xl px-3 py-2 text-xs font-semibold ${statusStyle(
+                              detail.status
+                            )}`}
+                          >
+                            {statusLabel(detail.status)}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Messages */}
+                      <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6">
+                        {detailLoading ? (
+                          <div className="grid gap-4">
+                            {[1, 2, 3].map((item) => (
+                              <div
+                                key={item}
+                                className={`h-20 max-w-[75%] animate-pulse rounded-2xl bg-slate-200/60 ${
+                                  item % 2 === 0 ? "mr-auto" : "ml-auto"
+                                }`}
+                              />
+                            ))}
+                          </div>
+                        ) : !detail ? (
+                          <div className="flex h-full min-h-64 flex-col items-center justify-center text-center">
+                            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-50 text-[#007BFF]">
+                              <ChatBubbleOutlineRoundedIcon
+                                sx={{ fontSize: 30 }}
+                              />
+                            </div>
+
+                            <h3 className="mt-4 text-sm font-bold text-[#303741]">
+                              موضوع جدید
+                            </h3>
+
+                            <p className="mt-2 max-w-xs text-xs leading-7 text-[#9299A3]">
+                              پیام خود را بنویسید تا موضوع جدیدی برای مربی ایجاد شود.
+                            </p>
+                          </div>
+                        ) : messages.length === 0 ? (
+                          <EmptyState
+                            icon={ChatBubbleOutlineRoundedIcon}
+                            title="هنوز پیامی وجود ندارد"
+                            description="می‌توانید اولین پیام این گفت‌وگو را ارسال کنید."
+                          />
+                        ) : (
+                          <div className="grid content-start gap-4">
+                            {messages.map((message) => (
+                              <article
+                                key={message.id}
+                                className="max-w-[90%] rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:max-w-[80%]"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-50 text-[#007BFF]">
+                                    <PersonOutlineRoundedIcon
+                                      sx={{ fontSize: 16 }}
+                                    />
+                                  </div>
+
+                                  <span className="text-xs font-semibold text-[#6B6F77]">
+                                    پیام مشترک
+                                  </span>
+                                </div>
+
+                                <p className="mt-3 whitespace-pre-wrap break-words text-sm leading-8 text-[#4B5563]">
+                                  {message.body}
+                                </p>
+
+                                <div className="mt-3 flex items-center justify-end gap-1 text-[10px] text-[#A0A4AA]">
+                                  <AccessTimeRoundedIcon
+                                    sx={{ fontSize: 13 }}
+                                  />
+                                  {when(message.created_at)}
+                                </div>
+                              </article>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Composer */}
+                      <div className="shrink-0 border-t border-slate-100 bg-white p-4 sm:p-5">
+                        {!activeRelationship && (
+                          <div className="mb-3 flex items-center gap-2 rounded-xl bg-amber-50 p-3 text-xs text-amber-700">
+                            <InfoOutlinedIcon sx={{ fontSize: 18 }} />
+                            رابطه فعال نیست؛ امکان ارسال پیام وجود ندارد.
+                          </div>
+                        )}
+
+                        {detail && detail.status !== "open" && (
+                          <div className="mb-3 flex items-center gap-2 rounded-xl bg-slate-100 p-3 text-xs text-slate-600">
+                            <LockOutlinedIcon sx={{ fontSize: 17 }} />
+                            این موضوع بسته شده و امکان ارسال پاسخ ندارد.
+                          </div>
+                        )}
+
+                        <form
+                          onSubmit={detail ? reply : openThread}
+                          className="grid gap-3"
+                        >
+                          <label className="text-xs font-medium text-[#9299A3]">
+                            {detail ? "پاسخ شما" : "متن موضوع"}
+                          </label>
+
+                          <textarea
+                            value={body}
+                            onChange={(event) =>
+                              setBody(event.target.value)
+                            }
+                            rows={3}
+                            maxLength={5000}
+                            disabled={!canWrite || pending}
+                            placeholder={
+                              detail
+                                ? "پاسخ خود را برای مربی بنویسید..."
+                                : "موضوع یا بازخورد خود را با مربی در میان بگذارید..."
+                            }
+                            className="w-full resize-none rounded-2xl border border-slate-200 bg-[#F8FAFC] px-4 py-3 text-sm leading-7 text-[#4B5563] outline-none transition placeholder:text-[#B2B8C2] focus:border-[#007BFF] focus:bg-white focus:ring-4 focus:ring-blue-50 disabled:cursor-not-allowed disabled:opacity-60"
+                          />
+
+                          <div className="flex flex-col-reverse items-center justify-between gap-3 sm:flex-row">
+                            <p className="text-[10px] text-[#A0A4AA]">
+                              {body.length.toLocaleString("fa-IR")} / ۵۰۰۰ کاراکتر
+                            </p>
+
+                            <button
+                              type="submit"
+                              disabled={
+                                pending ||
+                                !canWrite ||
+                                body.trim() === "" ||
+                                (detailLoading)
+                              }
+                              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#007BFF] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                            >
+                              {pending ? (
+                                <>
+                                  <RefreshRoundedIcon
+                                    className="animate-spin"
+                                    sx={{ fontSize: 18 }}
+                                  />
+                                  در حال ارسال
+                                </>
+                              ) : (
+                                <>
+                                  <SendRoundedIcon
+                                    sx={{ fontSize: 18 }}
+                                  />
+                                  {detail ? "ارسال پاسخ" : "ثبت موضوع"}
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        </form>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            </section>
+
+            {/* Guide */}
+            <section
+              dir="rtl"
+              className="col-span-12 flex items-start gap-3 rounded-3xl border border-blue-100 bg-blue-50/60 p-4 sm:p-5"
+            >
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#007BFF]">
+                <FitnessCenterRoundedIcon />
+              </div>
+
+              <div className="min-w-0">
+                <h3 className="text-sm font-bold text-[#3D424A]">
+                  ارتباط بهتر با مربی
+                </h3>
+
+                <p className="mt-1 text-xs leading-7 text-[#7B8795]">
+                  برای دریافت پاسخ دقیق‌تر، موضوع خود را واضح و با جزئیات کافی مطرح کنید. هر موضوع یک گفت‌وگوی مستقل است و می‌توانید برای مسائل مختلف، موضوع‌های جداگانه ایجاد کنید.
+                </p>
+              </div>
             </section>
           </div>
-        </div>
+        </main>
       </div>
     </div>
   );
