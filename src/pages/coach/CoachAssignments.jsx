@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AddIcon from "@mui/icons-material/Add";
+import CloseIcon from "@mui/icons-material/Close";
 import FastfoodIcon from "@mui/icons-material/Fastfood";
 import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
 import SearchIcon from "@mui/icons-material/Search";
 import Navbar from "../../Components/shared/Navbar/Navbar";
-import HeaderDashBoard from "../../Components/DashBoardAuth/HeaderDashBoard/HeaderDashBoard";
+// import HeaderDashBoard from "../../Components/DashBoardAuth/HeaderDashBoard/HeaderDashBoard";
 import { api, ApiError } from "../../api/client";
 import { faDigits, jalaliParts } from "../../lib/jalali";
 
@@ -96,6 +97,87 @@ function actionLabel(status) {
   return "مشاهده کامل";
 }
 
+/* ───────────── اجزای مشترک کارت موبایل و جدول دسکتاپ ───────────── */
+
+function Avatar({ name }) {
+  return (
+    <div
+      aria-hidden="true"
+      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#F5F7FB] text-sm text-[#4B5563]"
+    >
+      {name.slice(0, 1)}
+    </div>
+  );
+}
+
+function StatusChip({ status }) {
+  return (
+    <span className={`inline-flex w-fit items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-xs ${status.badge}`}>
+      <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
+      {status.label}
+    </span>
+  );
+}
+
+function RowActions({ row, status, pending, onEnd, stacked }) {
+  return (
+    <div className={stacked ? "mt-4 flex flex-col gap-2" : "flex flex-col items-center gap-2"}>
+      <Link
+        to={row.href}
+        aria-label={`${actionLabel(row.status)}: ${row.program}`}
+        className={`inline-flex min-h-10 items-center justify-center whitespace-nowrap rounded-xl px-4 py-2 text-xs font-bold transition hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#007BFF] focus-visible:ring-offset-2 ${status.badge} ${stacked ? "w-full" : ""}`}
+      >
+        {actionLabel(row.status)}
+      </Link>
+      {row.assignment?.status === "active" && (
+        <button
+          type="button"
+          disabled={pending}
+          onClick={() => onEnd(row.assignment)}
+          className={`rounded-xl text-[11px] text-[#6B6F77] transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#007BFF] disabled:opacity-60 ${
+            stacked ? "min-h-10 w-full border border-[#E8ECF1] text-xs hover:bg-[#F5F7FB]" : "px-2 py-1 hover:text-[#1F2937]"
+          }`}
+        >
+          تمام کردن
+        </button>
+      )}
+    </div>
+  );
+}
+
+function Banner({ tone, onClose, children }) {
+  const error = tone === "error";
+
+  return (
+    <div
+      role={error ? "alert" : "status"}
+      className={`col-span-12 flex items-start justify-between gap-3 rounded-2xl px-4 py-3.5 text-right text-sm leading-7 sm:rounded-3xl sm:px-6 sm:py-4 ${
+        error ? "bg-red-50 text-red-700" : "bg-green-50 text-green-700"
+      }`}
+    >
+      <p className="min-w-0 break-words">{children}</p>
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label="بستن پیام"
+        className="-m-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition hover:bg-black/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-current"
+      >
+        <CloseIcon fontSize="small" />
+      </button>
+    </div>
+  );
+}
+
+function ListSkeleton() {
+  return (
+    <div className="animate-pulse space-y-3 p-3 sm:p-4" role="status" aria-label="در حال آوردن برنامه‌ها">
+      {[0, 1, 2].map((i) => (
+        <div key={i} className="h-24 rounded-2xl bg-[#F5F7FB] xl:h-[82px]" />
+      ))}
+    </div>
+  );
+}
+
 export default function CoachAssignments() {
   const navigate = useNavigate();
   const [relationships, setRelationships] = useState([]);
@@ -106,6 +188,7 @@ export default function CoachAssignments() {
   const [error, setError] = useState(null);
   const [notice, setNotice] = useState(null);
   const [pending, setPending] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
   const [programType, setProgramType] = useState("workout");
   const [search, setSearch] = useState("");
@@ -131,10 +214,12 @@ export default function CoachAssignments() {
         setAssignments(Array.isArray(assignmentBody?.assignments) ? assignmentBody.assignments : []);
         setMealPlans(Array.isArray(mealPlanBody?.meal_plans) ? mealPlanBody.meal_plans : []);
         setMealAssignments(Array.isArray(mealAssignmentBody?.assignments) ? mealAssignmentBody.assignments : []);
+        setLoaded(true);
       },
       (caught) => {
         if (active) {
           setError(errorText(caught));
+          setLoaded(true);
         }
       },
     );
@@ -241,72 +326,111 @@ export default function CoachAssignments() {
     setActiveFilter("all");
   }
 
+  function createProgram() {
+    navigate(programType === "workout" ? "/coach/programs/new" : "/coach/nutrition/new");
+  }
+
+  function resetFilters() {
+    setSearch("");
+    setActiveFilter("all");
+  }
+
+  const hasActiveFilters = search.trim() !== "" || activeFilter !== "all";
+
+  const typeButton = (type, label, Icon) => {
+    const active = programType === type;
+
+    return (
+      <button
+        type="button"
+        onClick={() => chooseType(type)}
+        aria-pressed={active}
+        className={`flex h-11 flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl px-5 text-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#007BFF] sm:flex-none ${
+          active
+            ? "bg-[#007BFF] text-white shadow-[0_5px_14px_rgba(0,123,255,0.18)]"
+            : "text-[#6B6F77] hover:bg-[#F5F7FB] hover:text-[#007BFF]"
+        }`}
+      >
+        <Icon fontSize="small" />
+        <span>{label}</span>
+      </button>
+    );
+  };
+
   return (
     <div className="flex min-h-screen justify-center bg-[#F5F7FB]">
-      <div className="grid w-full max-w-[1600px] grid-cols-1 gap-4 bg-[#F5F7FB] px-4 py-4 sm:px-6 lg:grid-cols-[90px_minmax(0,1fr)] lg:gap-6 lg:px-8 lg:py-6">
+      <div className="grid w-full max-w-[1600px] grid-cols-1 gap-3 bg-[#F5F7FB] px-3 py-3 sm:gap-4 sm:px-6 sm:py-4 lg:grid-cols-[90px_minmax(0,1fr)] lg:gap-6 lg:px-8 lg:py-6">
         <div>
           <Navbar />
         </div>
-        <div className="min-w-0 py-3">
-          <div className="grid grid-cols-12 gap-6">
-            <HeaderDashBoard title="برنامه ها" description="برای شاگردانت برنامه رو بساز" />
-            {error && <p className="col-span-12 rounded-3xl bg-red-50 px-6 py-4 text-right text-sm text-red-700">{error}</p>}
-            {notice && <p className="col-span-12 rounded-3xl bg-green-50 px-6 py-4 text-right text-sm text-green-700">{notice}</p>}
-          </div>
+        <div className="min-w-0 py-1 lg:py-3">
+          {(error || notice) && (
+            <div className="grid grid-cols-12 gap-3 lg:gap-6">
+              {/* <HeaderDashBoard title="برنامه ها" description="برای شاگردانت برنامه رو بساز" /> */}
+              {error && <Banner tone="error" onClose={() => setError(null)}>{error}</Banner>}
+              {notice && <Banner tone="success" onClose={() => setNotice(null)}>{notice}</Banner>}
+            </div>
+          )}
 
-          <section className="mt-7">
-            <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-              <div className="inline-flex items-center gap-2 rounded-2xl border border-[#E8ECF1] bg-white p-1">
-                <button
-                  type="button"
-                  onClick={() => chooseType("workout")}
-                  className={`flex h-11 cursor-pointer items-center gap-2 rounded-xl px-5 text-sm transition ${programType === "workout" ? "bg-[#007BFF] text-white shadow-[0_5px_14px_rgba(0,123,255,0.18)]" : "text-[#6B6F77] hover:bg-[#F5F7FB] hover:text-[#007BFF]"}`}
-                >
-                  <FitnessCenterIcon fontSize="small" />
-                  <span>تمرین</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => chooseType("nutrition")}
-                  className={`flex h-11 cursor-pointer items-center gap-2 rounded-xl px-5 text-sm transition ${programType === "nutrition" ? "bg-[#007BFF] text-white shadow-[0_5px_14px_rgba(0,123,255,0.18)]" : "text-[#6B6F77] hover:bg-[#F5F7FB] hover:text-[#007BFF]"}`}
-                >
-                  <FastfoodIcon fontSize="small" />
-                  <span>تغذیه</span>
-                </button>
+          <section className={error || notice ? "mt-4 lg:mt-7" : "lg:mt-1"}>
+            {/* ================= TOP CONTROLS ================= */}
+            <div className="mb-4 flex flex-col gap-3 lg:mb-6 lg:flex-row lg:items-center lg:justify-between lg:gap-6">
+              <div
+                role="group"
+                aria-label="نوع برنامه"
+                className="flex w-full items-center gap-2 rounded-2xl border border-[#E8ECF1] bg-white p-1 sm:w-fit"
+              >
+                {typeButton("workout", "تمرین", FitnessCenterIcon)}
+                {typeButton("nutrition", "تغذیه", FastfoodIcon)}
               </div>
 
-              <div className="flex w-full flex-wrap items-center gap-3 sm:w-auto">
-                <div className="relative w-full sm:w-[280px]">
+              <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center lg:w-auto lg:flex-nowrap">
+                <div className="relative w-full sm:min-w-[220px] sm:flex-1 lg:w-[280px] lg:flex-none">
+                  <label htmlFor="assignment-search" className="sr-only">
+                    جستجوی شاگرد یا برنامه
+                  </label>
                   <input
-                    type="text"
+                    id="assignment-search"
+                    type="search"
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
                     placeholder="جستجوی شاگرد..."
-                    className="h-12 w-full rounded-2xl border border-[#E8ECF1] bg-white pr-11 pl-4 text-sm text-[#1F2937] outline-none transition placeholder:text-[#6B6F77] focus:border-[#007BFF] focus:ring-4 focus:ring-[#007BFF]/5"
+                    className="h-12 w-full rounded-2xl border border-[#E8ECF1] bg-white pl-4 pr-11 text-base text-[#1F2937] outline-none transition placeholder:text-[#6B6F77] focus:border-[#007BFF] focus:ring-4 focus:ring-[#007BFF]/10 sm:text-sm"
                   />
-                  <span className="absolute top-1/2 right-4 -translate-y-1/2 text-[#6B6F77]">
+                  <span aria-hidden="true" className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#6B6F77]">
                     <SearchIcon fontSize="small" />
                   </span>
                 </div>
-                {programType === "workout" && (
-                  <Link to="/coach/exercises" className="flex h-12 items-center rounded-2xl border border-[#E8ECF1] bg-white px-4 text-sm text-[#007BFF]">
-                    بانک حرکات
-                  </Link>
-                )}
-                <button
-                  type="button"
-                  onClick={() => navigate(programType === "workout" ? "/coach/programs/new" : "/coach/nutrition/new")}
-                  className="flex h-12 items-center justify-center gap-2 rounded-2xl bg-[#007BFF] px-6 text-sm text-white shadow-[0_8px_20px_rgba(0,123,255,0.18)] transition hover:bg-[#0069D9]"
-                >
-                  <AddIcon fontSize="small" />
-                  <span>{programType === "workout" ? "ساخت برنامه تمرینی" : "ساخت برنامه تغذیه"}</span>
-                </button>
+
+                <div className="flex gap-3">
+                  {programType === "workout" && (
+                    <Link
+                      to="/coach/exercises"
+                      className="flex h-12 flex-1 items-center justify-center whitespace-nowrap rounded-2xl border border-[#E8ECF1] bg-white px-4 text-sm text-[#007BFF] transition hover:bg-[#F5F7FB] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#007BFF] sm:flex-none"
+                    >
+                      بانک حرکات
+                    </Link>
+                  )}
+                  <button
+                    type="button"
+                    onClick={createProgram}
+                    className="flex h-12 flex-[2] items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-[#007BFF] px-6 text-sm text-white shadow-[0_8px_20px_rgba(0,123,255,0.18)] transition hover:bg-[#0069D9] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#007BFF] focus-visible:ring-offset-2 sm:flex-none"
+                  >
+                    <AddIcon fontSize="small" />
+                    <span>{programType === "workout" ? "ساخت برنامه تمرینی" : "ساخت برنامه تغذیه"}</span>
+                  </button>
+                </div>
               </div>
             </div>
 
-            <div className="overflow-hidden rounded-[24px] border border-[#E8ECF1] bg-white">
-              <div className="overflow-x-auto border-b border-[#E8ECF1] px-6 pt-5">
-                <div className="flex min-w-max items-center gap-8">
+            <div className="overflow-hidden rounded-[20px] border border-[#E8ECF1] bg-white sm:rounded-[24px]">
+              {/* ================= FILTERS ================= */}
+              <div className="border-b border-[#E8ECF1]">
+                <div
+                  role="group"
+                  aria-label="فیلتر وضعیت"
+                  className="flex items-center gap-6 overflow-x-auto px-4 pt-4 sm:gap-8 sm:px-6 sm:pt-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                >
                   {filters.map((filter) => {
                     const active = activeFilter === filter.id;
                     const count = filter.id === "all" ? rows.length : rows.filter((row) => row.status === filter.id).length;
@@ -316,81 +440,153 @@ export default function CoachAssignments() {
                         key={filter.id}
                         type="button"
                         onClick={() => setActiveFilter(filter.id)}
-                        className={`relative cursor-pointer pb-4 text-sm font-medium transition ${active ? "text-[#007BFF]" : "text-[#6B6F77] hover:text-[#1F2937]"}`}
+                        aria-pressed={active}
+                        className={`relative flex shrink-0 cursor-pointer items-center gap-2 whitespace-nowrap pb-3.5 text-sm font-medium transition focus:outline-none focus-visible:rounded-lg focus-visible:ring-2 focus-visible:ring-[#007BFF] ${
+                          active ? "text-[#007BFF]" : "text-[#6B6F77] hover:text-[#1F2937]"
+                        }`}
                       >
-                        <span className="relative inline-flex">
-                          {filter.title}
-                          {count > 0 && (
-                            <span className={`absolute -top-3.5 -left-4 flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[11px] ${active ? "bg-[#007BFF] text-white" : "bg-[#007BFF]/10 text-[#007BFF]"}`}>
-                              {faDigits(count)}
-                            </span>
-                          )}
-                        </span>
-                        {active && <span className="absolute right-0 bottom-0 left-0 h-[2px] rounded-full bg-[#007BFF]" />}
+                        {filter.title}
+                        {count > 0 && (
+                          <span
+                            className={`flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-bold ${
+                              active ? "bg-[#007BFF] text-white" : "bg-[#007BFF]/10 text-[#007BFF]"
+                            }`}
+                          >
+                            {faDigits(count)}
+                          </span>
+                        )}
+                        {active && <span aria-hidden="true" className="absolute bottom-0 left-0 right-0 h-[2px] rounded-full bg-[#007BFF]" />}
                       </button>
                     );
                   })}
                 </div>
               </div>
 
-              <div className="overflow-x-auto">
-                <div className="min-w-[860px]">
-                  <div className="grid h-14 grid-cols-[1.5fr_1.7fr_1fr_1fr_1fr_140px] items-center bg-[#F5F7FB] px-6 text-sm text-[#6B6F77]">
-                    <div>شاگرد</div>
-                    <div>اسم برنامه</div>
-                    <div>وضعیت</div>
-                    <div>تاریخ ایجاد</div>
-                    <div>تاریخ انقضا</div>
-                    <div className="text-center">مشاهده کامل</div>
+              {!loaded && <ListSkeleton />}
+
+              {/* ================= DESKTOP TABLE (xl به بالا) ================= */}
+              {loaded && filteredRows.length > 0 && (
+                <div role="table" aria-label="فهرست برنامه‌ها" className="hidden xl:block">
+                  <div
+                    role="row"
+                    className="grid h-14 grid-cols-[1.5fr_1.7fr_1fr_1fr_1fr_140px] items-center bg-[#F5F7FB] px-6 text-sm text-[#6B6F77]"
+                  >
+                    <div role="columnheader">شاگرد</div>
+                    <div role="columnheader">اسم برنامه</div>
+                    <div role="columnheader">وضعیت</div>
+                    <div role="columnheader">تاریخ ایجاد</div>
+                    <div role="columnheader">تاریخ انقضا</div>
+                    <div role="columnheader" className="text-center">عملیات</div>
                   </div>
 
+                  <div role="rowgroup">
+                    {filteredRows.map((row) => {
+                      const status = STATUS[row.status];
+
+                      return (
+                        <div
+                          key={row.key}
+                          role="row"
+                          className="grid min-h-[82px] grid-cols-[1.5fr_1.7fr_1fr_1fr_1fr_140px] items-center border-t border-[#E8ECF1] px-6 transition hover:bg-[#F5F7FB]"
+                        >
+                          <div role="cell" className="flex min-w-0 items-center gap-3">
+                            <Avatar name={row.name} />
+                            <div className="min-w-0">
+                              <p className="truncate text-sm text-[#1F2937]">{row.name}</p>
+                              <p className="mt-1 text-[10px] text-[#6B6F77]">{row.sub}</p>
+                            </div>
+                          </div>
+                          <p role="cell" className="min-w-0 truncate pl-3 text-sm text-[#1F2937]">{row.program}</p>
+                          <div role="cell">
+                            <StatusChip status={status} />
+                          </div>
+                          <div role="cell" className="text-sm text-[#6B6F77]">{row.createdAt}</div>
+                          <div role="cell" className="text-sm text-[#6B6F77]">{row.expireAt}</div>
+                          <div role="cell">
+                            <RowActions row={row} status={status} pending={pending} onEnd={endAssignment} />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* ================= MOBILE / TABLET CARDS (زیر xl) ================= */}
+              {loaded && filteredRows.length > 0 && (
+                <ul className="grid gap-3 p-3 sm:grid-cols-2 sm:gap-4 sm:p-4 xl:hidden">
                   {filteredRows.map((row) => {
                     const status = STATUS[row.status];
 
                     return (
-                      <div key={row.key} className="grid min-h-[82px] grid-cols-[1.5fr_1.7fr_1fr_1fr_1fr_140px] items-center border-t border-[#E8ECF1] px-6 transition hover:bg-[#F5F7FB]">
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#F5F7FB] text-sm text-[#4B5563]">
-                            {row.name.slice(0, 1)}
+                      <li key={row.key} className="flex flex-col rounded-2xl border border-[#E8ECF1] bg-white p-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex min-w-0 items-center gap-3">
+                            <Avatar name={row.name} />
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-medium text-[#1F2937]">{row.name}</p>
+                              <p className="mt-0.5 text-[11px] text-[#6B6F77]">{row.sub}</p>
+                            </div>
+                          </div>
+                          <StatusChip status={status} />
+                        </div>
+
+                        <p className="mt-4 break-words text-sm text-[#1F2937]">{row.program}</p>
+
+                        <dl className="mt-3 grid grid-cols-2 gap-3 rounded-xl bg-[#F5F7FB] px-3 py-2.5 text-xs">
+                          <div>
+                            <dt className="text-[#6B6F77]">تاریخ ایجاد</dt>
+                            <dd className="mt-1 text-sm text-[#1F2937]">{row.createdAt}</dd>
                           </div>
                           <div>
-                            <p className="text-sm text-[#1F2937]">{row.name}</p>
-                            <p className="mt-1 text-[10px] text-[#6B6F77]">{row.sub}</p>
+                            <dt className="text-[#6B6F77]">تاریخ انقضا</dt>
+                            <dd className="mt-1 text-sm text-[#1F2937]">{row.expireAt}</dd>
                           </div>
-                        </div>
-                        <p className="text-sm text-[#1F2937]">{row.program}</p>
-                        <div>
-                          <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs ${status.badge}`}>
-                            <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                            {status.label}
-                          </span>
-                        </div>
-                        <div className="text-sm text-[#6B6F77]">{row.createdAt}</div>
-                        <div className="text-sm text-[#6B6F77]">{row.expireAt}</div>
-                        <div className="flex flex-col items-center gap-2">
-                          <Link to={row.href} className={`rounded-xl px-4 py-2 text-xs font-bold transition hover:shadow-md ${status.badge}`}>
-                            {actionLabel(row.status)}
-                          </Link>
-                          {row.assignment?.status === "active" && (
-                            <button type="button" disabled={pending} onClick={() => endAssignment(row.assignment)} className="text-[11px] text-[#6B6F77] disabled:opacity-60">
-                              تمام کردن
-                            </button>
-                          )}
-                        </div>
-                      </div>
+                        </dl>
+
+                        <RowActions row={row} status={status} pending={pending} onEnd={endAssignment} stacked />
+                      </li>
                     );
                   })}
-                </div>
-              </div>
-
-              {filteredRows.length === 0 && (
-                <div className="py-20 text-center">
-                  <div className="mb-4 text-4xl">🔍</div>
-                  <p className="text-sm font-bold text-[#1F2937]">شاگردی پیدا نشد</p>
-                  <p className="mt-2 text-xs text-[#6B6F77]">جستجو یا فیلتر انتخاب‌شده را تغییر دهید</p>
-                </div>
+                </ul>
               )}
 
+              {/* ================= EMPTY STATES ================= */}
+              {loaded && filteredRows.length === 0 && (
+                <div className="px-4 py-14 text-center sm:py-20" role="status">
+                  <div className="mb-4 text-4xl" aria-hidden="true">{rows.length === 0 ? "📋" : "🔍"}</div>
+
+                  {rows.length === 0 ? (
+                    <>
+                      <p className="text-sm font-bold text-[#1F2937]">
+                        {programType === "workout" ? "هنوز برنامه تمرینی نساخته‌ای" : "هنوز برنامه تغذیه‌ای نساخته‌ای"}
+                      </p>
+                      <p className="mt-2 text-xs text-[#6B6F77]">اولین برنامه را بساز و به شاگردت بده.</p>
+                      <button
+                        type="button"
+                        onClick={createProgram}
+                        className="mt-5 min-h-10 rounded-xl bg-[#007BFF] px-5 text-sm font-medium text-white transition hover:bg-[#0069D9] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#007BFF] focus-visible:ring-offset-2"
+                      >
+                        {programType === "workout" ? "ساخت برنامه تمرینی" : "ساخت برنامه تغذیه"}
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-sm font-bold text-[#1F2937]">شاگردی پیدا نشد</p>
+                      <p className="mt-2 text-xs text-[#6B6F77]">جستجو یا فیلتر انتخاب‌شده را تغییر دهید</p>
+                      {hasActiveFilters && (
+                        <button
+                          type="button"
+                          onClick={resetFilters}
+                          className="mt-5 min-h-10 rounded-xl bg-[#007BFF]/10 px-5 text-sm font-medium text-[#007BFF] transition hover:bg-[#007BFF]/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#007BFF]"
+                        >
+                          پاک کردن جستجو و فیلتر
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
             </div>
           </section>
         </div>
