@@ -239,7 +239,7 @@ const Sparkline = memo(function Sparkline({ data, theme }) {
 
   if (!chart) {
     return (
-      <p className="text-xs text-[#A0A6AF]">
+      <p className="text-xs text-[#A0A6AF] dark:text-slate-500">
         تاریخچه کافی نیست
       </p>
     );
@@ -307,7 +307,7 @@ const Sparkline = memo(function Sparkline({ data, theme }) {
 
       {hover !== null && (
         <div
-          className="pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-full whitespace-nowrap rounded-lg bg-[#2C3138] px-2.5 py-1.5 text-center text-[11px] text-white shadow-lg"
+          className="pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-full whitespace-nowrap rounded-lg bg-[#2C3138] px-2.5 py-1.5 text-center text-[11px] text-white shadow-lg dark:bg-slate-700"
           style={{
             left: `${(active.x / SP_W) * 100}%`,
             top: `${(active.y / SP_H) * 100}%`,
@@ -327,13 +327,13 @@ const Sparkline = memo(function Sparkline({ data, theme }) {
 function Stat({ label, strong = false, color, children }) {
   return (
     <div className="min-w-0">
-      <p className="text-[11px] text-[#9AA0A8]">{label}</p>
+      <p className="text-[11px] text-[#9AA0A8] dark:text-slate-400">{label}</p>
 
       <p
         className={`mt-1.5 text-sm ${
           strong
-            ? "font-bold text-[#2C3138]"
-            : "font-medium text-[#5C6370]"
+            ? "font-bold text-[#2C3138] dark:text-slate-100"
+            : "font-medium text-[#5C6370] dark:text-slate-300"
         }`}
         style={color ? { color } : undefined}
       >
@@ -391,12 +391,12 @@ const ExerciseRow = memo(function ExerciseRow({ exercise }) {
       : theme.text;
 
   return (
-    <div className="grid grid-cols-[1.5fr_0.8fr_1fr_1fr_0.9fr_1.2fr] items-center gap-4 border-b border-[#EEF1F4] px-3 py-5 last:border-b-0">
+    <div className="grid grid-cols-[1.5fr_0.8fr_1fr_1fr_0.9fr_1.2fr] items-center gap-4 border-b border-[#EEF1F4] px-3 py-5 last:border-b-0 dark:border-slate-700/80">
       <div className="flex min-w-0 items-center gap-3">
         <MovementThumb src={exercise.image} className="h-12 w-12" />
 
         <div className="min-w-0">
-          <p className="truncate text-sm font-bold text-[#2C3138]">
+          <p className="truncate text-sm font-bold text-[#2C3138] dark:text-slate-100">
             {exercise.name}
           </p>
           <div className="mt-1">
@@ -437,17 +437,17 @@ function ExerciseCard({ exercise }) {
       : theme.text;
 
   return (
-    <article className="rounded-2xl border border-[#EDF0F4] bg-white p-4 shadow-sm">
+    <article className="rounded-2xl border border-[#EDF0F4] bg-white p-4 shadow-sm dark:border-slate-700/80 dark:bg-slate-800/80">
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
           <MovementThumb src={exercise.image} className="h-14 w-14" />
 
           <div className="min-w-0">
-            <h3 className="truncate text-sm font-bold text-[#2C3138]">
+            <h3 className="truncate text-sm font-bold text-[#2C3138] dark:text-slate-100">
               {exercise.name}
             </h3>
 
-            <p className="mt-1 text-xs text-[#9299A3]">
+            <p className="mt-1 text-xs text-[#9299A3] dark:text-slate-400">
               {setsRepsText(exercise)} ست / تکرار
             </p>
           </div>
@@ -474,12 +474,12 @@ function ExerciseCard({ exercise }) {
         </Stat>
       </div>
 
-      <div className="mt-5 rounded-xl bg-[#F8FAFC] p-3">
+      <div className="mt-5 rounded-xl bg-[#F8FAFC] p-3 dark:bg-slate-900/60">
         <div className="mb-2 flex items-center justify-between">
-          <p className="text-xs font-semibold text-[#69717D]">
+          <p className="text-xs font-semibold text-[#69717D] dark:text-slate-300">
             روند عملکرد
           </p>
-          <span className="text-[10px] text-[#A0A6AF]">
+          <span className="text-[10px] text-[#A0A6AF] dark:text-slate-500">
             بر اساس جلسات
           </span>
         </div>
@@ -494,7 +494,7 @@ function SummaryCard({ label, value, icon, color, background }) {
   const Icon = icon;
 
   return (
-    <div className="flex min-w-0 items-center gap-3 rounded-2xl border border-[#EDF0F4] bg-white p-4">
+    <div className="flex min-w-0 items-center gap-3 rounded-2xl border border-[#EDF0F4] bg-white p-4 dark:border-slate-700/80 dark:bg-slate-800/80">
       <div
         className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl"
         style={{ backgroundColor: background, color }}
@@ -503,8 +503,8 @@ function SummaryCard({ label, value, icon, color, background }) {
       </div>
 
       <div className="min-w-0">
-        <p className="text-xs text-[#9299A3]">{label}</p>
-        <p className="mt-1 text-xl font-bold text-[#2C3138]">
+        <p className="text-xs text-[#9299A3] dark:text-slate-400">{label}</p>
+        <p className="mt-1 text-xl font-bold text-[#2C3138] dark:text-slate-100">
           {fa(value)}
         </p>
       </div>
@@ -664,6 +664,18 @@ export default function ExerciseProgressModal({
           border-radius: 999px;
         }
 
+        .dark .progress-scroll {
+          scrollbar-color: #3395ff #1c2940;
+        }
+
+        .dark .progress-scroll::-webkit-scrollbar-track {
+          background: #1c2940;
+        }
+
+        .dark .progress-scroll::-webkit-scrollbar-thumb {
+          background: #3395ff;
+        }
+
         .filter-scroll {
           scrollbar-width: none;
         }
@@ -678,23 +690,23 @@ export default function ExerciseProgressModal({
         aria-modal="true"
         aria-labelledby="exercise-progress-title"
         dir="rtl"
-        className="progress-modal-in flex max-h-[94dvh] min-h-0 w-full max-w-6xl flex-col overflow-hidden rounded-[24px] bg-[#F7F9FC] shadow-2xl sm:rounded-[30px]"
+        className="progress-modal-in flex max-h-[94dvh] min-h-0 w-full max-w-6xl flex-col overflow-hidden rounded-[24px] bg-[#F7F9FC] shadow-2xl dark:bg-[#0B1220] sm:rounded-[30px]"
         onClick={(event) => event.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-[#EDF0F4] bg-white px-4 py-4 sm:px-7 sm:py-5 lg:px-9">
+        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-[#EDF0F4] bg-white px-4 py-4 dark:border-slate-700 dark:bg-slate-900 sm:px-7 sm:py-5 lg:px-9">
           <div className="flex min-w-0 items-center gap-3">
             <ChartGlyph />
 
             <div className="min-w-0">
               <h2
                 id="exercise-progress-title"
-                className="text-base font-bold text-[#2C3138] sm:text-xl"
+                className="text-base font-bold text-[#2C3138] dark:text-slate-100 sm:text-xl"
               >
                 تحلیل پیشرفت حرکات
               </h2>
 
-              <p className="mt-1 text-[11px] text-[#8E939B] sm:text-sm">
+              <p className="mt-1 text-[11px] text-[#8E939B] dark:text-slate-400 sm:text-sm">
                 بررسی عملکرد و روند تغییرات تمام حرکات
               </p>
             </div>
@@ -703,7 +715,7 @@ export default function ExerciseProgressModal({
           <button
             type="button"
             onClick={onClose}
-            className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-[#E7EBF0] text-[#6B7280] transition hover:border-red-200 hover:bg-red-50 hover:text-red-500"
+            className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-[#E7EBF0] text-[#6B7280] transition hover:border-red-200 hover:bg-red-50 hover:text-red-500 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-red-500/10 dark:hover:text-red-400"
             aria-label="بستن"
           >
             <CloseIcon fontSize="small" />
@@ -721,7 +733,7 @@ export default function ExerciseProgressModal({
           {/* Summary */}
           <div className="mb-6">
             <div className="mb-3 flex items-center justify-between">
-              <h3 className="text-sm font-bold text-[#39414C] sm:text-base">
+              <h3 className="text-sm font-bold text-[#39414C] dark:text-slate-100 sm:text-base">
                 خلاصه عملکرد
               </h3>
 
@@ -766,7 +778,7 @@ export default function ExerciseProgressModal({
           </div>
 
           {/* Filters */}
-          <div className="mb-4 rounded-2xl border border-[#EDF0F4] bg-white p-3 sm:p-4">
+          <div className="mb-4 rounded-2xl border border-[#EDF0F4] bg-white p-3 dark:border-slate-700/80 dark:bg-slate-800/80 sm:p-4">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               <div className="filter-scroll flex items-center gap-2 overflow-x-auto pb-1">
                 {FILTERS.map((item) => {
@@ -780,7 +792,7 @@ export default function ExerciseProgressModal({
                       className={`shrink-0 cursor-pointer rounded-full border px-4 py-2 text-xs font-medium transition sm:text-sm ${
                         active
                           ? "border-[#007BFF] bg-[#007BFF] text-white shadow-sm shadow-blue-200"
-                          : "border-[#E4E7EC] bg-white text-[#6B7280] hover:border-[#007BFF] hover:text-[#007BFF]"
+                          : "border-[#E4E7EC] bg-white text-[#6B7280] hover:border-[#007BFF] hover:text-[#007BFF] dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-blue-400 dark:hover:text-blue-400"
                       }`}
                     >
                       {item.label}
@@ -793,7 +805,7 @@ export default function ExerciseProgressModal({
                 <button
                   type="button"
                   onClick={() => setSortOpen((open) => !open)}
-                  className="flex w-full cursor-pointer items-center justify-between gap-2 rounded-xl border border-[#E4E7EC] bg-white px-4 py-2.5 text-xs text-[#6B7280] transition hover:border-[#007BFF] hover:text-[#007BFF] sm:w-auto sm:text-sm"
+                  className="flex w-full cursor-pointer items-center justify-between gap-2 rounded-xl border border-[#E4E7EC] bg-white px-4 py-2.5 text-xs text-[#6B7280] transition hover:border-[#007BFF] hover:text-[#007BFF] dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-blue-400 dark:hover:text-blue-400 sm:w-auto sm:text-sm"
                   aria-haspopup="listbox"
                   aria-expanded={sortOpen}
                 >
@@ -813,7 +825,7 @@ export default function ExerciseProgressModal({
                 {sortOpen && (
                   <div
                     role="listbox"
-                    className="absolute left-0 top-full z-30 mt-2 w-full min-w-48 rounded-2xl border border-[#E4E7EC] bg-white p-1.5 shadow-xl sm:w-52"
+                    className="absolute left-0 top-full z-30 mt-2 w-full min-w-48 rounded-2xl border border-[#E4E7EC] bg-white p-1.5 shadow-xl dark:border-slate-700 dark:bg-slate-900 sm:w-52"
                   >
                     {SORTS.map((item) => {
                       const active = item.id === sortId;
@@ -831,7 +843,7 @@ export default function ExerciseProgressModal({
                           className={`flex w-full cursor-pointer items-center justify-between rounded-xl px-3.5 py-3 text-right text-xs transition sm:text-sm ${
                             active
                               ? "bg-[#007BFF]/10 text-[#007BFF]"
-                              : "text-[#6B7280] hover:bg-[#F5F7FB]"
+                              : "text-[#6B7280] hover:bg-[#F5F7FB] dark:text-slate-300 dark:hover:bg-slate-800"
                           }`}
                         >
                           <span>{item.label}</span>
@@ -847,35 +859,35 @@ export default function ExerciseProgressModal({
 
           {/* Exercise list */}
           <div className="mb-2 flex items-center justify-between">
-            <h3 className="text-sm font-bold text-[#39414C] sm:text-base">
+            <h3 className="text-sm font-bold text-[#39414C] dark:text-slate-100 sm:text-base">
               جزئیات حرکات
             </h3>
 
-            <span className="text-xs text-[#9299A3]">
+            <span className="text-xs text-[#9299A3] dark:text-slate-400">
               {fa(visible.length)} نتیجه
             </span>
           </div>
 
           {!ready ? (
-            <div className="flex min-h-48 flex-col items-center justify-center rounded-2xl border border-[#EDF0F4] bg-white">
+            <div className="flex min-h-48 flex-col items-center justify-center rounded-2xl border border-[#EDF0F4] bg-white dark:border-slate-700/80 dark:bg-slate-800/80">
               <div className="h-9 w-9 animate-spin rounded-full border-4 border-[#DCEAFF] border-t-[#007BFF]" />
-              <p className="mt-4 text-sm text-[#8A8F98]">
+              <p className="mt-4 text-sm text-[#8A8F98] dark:text-slate-400">
                 در حال خواندن پیشرفت حرکات...
               </p>
             </div>
           ) : visible.length === 0 ? (
-            <div className="flex min-h-52 flex-col items-center justify-center rounded-2xl border border-dashed border-[#DDE3EB] bg-white px-5 text-center">
+            <div className="flex min-h-52 flex-col items-center justify-center rounded-2xl border border-dashed border-[#DDE3EB] bg-white px-5 text-center dark:border-slate-700 dark:bg-slate-800/80">
               <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#F1F5FA] text-[#8A96A5]">
                 <FitnessCenterRoundedIcon sx={{ fontSize: 27 }} />
               </div>
 
-              <p className="mt-4 text-sm font-semibold text-[#56606D]">
+              <p className="mt-4 text-sm font-semibold text-[#56606D] dark:text-slate-200">
                 {filter === "all"
                   ? "هنوز حرکتی ثبت نشده است"
                   : "حرکتی با این فیلتر پیدا نشد"}
               </p>
 
-              <p className="mt-1 text-xs text-[#A0A6AF]">
+              <p className="mt-1 text-xs text-[#A0A6AF] dark:text-slate-500">
                 پس از ثبت جلسات تمرینی، اطلاعات این قسمت نمایش داده می‌شود.
               </p>
 
@@ -892,8 +904,8 @@ export default function ExerciseProgressModal({
           ) : (
             <>
               {/* Desktop table */}
-              <div className="hidden overflow-hidden rounded-2xl border border-[#EDF0F4] bg-white xl:block">
-                <div className="grid grid-cols-[1.5fr_0.8fr_1fr_1fr_0.9fr_1.2fr] items-center gap-4 border-b border-[#EDF0F4] bg-[#F8FAFC] px-5 py-4 text-[11px] font-semibold text-[#9299A3]">
+              <div className="hidden overflow-hidden rounded-2xl border border-[#EDF0F4] bg-white dark:border-slate-700/80 dark:bg-slate-800/80 xl:block">
+                <div className="grid grid-cols-[1.5fr_0.8fr_1fr_1fr_0.9fr_1.2fr] items-center gap-4 border-b border-[#EDF0F4] bg-[#F8FAFC] px-5 py-4 text-[11px] font-semibold text-[#9299A3] dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-400">
                   <span>نام حرکت</span>
                   <span>ست / تکرار</span>
                   <span>رکورد فعلی</span>
@@ -924,17 +936,17 @@ export default function ExerciseProgressModal({
             </>
           )}
 
-          <div className="mt-5 rounded-2xl border border-[#E5EEFC] bg-[#EDF5FF] p-4">
+          <div className="mt-5 rounded-2xl border border-[#E5EEFC] bg-[#EDF5FF] p-4 dark:border-blue-500/20 dark:bg-blue-500/10">
             <div className="flex items-start gap-3">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-[#007BFF]">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-[#007BFF] dark:bg-slate-800 dark:text-blue-400">
                 <TrendingUpRoundedIcon />
               </div>
 
               <div>
-                <p className="text-xs font-bold text-[#2766A9]">
+                <p className="text-xs font-bold text-[#2766A9] dark:text-blue-300">
                   نکته تحلیل عملکرد
                 </p>
-                <p className="mt-1 text-xs leading-6 text-[#55728F]">
+                <p className="mt-1 text-xs leading-6 text-[#55728F] dark:text-slate-400">
                   درصد پیشرفت بر اساس مقایسه رکورد فعلی و قبلی محاسبه شده است.
                   برای تحلیل دقیق‌تر، تاریخچه ثبت‌شده جلسات و شرایط اجرای حرکت
                   نیز باید در نظر گرفته شود.
