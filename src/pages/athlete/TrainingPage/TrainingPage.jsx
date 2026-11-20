@@ -665,7 +665,7 @@ export default function TrainingPage() {
                 <SmartAnalysisCard description={analysis.description} stats={analysis.stats} reportTo="/AnalysisPage" />
               </div>
               <div className="mb-4 lg:mb-5">
-                <WorkoutProgramCard
+                {/* <WorkoutProgramCard
                   days={weekDays}
                   legend={["تمرین", "استراحت"]}
                   coachName={coachName || "مربی"}
@@ -675,7 +675,7 @@ export default function TrainingPage() {
                   programs={programs.map((row) => ({ id: row.id, title: programTitle(row) }))}
                   selectedProgramId={selectedId}
                   onProgram={(id) => setSelectedId(String(id))}
-                />
+                /> */}
               </div>
               <div id="training-notes">
                 <WorkoutNotes notes={visibleNotes} emptyLabel={folded ? "یادداشتی با این عبارت پیدا نشد." : "یادداشتی از مربی برای این برنامه نیست."} />

@@ -1,5 +1,16 @@
+
 import React, { useState } from "react";
-import Ranking from "../../../../assets/Icons/Ranking.svg"
+import Ranking from "../../../../assets/Icons/Ranking.svg";
+import {
+  KeyboardArrowDownRounded,
+  TrendingUpRounded,
+  EmojiEventsRounded,
+  LocalFireDepartmentRounded,
+  CloseRounded,
+  CalendarTodayOutlined,
+  FitnessCenterRounded,
+} from "@mui/icons-material";
+
 const DEFAULT_RECORDS = [
   {
     id: 1,
@@ -43,130 +54,278 @@ const DEFAULT_RECORDS = [
   },
 ];
 
-// // Trophy / podium-style icon, matching the reference image
-// function RecordIcon({ className = "w-7 h-7 text-blue-500" }) {
-//   return (
-//     <svg
-//       viewBox="0 0 24 24"
-//       fill="none"
-//       className={className}
-//       stroke="currentColor"
-//       strokeWidth="1.6"
-//     >
-//       <path d="M12 3l1.2 2.4 2.6.4-1.9 1.9.5 2.6L12 9l-2.4 1.3.5-2.6L8.2 5.8l2.6-.4L12 3z" />
-//       <path d="M9 12h6v9H9z" />
-//       <path d="M5 15h4v6H5z" />
-//       <path d="M15 15h4v6h-4z" />
-//     </svg>
-//   );
-// }
+// ===============================
+// Record Row
+// ===============================
 
 function RecordRow({ record, isOpen, onToggle }) {
   return (
-    <div className="border-b border-gray-100 last:border-b-0">
+    <div
+      className={`group border-b border-slate-100 last:border-b-0 ${
+        isOpen ? "pb-4" : ""
+      }`}
+    >
       <button
+        type="button"
         onClick={() => onToggle(record.id)}
-        className="w-full flex items-center justify-between py-6 text-right"
+        aria-expanded={isOpen}
+        className="flex w-full min-w-0 items-center gap-3 py-4 text-right outline-none sm:gap-4 sm:py-5"
       >
-        <div className="bg-blue-50 rounded-2xl w-16 h-16 flex items-center justify-center shrink-0">
-          <img className="size-7" src={Ranking} alt="" />
-        </div>
-
-        <div className="flex-1 mr-4 text-right">
-          <p className="font-primary font-medium text-[#6B6F77] mb-2">
-            {record.exercise}
-          </p>
-          <p className="text-gray-400 text-sm mt-1">{record.value}</p>
-        </div>
-
-        {record.isNew && (
-          <span
-            className="items-center gap-2 border border-gray-200 rounded-full px-2 py-0.5 text-gray-700 text-sm hover:bg-gray-50 transition-colors self-start"
-          >
-            <span>{"رکورد جدید"}</span>
-            <span>🔥</span>
-          </span>
-        )}
-
-        <svg
-          className={`w-4 h-4 text-gray-300 transition-transform ${isOpen ? "rotate-180" : ""}`}
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
+        {/* Icon */}
+        <div
+          className={`relative flex size-12 shrink-0 items-center justify-center rounded-2xl transition-all duration-200 sm:size-14 ${
+            record.isNew
+              ? "bg-gradient-to-br from-blue-50 to-blue-100 group-hover:from-blue-100 group-hover:to-blue-200"
+              : "bg-slate-50 group-hover:bg-blue-50"
+          }`}
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M19 9l-7 7-7-7"
+          <img
+            className="size-6 object-contain sm:size-7"
+            src={Ranking}
+            alt=""
           />
-        </svg>
+
+          {record.isNew && (
+            <span className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full border-2 border-white bg-[#007BFF]">
+              <span className="size-1.5 rounded-full bg-white" />
+            </span>
+          )}
+        </div>
+
+        {/* Main Content */}
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <h4 className="truncate text-sm font-primary text-slate-700 transition group-hover:text-[#007BFF] sm:text-base">
+              {record.exercise}
+            </h4>
+
+            {record.isNew && (
+              <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-orange-100 bg-orange-50 px-2 py-1 text-[10px] font-bold text-orange-600 sm:text-[11px]">
+                <LocalFireDepartmentRounded sx={{ fontSize: 13 }} />
+                رکورد جدید
+              </span>
+            )}
+          </div>
+
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <span className="text-sm font-primary " dir="ltr">
+              {record.value}
+            </span>
+            <span className="size-1 rounded-full bg-slate-300" />
+            <span className="text-[11px] text-slate-400">
+              {record.date}
+            </span>
+          </div>
+        </div>
+
+        {/* Expand Button */}
+        <div
+          className={`flex size-8 shrink-0 items-center justify-center rounded-xl transition-all ${
+            isOpen
+              ? "rotate-180 bg-blue-50 text-[#007BFF]"
+              : "bg-slate-50 text-slate-400 group-hover:bg-blue-50 group-hover:text-[#007BFF]"
+          }`}
+        >
+          <KeyboardArrowDownRounded />
+        </div>
       </button>
 
-      {isOpen && (
-        <div className="bg-gray-50 rounded-2xl px-5 py-4 mb-5 flex items-center justify-between text-sm">
-          <div className="text-gray-500">
-            رکورد قبلی:{" "}
-            <span className="text-gray-400 text-sm mt-1">{record.previous}</span>
+      {/* Expanded Details */}
+      <div
+        className={`grid transition-all duration-300 ${
+          isOpen
+            ? "grid-rows-[1fr] opacity-100"
+            : "grid-rows-[0fr] opacity-0"
+        }`}
+      >
+        <div className="overflow-hidden">
+          <div className="grid grid-cols-1 gap-2 rounded-2xl bg-slate-50 p-3 sm:grid-cols-2 sm:p-4">
+            {/* Previous Record */}
+            <div className="flex min-w-0 items-center gap-3 rounded-xl bg-white p-3">
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-500">
+                <TrendingUpRounded sx={{ fontSize: 19 }} />
+              </div>
+
+              <div className="min-w-0">
+                <p className="text-[11px] text-slate-400">
+                  رکورد قبلی
+                </p>
+                <p
+                  className="mt-1 truncate text-sm font-primary text-slate-600"
+                  dir="ltr"
+                >
+                  {record.previous || "ثبت نشده"}
+                </p>
+              </div>
+            </div>
+
+            {/* Record Date */}
+            <div className="flex min-w-0 items-center gap-3 rounded-xl bg-white p-3">
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[#007BFF]">
+                <CalendarTodayOutlined sx={{ fontSize: 17 }} />
+              </div>
+
+              <div className="min-w-0">
+                <p className="text-[11px] text-slate-400">
+                  تاریخ ثبت رکورد
+                </p>
+                <p className="mt-1 truncate text-sm font-bold text-slate-600">
+                  {record.date}
+                </p>
+              </div>
+            </div>
           </div>
-          <div className="text-gray-400">{record.date}</div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
 
+// ===============================
+// Personal Records Card
+// ===============================
+
 export default function PersonalRecordsCard({
-  title = "رکورد های شخصی",
+  title = "رکوردهای شخصی",
   records = DEFAULT_RECORDS,
   emptyLabel = "رکوردی ثبت نشده.",
 }) {
   const [openId, setOpenId] = useState(null);
   const [showAll, setShowAll] = useState(false);
 
-  const visibleRecords = showAll ? records : records.slice(0, 3);
+  const visibleRecords = showAll
+    ? records
+    : records.slice(0, 3);
+
+  const newestRecord = records.find((record) => record.isNew);
 
   const handleToggle = (id) => {
     setOpenId((prev) => (prev === id ? null : id));
   };
 
   const handleFireClick = () => {
-    const newest = records.find((r) => r.isNew);
-    if (newest) {
+    if (newestRecord) {
       setShowAll(true);
-      setOpenId(newest.id);
+      setOpenId(newestRecord.id);
     }
   };
 
   return (
-    <div
+    <section
       dir="rtl"
-      className="w-full max-w-none rounded-3xl bg-white p-5 sm:p-8"
+      className="h-full w-full min-w-0 rounded-3xl border border-slate-100 bg-white p-4 shadow-sm sm:p-6 lg:p-7"
     >
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-medium text-[#6B6F77]">{title}</h3>
+      <div className="mb-5 flex items-center justify-between gap-3 sm:mb-6">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-[#007BFF]">
+            <EmojiEventsRounded sx={{ fontSize: 23 }} />
+          </div>
+
+          <div className="min-w-0">
+            <h3 className="text-lg text-[#6B6F77]">
+              {title}
+            </h3>
+            <p className="mt-1 text-xs text-slate-400">
+              بهترین عملکردهای ثبت‌شده
+            </p>
+          </div>
+        </div>
+
+        {records.length > 3 && (
           <button
+            type="button"
             onClick={() => setShowAll(!showAll)}
-            className="flex items-center gap-1 text-sm text-[#007BFF] transition hover:text-[#0056A3]"
+            className="flex shrink-0 items-center gap-1 rounded-xl px-2 py-2 text-xs  text-[#007BFF] transition hover:bg-blue-50 sm:px-3 sm:text-sm"
           >
             {showAll ? "نمایش کمتر" : "مشاهده همه"}
 
+            <KeyboardArrowDownRounded
+              sx={{
+                fontSize: 18,
+                transform: showAll ? "rotate(180deg)" : "none",
+                transition: "transform 200ms",
+              }}
+            />
           </button>
+        )}
       </div>
 
-      {/* List */}
-      <div className="mt-4">
-        {visibleRecords.length === 0 ? <p className="text-sm text-[#A0A4AA]">{emptyLabel}</p> : null}
-        {visibleRecords.map((record) => (
-          <RecordRow
-            key={record.id}
-            record={record}
-            isOpen={openId === record.id}
-            onToggle={handleToggle}
-          />
-        ))}
+      {/* New Record Highlight */}
+      {newestRecord && (
+        <button
+          type="button"
+          onClick={handleFireClick}
+          className="group mb-5 flex w-full items-center gap-3 overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-l from-blue-50 via-[#F5F9FF] to-white p-3.5 text-right transition hover:border-blue-200 hover:shadow-sm sm:p-4"
+        >
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#007BFF] shadow-sm sm:size-11">
+            <LocalFireDepartmentRounded sx={{ fontSize: 23 }} />
+          </div>
+
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-bold text-[#007BFF]">
+              آخرین رکورد جدید
+            </p>
+            <p className="mt-1 truncate text-sm font-black text-slate-700">
+              {newestRecord.exercise}
+            </p>
+            <p className="mt-1 text-xs text-slate-500" dir="ltr">
+              {newestRecord.value}
+            </p>
+          </div>
+
+          <div className="flex shrink-0 items-center gap-1 text-xs font-bold text-[#007BFF] transition group-hover:translate-x-[-2px]">
+            مشاهده
+            <KeyboardArrowDownRounded
+              sx={{ fontSize: 17 }}
+              className="-rotate-90"
+            />
+          </div>
+        </button>
+      )}
+
+      {/* Records List */}
+      <div className="min-w-0">
+        {visibleRecords.length === 0 ? (
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 px-4 py-10 text-center">
+            <div className="flex size-14 items-center justify-center rounded-2xl bg-slate-50 text-slate-300">
+              <FitnessCenterRounded sx={{ fontSize: 28 }} />
+            </div>
+
+            <p className="mt-3 text-sm font-semibold text-slate-600">
+              {emptyLabel}
+            </p>
+
+            <p className="mt-1 text-xs text-slate-400">
+              با پیشرفت در تمرینات، رکوردهایت اینجا نمایش داده می‌شوند.
+            </p>
+          </div>
+        ) : (
+          <div>
+            {visibleRecords.map((record) => (
+              <RecordRow
+                key={record.id}
+                record={record}
+                isOpen={openId === record.id}
+                onToggle={handleToggle}
+              />
+            ))}
+          </div>
+        )}
       </div>
-    </div>
+
+      {/* Footer */}
+      {records.length > 0 && (
+        <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4">
+          <span className="text-xs text-slate-400">
+            مجموع رکوردهای ثبت‌شده
+          </span>
+
+          <span className="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-600">
+            {records.length} رکورد
+          </span>
+        </div>
+      )}
+    </section>
   );
 }
