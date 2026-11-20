@@ -1,3 +1,4 @@
+
 import Flesh from "../../../../assets/imges/flesh.svg";
 import BreakFast from "../../../../assets/imges/break.png";
 import imgDinner from "../../../../assets/imges/dinner.png";
@@ -20,51 +21,93 @@ const SAMPLE_BARS = [
 
 export default function NutritionCard({ meals, bars }) {
   const navigate = useNavigate();
+
   const mealRows = meals ?? SAMPLE_MEALS;
   const barRows = bars ?? SAMPLE_BARS;
 
   return (
-    <div className="rounded-3xl bg-white p-6">
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="font-primary-light text-xl font-bold text-[#6B6F77]">تغذیه امروز</h2>
+    <div
+      dir="rtl"
+      className="w-full min-w-0 overflow-hidden rounded-2xl bg-white p-3.5 shadow-sm sm:rounded-3xl sm:p-5 lg:p-6"
+    >
+      {/* Header */}
+      <div className="mb-5 flex min-w-0 items-center justify-between gap-2 sm:mb-6">
+        <h2 className="font-primary-light text-base font-bold text-[#6B6F77] sm:text-lg lg:text-xl">
+          تغذیه امروز
+        </h2>
+
         <button
           type="button"
           onClick={() => navigate("/dashboardnutrition")}
-          className="flex cursor-pointer items-center gap-2 text-sm text-[#6B6F77] transition hover:text-black"
+          className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-lg text-xs text-[#6B6F77] transition hover:text-black sm:gap-2 sm:text-sm"
         >
           جزئیات بیشتر
-          <img src={Flesh} alt="" className="h-4 w-4" />
+          <img src={Flesh} alt="" className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
         </button>
       </div>
 
-      <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
-        <div className="flex flex-col sm:w-48">
+      {/* Content */}
+      <div className="flex min-w-0 flex-col gap-5 sm:gap-6 lg:flex-row lg:items-center lg:gap-5">
+        {/* Meals */}
+        <div className="grid min-w-0 grid-cols-1 gap-3 min-[420px]:grid-cols-3 lg:flex lg:w-48 lg:shrink-0 lg:flex-col lg:gap-4">
           {mealRows.map((meal) => (
-            <div key={meal.name} className="mb-4 flex items-center justify-start">
-              <img className="size-10" src={meal.icon} alt="" />
-              <div className="mr-4 flex flex-col">
-                <span className="text-[12px] font-medium text-[#6B6F77]">{meal.name}</span>
-                <p className="font-primary-ExtraLight flex text-[12px] font-medium text-[#6B6F77]">
-                  <img className="size-3.5" src={imgFire} alt="" />
+            <div
+              key={meal.name}
+              className="flex min-w-0 items-center gap-2 rounded-xl bg-[#F8FAFC] p-2 sm:bg-transparent sm:p-0"
+            >
+              <img
+                className="h-9 w-9 shrink-0 object-contain sm:h-10 sm:w-10"
+                src={meal.icon}
+                alt=""
+              />
+
+              <div className="flex min-w-0 flex-col">
+                <span className="truncate text-[11px] font-medium text-[#6B6F77] sm:text-xs">
+                  {meal.name}
+                </span>
+
+                <p className="font-primary-ExtraLight mt-1 flex items-center gap-1 whitespace-nowrap text-[10px] font-medium text-[#6B6F77] sm:text-xs">
+                  <img className="h-3.5 w-3.5 shrink-0" src={imgFire} alt="" />
                   {meal.calories}
                 </p>
               </div>
             </div>
           ))}
         </div>
-        <img src={Liner} alt="" className="hidden h-28 sm:block" />
-        <div className="flex items-center justify-center sm:mr-4">
-          <div className="flex justify-center gap-5">
+
+        {/* Divider */}
+        <img
+          src={Liner}
+          alt=""
+          className="hidden h-28 shrink-0 object-contain lg:block"
+        />
+
+        <div className="h-px w-full bg-[#F0F2F5] lg:hidden" />
+
+        {/* Nutrition Bars */}
+        <div className="flex min-w-0 flex-1 items-center justify-center">
+          <div className="grid w-full max-w-[360px] grid-cols-3 gap-3 sm:gap-6 lg:gap-5">
             {barRows.map((item) => (
-              <div key={item.name} className="flex flex-col items-center">
-                <div className="flex h-30 w-3 items-end overflow-hidden rounded-full bg-[#DBEDFF]">
+              <div
+                key={item.name}
+                className="flex min-w-0 flex-col items-center"
+              >
+                <div className="flex h-24 w-3 items-end overflow-hidden rounded-full bg-[#DBEDFF] sm:h-28 sm:w-3.5">
                   <div
                     className="w-full rounded-full bg-[#007BFF] transition-all duration-500"
-                    style={{ height: `${item.value}%` }}
+                    style={{
+                      height: `${Math.min(100, Math.max(0, Number(item.value) || 0))}%`,
+                    }}
                   />
                 </div>
-                <p className="font-primary-light mt-3 text-sm whitespace-nowrap text-[#6B6F77]">{item.name}</p>
-                <p className="font-primary-ExtraLight mt-1 text-[11px] whitespace-nowrap text-[#6B6F77]">{item.caption}</p>
+
+                <p className="font-primary-light mt-2.5 whitespace-nowrap text-[10px] text-[#6B6F77] sm:mt-3 sm:text-xs lg:text-sm">
+                  {item.name}
+                </p>
+
+                <p className="font-primary-ExtraLight mt-1 whitespace-nowrap text-[10px] text-[#6B6F77] sm:text-[11px]">
+                  {item.caption}
+                </p>
               </div>
             ))}
           </div>
