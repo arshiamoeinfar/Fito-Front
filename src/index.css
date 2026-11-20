@@ -733,6 +733,22 @@ select {
   }
 }
 
+/* آیتم‌هایی که در نوار موبایل ظاهر یا بازیابی می‌شوند */
+@keyframes fito-nav-item-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.fito-nav-item {
+  animation: fito-nav-item-in 180ms ease-out both;
+}
+
 
 .font-primary {
   font-family: "Modam-Medium", sans-serif;
