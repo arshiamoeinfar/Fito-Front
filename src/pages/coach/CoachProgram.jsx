@@ -5,7 +5,7 @@ import HeaderDashBoard from "../../Components/DashBoardAuth/HeaderDashBoard/Head
 import ExerciseLibrary from "../../Components/CoachDashboard/programs/ExerciseLibrary";
 import WorkoutHeader from "../../Components/CoachDashboard/programs/WorkoutHeader";
 import WorkoutPlanTable from "../../Components/CoachDashboard/programs/WorkoutPlanTable";
-import { Check, ChevronLeft } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Loader2, X } from "lucide-react";
 import imgExercise from "../../assets/imges/image 13.png";
 import { api, ApiError } from "../../api/client";
 import JalaliField from "../../Components/shared/JalaliField/JalaliField";
@@ -20,7 +20,10 @@ const WEEK = [
   { weekday: 5, name: "پنجشنبه", hint: "مثلاً روز دست" },
   { weekday: 6, name: "جمعه", hint: "مثلاً استراحت" },
 ];
-const field = "w-full rounded-2xl border border-[#F0F2F5] bg-white px-4 py-3 text-sm text-[#1F2937]";
+
+// ارتفاع ۴۴ پیکسل برای لمس راحت، و text-base روی موبایل تا iOS هنگام فوکوس زوم نکند
+const field =
+  "min-h-11 w-full rounded-2xl border border-[#E3E8F0] bg-white px-4 py-3 text-base text-[#1F2937] outline-none transition focus:border-[#007BFF] focus:ring-4 focus:ring-[#007BFF]/15 sm:text-sm";
 
 function errorText(caught) {
   if (caught instanceof ApiError) {
@@ -168,6 +171,46 @@ function muscleIdFrom(library) {
   }
 
   return null;
+}
+
+/* ───────────── اجزای کوچک رابط ───────────── */
+
+function Banner({ tone, onClose, children }) {
+  const styles =
+    tone === "error"
+      ? "border-red-100 bg-red-50 text-red-700 hover:bg-red-100 focus-visible:ring-red-400"
+      : "border-emerald-100 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 focus-visible:ring-emerald-500";
+
+  return (
+    <div
+      dir="rtl"
+      role={tone === "error" ? "alert" : "status"}
+      className={`col-span-12 flex items-start justify-between gap-3 rounded-2xl border px-4 py-3.5 text-right text-sm leading-7 sm:rounded-3xl sm:px-6 sm:py-4 ${styles.split(" hover:")[0]}`}
+    >
+      <p className="min-w-0 break-words">{children}</p>
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label="بستن پیام"
+        className={`-m-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition focus:outline-none focus-visible:ring-2 ${styles
+          .split(" ")
+          .filter((cls) => cls.startsWith("hover:") || cls.startsWith("focus-visible:"))
+          .join(" ")}`}
+      >
+        <X size={18} />
+      </button>
+    </div>
+  );
+}
+
+function LoadingSkeleton() {
+  return (
+    <div dir="rtl" className="col-span-12 flex animate-pulse flex-col gap-4" role="status" aria-label="در حال آوردن برنامه">
+      <div className="h-24 rounded-2xl bg-white sm:h-28" />
+      <div className="h-64 rounded-2xl bg-white sm:h-80" />
+      <div className="h-48 rounded-2xl bg-white" />
+    </div>
+  );
 }
 
 export default function CoachProgram() {
@@ -605,26 +648,30 @@ export default function CoachProgram() {
 
   return (
     <div className="min-h-screen bg-[#F5F7FB] flex justify-center">
-      <div className="grid w-full max-w-[1600px] grid-cols-1 gap-4 bg-[#F5F7FB] px-4 py-4 lg:grid-cols-[90px_minmax(0,1fr)] lg:gap-6 lg:px-8 lg:py-6">
+      <div className="grid w-full max-w-[1600px] grid-cols-1 gap-3 bg-[#F5F7FB] px-3 py-3 sm:gap-4 sm:px-5 sm:py-4 lg:grid-cols-[90px_minmax(0,1fr)] lg:gap-6 lg:px-8 lg:py-6">
         <div>
           <Navbar />
         </div>
-        <div className="min-w-0 py-3">
-          <div className="grid grid-cols-12 gap-6">
+        <div className="min-w-0 py-1 lg:py-3">
+          <div className="grid grid-cols-12 gap-4 lg:gap-6">
             <HeaderDashBoard title={isNew ? "ساخت برنامه تمرینی" : (title || "ساخت برنامه تمرینی")} description="برنامه تمرینی و تغذیه‌ای شاگرد را بسازید." />
+
             <div dir="rtl" className="col-span-12">
-              {forStudent ? (
-                <Link to={`/coach/athletes/${forStudent.id}`} className="text-sm text-[#007BFF]">برگشت به صفحهٔ این شاگرد</Link>
-              ) : (
-                <Link to="/coach/programs" className="text-sm text-[#007BFF]">برگشت به برنامه‌ها</Link>
-              )}
+              <Link
+                to={forStudent ? `/coach/athletes/${forStudent.id}` : "/coach/programs"}
+                className="-mx-2 inline-flex min-h-10 items-center gap-1 rounded-xl px-2 text-sm font-medium text-[#007BFF] transition hover:bg-[#EEF6FF] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#007BFF]"
+              >
+                <ChevronRight size={18} aria-hidden="true" />
+                {forStudent ? "برگشت به صفحهٔ این شاگرد" : "برگشت به برنامه‌ها"}
+              </Link>
             </div>
-            {error && <p dir="rtl" className="col-span-12 rounded-3xl bg-red-50 px-6 py-4 text-right text-sm text-red-700">{error}</p>}
-            {notice && <p dir="rtl" className="col-span-12 rounded-3xl bg-green-50 px-6 py-4 text-right text-sm text-green-700">{notice}</p>}
-            {!loaded && <p dir="rtl" className="col-span-12 text-sm text-[#6B7280]">در حال آوردن برنامه...</p>}
+
+            {error && <Banner tone="error" onClose={() => setError(null)}>{error}</Banner>}
+            {notice && <Banner tone="success" onClose={() => setNotice(null)}>{notice}</Banner>}
+            {!loaded && <LoadingSkeleton />}
 
             {loaded && (isNew || program) && (
-              <div dir="rtl" className="col-span-12 flex flex-col gap-4">
+              <div dir="rtl" className="col-span-12 flex min-w-0 flex-col gap-4">
                 <WorkoutHeader
                   weekdays={WEEK.map((day) => day.name)}
                   activeDay={activeDay?.name || "شنبه"}
@@ -652,61 +699,115 @@ export default function CoachProgram() {
                   onUpdate={updatePlanItem}
                   onRemove={removePlanItem}
                 />
-                <div className="flex flex-col gap-3 rounded-2xl border border-[#E7EBF0] bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-                  <div className="text-xs text-[#6B6F77]">
-                    {`روز ${activeDay?.name || "شنبه"} · ${planItems.length} حرکت انتخاب شده`}
+
+                {/* نوار ذخیره: روی موبایل و تبلت پایین صفحه می‌چسبد تا همیشه در دسترس باشد */}
+                <div className="sticky bottom-2 z-20 flex flex-col gap-3 rounded-2xl border border-[#E7EBF0] bg-white/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_8px_30px_-12px_rgba(16,24,40,0.25)] backdrop-blur sm:flex-row sm:items-center sm:justify-between sm:p-4 lg:static lg:shadow-sm">
+                  <div className="text-xs leading-6 text-[#6B6F77]" aria-live="polite">
+                    <p className="font-medium text-[#1F2937]">
+                      {`روز ${activeDay?.name || "شنبه"} · ${planItems.length} حرکت`}
+                    </p>
+                    <p>{`در کل هفته ${moveCount} حرکت`}</p>
                   </div>
                   <button
                     type="button"
                     onClick={markReady}
                     disabled={pending || moveCount === 0}
-                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#007BFF] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#0069d9] disabled:cursor-not-allowed disabled:opacity-40"
+                    aria-busy={pending}
+                    className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#007BFF] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#0069d9] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#007BFF] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto"
                   >
-                    <Check size={16} />
-                    ذخیره برنامه
-                    <ChevronLeft size={16} />
+                    {pending ? (
+                      <>
+                        <Loader2 size={16} className="motion-safe:animate-spin" aria-hidden="true" />
+                        در حال ذخیره
+                      </>
+                    ) : (
+                      <>
+                        <Check size={16} aria-hidden="true" />
+                        ذخیره برنامه
+                        <ChevronLeft size={16} aria-hidden="true" />
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
             )}
 
             {program?.current_version_id && (
-              <section dir="rtl" className="col-span-12 rounded-2xl border border-[#E7EBF0] bg-white p-4 text-right shadow-sm sm:p-5">
-                <h2 className="text-base font-semibold text-[#1F2937]">دادن همین برنامه به شاگرد</h2>
-                <p className="mt-1 text-xs text-[#6B6F77]">همین هفته را می‌توانی به یک شاگرد بدهی یا به چند شاگرد. اگر کسی برنامهٔ دیگری می‌خواهد، از فهرست یک برنامهٔ جدا بنویس.</p>
-                <form onSubmit={give} className="mt-4 grid gap-3 lg:grid-cols-4">
-                  <label className="grid gap-2 text-xs text-[#6B6F77]">
+              <section
+                dir="rtl"
+                aria-labelledby="give-title"
+                className="col-span-12 rounded-2xl border border-[#E7EBF0] bg-white p-4 text-right shadow-sm sm:p-5 lg:p-6"
+              >
+                <h2 id="give-title" className="text-base font-semibold text-[#1F2937]">دادن همین برنامه به شاگرد</h2>
+                <p className="mt-1 max-w-2xl text-xs leading-6 text-[#6B6F77]">
+                  همین هفته را می‌توانی به یک شاگرد بدهی یا به چند شاگرد. اگر کسی برنامهٔ دیگری می‌خواهد، از فهرست یک برنامهٔ جدا بنویس.
+                </p>
+
+                <form onSubmit={give} className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  <label className="grid min-w-0 gap-2 text-xs text-[#6B6F77] sm:col-span-2 lg:col-span-1">
                     شاگرد
                     <select required value={studentId} onChange={(event) => setStudentId(event.target.value)} className={field}>
-                      <option value="">شاگرد</option>
+                      <option value="">انتخاب شاگرد</option>
                       {students.map((row) => (
                         <option key={row.id} value={row.id}>{row.athlete?.display_name || "شاگرد"}</option>
                       ))}
                     </select>
                   </label>
-                  <label className="grid gap-2 text-xs text-[#6B6F77]">
+                  <label className="grid min-w-0 gap-2 text-xs text-[#6B6F77]">
                     شروع
                     <JalaliField required value={startsOn} onChange={setStartsOn} className={field} />
                   </label>
-                  <label className="grid gap-2 text-xs text-[#6B6F77]">
+                  <label className="grid min-w-0 gap-2 text-xs text-[#6B6F77]">
                     اتمام، اگر از الان معلوم است
                     <JalaliField value={endsOn} onChange={setEndsOn} className={field} />
                   </label>
-                  <button type="submit" disabled={pending || students.length === 0} className="self-end rounded-xl bg-[#007BFF] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#0069d9] disabled:opacity-60">بده به این شاگرد</button>
+                  <button
+                    type="submit"
+                    disabled={pending || students.length === 0}
+                    className="inline-flex min-h-11 items-center justify-center gap-2 self-end rounded-xl bg-[#007BFF] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#0069d9] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#007BFF] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 sm:col-span-2 lg:col-span-1"
+                  >
+                    {pending && <Loader2 size={16} className="motion-safe:animate-spin" aria-hidden="true" />}
+                    بده به این شاگرد
+                  </button>
                 </form>
-                <ul className="mt-4 space-y-2">
-                  {holders.map((row) => {
-                    const student = students.find((item) => String(item.id) === String(row.coaching_relationship_id));
-                    const name = student?.athlete?.display_name || "شاگرد";
 
-                    return (
-                      <li key={row.id} className="rounded-xl bg-[#F5F7FB] px-4 py-3 text-sm text-[#4B5563]">
-                        <Link to={`/coach/athletes/${row.coaching_relationship_id}`} className="font-semibold text-[#007BFF]">{name}</Link>
-                        {` · ${periodText(row)} · ${row.status === "active" ? "الان دست اوست" : "تمام شده"}`}
-                      </li>
-                    );
-                  })}
-                </ul>
+                {students.length === 0 && (
+                  <p className="mt-3 rounded-xl bg-[#F5F7FB] px-4 py-3 text-xs leading-6 text-[#6B6F77]">
+                    هنوز شاگرد فعالی نداری. بعد از فعال‌شدن رابطه با یک شاگرد، اینجا می‌توانی برنامه را به او بدهی.
+                  </p>
+                )}
+
+                {holders.length > 0 && (
+                  <ul className="mt-4 grid gap-2">
+                    {holders.map((row) => {
+                      const student = students.find((item) => String(item.id) === String(row.coaching_relationship_id));
+                      const name = student?.athlete?.display_name || "شاگرد";
+                      const isActive = row.status === "active";
+
+                      return (
+                        <li
+                          key={row.id}
+                          className="flex flex-col gap-1.5 rounded-xl bg-[#F5F7FB] px-4 py-3 text-sm text-[#4B5563] sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-3"
+                        >
+                          <Link
+                            to={`/coach/athletes/${row.coaching_relationship_id}`}
+                            className="font-semibold text-[#007BFF] hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#007BFF]"
+                          >
+                            {name}
+                          </Link>
+                          <span className="min-w-0 break-words text-xs leading-6 text-[#6B6F77] sm:text-sm">{periodText(row)}</span>
+                          <span
+                            className={`w-fit rounded-full px-2.5 py-0.5 text-xs font-medium sm:mr-auto ${
+                              isActive ? "bg-emerald-50 text-emerald-700" : "bg-[#E8ECF4] text-[#6B6F77]"
+                            }`}
+                          >
+                            {isActive ? "الان دست اوست" : "تمام شده"}
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
               </section>
             )}
           </div>
