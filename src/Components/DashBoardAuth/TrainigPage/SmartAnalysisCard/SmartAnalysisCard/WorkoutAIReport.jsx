@@ -44,7 +44,7 @@ function MetricCard({ icon: Icon, label, value, caption, color = "blue" }) {
   };
 
   return (
-    <div className="min-w-0 rounded-2xl border border-[#EDF1F6] bg-white p-4 shadow-sm">
+    <div className="min-w-0 rounded-2xl border border-[#EDF1F6] bg-white p-4 shadow-sm dark:border-slate-700/80 dark:bg-slate-800/80">
       <div className="flex items-center justify-between gap-2">
         <div
           className={`flex h-10 w-10 items-center justify-center rounded-xl ${colors[color]}`}
@@ -53,14 +53,14 @@ function MetricCard({ icon: Icon, label, value, caption, color = "blue" }) {
         </div>
       </div>
 
-      <p className="mt-4 text-xs text-[#8993A1]">{label}</p>
+      <p className="mt-4 text-xs text-[#8993A1] dark:text-slate-400">{label}</p>
 
-      <p className="mt-2 truncate text-xl font-bold text-[#253247] sm:text-2xl">
+      <p className="mt-2 truncate text-xl font-bold text-[#253247] dark:text-slate-100 sm:text-2xl">
         {getValue(value)}
       </p>
 
       {caption && (
-        <p className="mt-2 text-[11px] text-[#9AA3AF]">{caption}</p>
+        <p className="mt-2 text-[11px] text-[#9AA3AF] dark:text-slate-500">{caption}</p>
       )}
     </div>
   );
@@ -69,14 +69,14 @@ function MetricCard({ icon: Icon, label, value, caption, color = "blue" }) {
 function SectionTitle({ title, description, icon: Icon }) {
   return (
     <div className="mb-4 flex items-center gap-3">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[#007BFF]">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[#007BFF] dark:bg-blue-500/15 dark:text-blue-400">
         <Icon size={19} />
       </div>
 
       <div className="min-w-0">
-        <h3 className="font-bold text-[#253247]">{title}</h3>
+        <h3 className="font-bold text-[#253247] dark:text-slate-100">{title}</h3>
         {description && (
-          <p className="mt-1 text-xs text-[#929BA8]">{description}</p>
+          <p className="mt-1 text-xs text-[#929BA8] dark:text-slate-400">{description}</p>
         )}
       </div>
     </div>
@@ -85,9 +85,9 @@ function SectionTitle({ title, description, icon: Icon }) {
 
 function EmptyState({ message = "اطلاعات کافی برای تحلیل این بخش وجود ندارد." }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#E2E8F0] bg-[#FAFBFD] px-4 py-8 text-center">
+    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#E2E8F0] bg-[#FAFBFD] px-4 py-8 text-center dark:border-slate-700 dark:bg-slate-900/60">
       <AlertCircle className="mb-3 text-[#AAB3C0]" size={25} />
-      <p className="text-xs text-[#929BA8]">{message}</p>
+      <p className="text-xs text-[#929BA8] dark:text-slate-400">{message}</p>
     </div>
   );
 }
@@ -99,7 +99,7 @@ function ProgressBar({ value, color = "bg-[#007BFF]" }) {
       : 0;
 
   return (
-    <div className="h-2 overflow-hidden rounded-full bg-[#EDF1F6]">
+    <div className="h-2 overflow-hidden rounded-full bg-[#EDF1F6] dark:bg-slate-700">
       <div
         className={`h-full rounded-full transition-all duration-700 ${color}`}
         style={{ width: `${safeValue}%` }}
@@ -133,31 +133,29 @@ function ChartSection({ exercises = [] }) {
         return (
           <div key={`${exercise.name}-${index}`}>
             <div className="mb-2 flex items-center justify-between gap-3">
-              <span className="truncate text-sm font-medium text-[#465367]">
+              <span className="truncate text-sm font-medium text-[#465367] dark:text-slate-200">
                 {exercise.name}
               </span>
 
               <span
-                className={`shrink-0 text-xs font-bold ${
-                  positive ? "text-emerald-600" : "text-red-500"
-                }`}
+                className={`shrink-0 text-xs font-bold ${positive ? "text-emerald-600" : "text-red-500"
+                  }`}
               >
                 {positive ? "+" : ""}
                 {formatNumber(exercise.progress)}٪
               </span>
             </div>
 
-            <div className="h-3 overflow-hidden rounded-full bg-[#EDF1F6]">
+            <div className="h-3 overflow-hidden rounded-full bg-[#EDF1F6] dark:bg-slate-700">
               <div
-                className={`h-full rounded-full transition-all duration-700 ${
-                  positive ? "bg-[#007BFF]" : "bg-red-400"
-                }`}
+                className={`h-full rounded-full transition-all duration-700 ${positive ? "bg-[#007BFF]" : "bg-red-400"
+                  }`}
                 style={{ width: `${width}%` }}
               />
             </div>
 
             {exercise.description && (
-              <p className="mt-1 text-[11px] text-[#9AA3AF]">
+              <p className="mt-1 text-[11px] text-[#9AA3AF] dark:text-slate-500">
                 {exercise.description}
               </p>
             )}
@@ -190,21 +188,21 @@ function MuscleAnalysis({ muscles = [] }) {
       {muscles.map((muscle, index) => (
         <div
           key={`${muscle.name}-${index}`}
-          className="rounded-2xl border border-[#EDF1F6] bg-[#FAFBFD] p-4"
+          className="rounded-2xl border border-[#EDF1F6] bg-[#FAFBFD] p-4 dark:border-slate-700/80 dark:bg-slate-900/60"
         >
           <div className="mb-3 flex items-center justify-between gap-2">
-            <span className="font-semibold text-[#39465A]">
+            <span className="font-semibold text-[#39465A] dark:text-slate-100">
               {muscle.name}
             </span>
 
-            <span className="text-[10px] text-[#929BA8]">
+            <span className="text-[10px] text-[#929BA8] dark:text-slate-400">
               {getStatus(muscle.status)}
             </span>
           </div>
 
           {typeof muscle.percentage === "number" ? (
             <>
-              <div className="mb-2 flex justify-between text-xs text-[#929BA8]">
+              <div className="mb-2 flex justify-between text-xs text-[#929BA8] dark:text-slate-400">
                 <span>حجم تمرین</span>
                 <span>{percent(muscle.percentage)}</span>
               </div>
@@ -215,13 +213,13 @@ function MuscleAnalysis({ muscles = [] }) {
               />
             </>
           ) : (
-            <p className="text-xs text-[#929BA8]">
+            <p className="text-xs text-[#929BA8] dark:text-slate-400">
               داده حجم تمرین موجود نیست.
             </p>
           )}
 
           {muscle.description && (
-            <p className="mt-3 text-xs leading-6 text-[#7E8998]">
+            <p className="mt-3 text-xs leading-6 text-[#7E8998] dark:text-slate-400">
               {muscle.description}
             </p>
           )}
@@ -246,14 +244,14 @@ function ExerciseTable({ exercises = [] }) {
         return (
           <div
             key={`${exercise.name}-${index}`}
-            className="overflow-hidden rounded-2xl border border-[#EDF1F6] bg-white"
+            className="overflow-hidden rounded-2xl border border-[#EDF1F6] bg-white dark:border-slate-700/80 dark:bg-slate-800/80"
           >
             <button
               type="button"
               onClick={() =>
                 setExpanded(isExpanded ? null : index)
               }
-              className="flex w-full items-center justify-between gap-3 p-4 text-right transition hover:bg-[#FAFBFD]"
+              className="flex w-full items-center justify-between gap-3 p-4 text-right transition hover:bg-[#FAFBFD] dark:hover:bg-slate-700/40"
             >
               <div className="flex min-w-0 items-center gap-3">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[#007BFF]">
@@ -261,11 +259,11 @@ function ExerciseTable({ exercises = [] }) {
                 </div>
 
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-bold text-[#39465A]">
+                  <p className="truncate text-sm font-bold text-[#39465A] dark:text-slate-100">
                     {exercise.name}
                   </p>
 
-                  <p className="mt-1 text-[11px] text-[#929BA8]">
+                  <p className="mt-1 text-[11px] text-[#929BA8] dark:text-slate-400">
                     {getValue(exercise.muscle, "گروه عضلانی نامشخص")}
                   </p>
                 </div>
@@ -277,15 +275,15 @@ function ExerciseTable({ exercises = [] }) {
                 </span>
 
                 {isExpanded ? (
-                  <ChevronUp size={18} className="text-[#929BA8]" />
+                  <ChevronUp size={18} className="text-[#929BA8] dark:text-slate-400" />
                 ) : (
-                  <ChevronDown size={18} className="text-[#929BA8]" />
+                  <ChevronDown size={18} className="text-[#929BA8] dark:text-slate-400" />
                 )}
               </div>
             </button>
 
             {isExpanded && (
-              <div className="grid grid-cols-2 gap-3 border-t border-[#EDF1F6] bg-[#FAFBFD] p-4 sm:grid-cols-4">
+              <div className="grid grid-cols-2 gap-3 border-t border-[#EDF1F6] bg-[#FAFBFD] p-4 dark:border-slate-700 dark:bg-slate-900/60 sm:grid-cols-4">
                 <Detail label="ست" value={exercise.sets} />
                 <Detail label="تکرار" value={exercise.reps} />
                 <Detail
@@ -306,7 +304,7 @@ function ExerciseTable({ exercises = [] }) {
                 />
 
                 {exercise.description && (
-                  <p className="col-span-2 text-xs leading-6 text-[#7E8998] sm:col-span-4">
+                  <p className="col-span-2 text-xs leading-6 text-[#7E8998] dark:text-slate-400 sm:col-span-4">
                     {exercise.description}
                   </p>
                 )}
@@ -321,9 +319,9 @@ function ExerciseTable({ exercises = [] }) {
 
 function Detail({ label, value }) {
   return (
-    <div className="rounded-xl bg-white p-3">
-      <p className="text-[10px] text-[#929BA8]">{label}</p>
-      <p className="mt-2 text-sm font-bold text-[#39465A]">
+    <div className="rounded-xl bg-white p-3 dark:bg-slate-800">
+      <p className="text-[10px] text-[#929BA8] dark:text-slate-400">{label}</p>
+      <p className="mt-2 text-sm font-bold text-[#39465A] dark:text-slate-100">
         {getValue(value)}
       </p>
     </div>
@@ -342,14 +340,12 @@ function InsightList({ items = [], type = "success" }) {
       {items.map((item, index) => (
         <div
           key={index}
-          className={`flex items-start gap-3 rounded-2xl p-4 ${
-            isSuccess ? "bg-emerald-50" : "bg-orange-50"
-          }`}
+          className={`flex items-start gap-3 rounded-2xl p-4 ${isSuccess ? "bg-emerald-50" : "bg-orange-50"
+            }`}
         >
           <div
-            className={`mt-0.5 shrink-0 ${
-              isSuccess ? "text-emerald-600" : "text-orange-500"
-            }`}
+            className={`mt-0.5 shrink-0 ${isSuccess ? "text-emerald-600" : "text-orange-500"
+              }`}
           >
             {isSuccess ? (
               <CheckCircle2 size={18} />
@@ -359,12 +355,12 @@ function InsightList({ items = [], type = "success" }) {
           </div>
 
           <div className="min-w-0">
-            <p className="text-sm font-bold text-[#39465A]">
+            <p className="text-sm font-bold text-[#39465A] dark:text-slate-100">
               {typeof item === "string" ? item : item.title}
             </p>
 
             {typeof item !== "string" && item.description && (
-              <p className="mt-1 text-xs leading-6 text-[#7E8998]">
+              <p className="mt-1 text-xs leading-6 text-[#7E8998] dark:text-slate-400">
                 {item.description}
               </p>
             )}
@@ -387,17 +383,17 @@ function RecommendationList({ recommendations = [] }) {
           key={index}
           className="flex items-start gap-3 rounded-2xl border border-blue-100 bg-blue-50/60 p-4"
         >
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white text-[#007BFF]">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white text-[#007BFF] dark:bg-slate-800 dark:text-blue-400">
             <Brain size={17} />
           </div>
 
           <div className="min-w-0">
-            <p className="text-sm font-bold text-[#39465A]">
+            <p className="text-sm font-bold text-[#39465A] dark:text-slate-100">
               {typeof item === "string" ? item : item.title}
             </p>
 
             {typeof item !== "string" && item.description && (
-              <p className="mt-1 text-xs leading-6 text-[#7E8998]">
+              <p className="mt-1 text-xs leading-6 text-[#7E8998] dark:text-slate-400">
                 {item.description}
               </p>
             )}
@@ -446,7 +442,7 @@ export default function WorkoutAIReport({ onClose }) {
     const averageProgress =
       progressValues.length > 0
         ? progressValues.reduce((sum, value) => sum + value, 0) /
-          progressValues.length
+        progressValues.length
         : null;
 
     const adherence =
@@ -485,10 +481,9 @@ export default function WorkoutAIReport({ onClose }) {
       `تعداد حرکات: ${calculated.exerciseCount}`,
       `مجموع ست‌ها: ${calculated.totalSets}`,
       `مجموع تکرارهای ثبت‌شده: ${calculated.totalReps}`,
-      `میانگین پیشرفت حرکات: ${
-        calculated.averageProgress === null
-          ? "داده موجود نیست"
-          : `${calculated.averageProgress.toFixed(1)}٪`
+      `میانگین پیشرفت حرکات: ${calculated.averageProgress === null
+        ? "داده موجود نیست"
+        : `${calculated.averageProgress.toFixed(1)}٪`
       }`,
       "",
       getValue(data.summary, ""),
@@ -552,7 +547,7 @@ export default function WorkoutAIReport({ onClose }) {
         if (event.target === event.currentTarget) onClose?.();
       }}
     >
-      <div className="flex h-full max-h-[96vh] w-full max-w-[1100px] flex-col overflow-hidden bg-[#F5F8FC] shadow-2xl sm:rounded-[28px]">
+      <div className="flex h-full max-h-[96vh] w-full max-w-[1100px] flex-col overflow-hidden bg-[#F5F8FC] shadow-2xl dark:bg-[#0B1220] sm:rounded-[28px]">
         <ReportHeader
           athlete={data.athlete}
           period={data.period}
@@ -565,18 +560,17 @@ export default function WorkoutAIReport({ onClose }) {
           </div>
         ) : (
           <>
-            <div className="shrink-0 border-b border-[#E9EEF4] bg-white px-3 py-3 sm:px-6">
+            <div className="shrink-0 border-b border-[#E9EEF4] bg-white px-3 py-3 dark:border-slate-700 dark:bg-slate-900 sm:px-6">
               <div className="flex gap-2 overflow-x-auto pb-1">
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
                     type="button"
                     onClick={() => setActiveTab(tab.id)}
-                    className={`shrink-0 rounded-xl px-4 py-2.5 text-xs font-semibold transition ${
-                      activeTab === tab.id
+                    className={`shrink-0 rounded-xl px-4 py-2.5 text-xs font-semibold transition ${activeTab === tab.id
                         ? "bg-[#007BFF] text-white shadow-md shadow-blue-500/15"
-                        : "bg-[#F5F7FB] text-[#758092] hover:bg-blue-50"
-                    }`}
+                        : "bg-[#F5F7FB] text-[#758092] hover:bg-blue-50 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700"
+                      }`}
                   >
                     {tab.label}
                   </button>
@@ -587,7 +581,7 @@ export default function WorkoutAIReport({ onClose }) {
             <main className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-6">
               {activeTab === "overview" && (
                 <div className="space-y-5">
-                  <section className="rounded-3xl bg-gradient-to-l from-[#0065D8] to-[#1687FF] p-5 text-white sm:p-7">
+                  <section className="rounded-3xl bg-[#00369b] p-5 text-white sm:p-7">
                     <div className="flex flex-wrap items-start justify-between gap-4">
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 text-blue-100">
@@ -608,7 +602,7 @@ export default function WorkoutAIReport({ onClose }) {
                         </p>
                       </div>
 
-                      <div className="flex h-28 w-28 shrink-0 flex-col items-center justify-center rounded-full border-4 border-white/30 bg-white/10">
+                      <div className="flex h-28 w-28 shrink-0 flex-col items-center justify-center rounded-full border-4 border-white bg-white/10">
                         <span className="text-3xl font-bold">
                           {getValue(data.score, "—")}
                         </span>
@@ -705,7 +699,7 @@ export default function WorkoutAIReport({ onClose }) {
                     </div>
                   </section>
 
-                  <section className="rounded-3xl border border-[#EDF1F6] bg-white p-5 sm:p-6">
+                  <section className="rounded-3xl border border-[#EDF1F6] bg-white p-5 dark:border-slate-700/80 dark:bg-slate-800/80 sm:p-6">
                     <SectionTitle
                       title="روند پیشرفت حرکات"
                       description="مقایسه درصد پیشرفت حرکات ثبت‌شده"
@@ -719,7 +713,7 @@ export default function WorkoutAIReport({ onClose }) {
 
               {activeTab === "exercises" && (
                 <div className="space-y-5">
-                  <section className="rounded-3xl border border-[#EDF1F6] bg-white p-5 sm:p-6">
+                  <section className="rounded-3xl border border-[#EDF1F6] bg-white p-5 dark:border-slate-700/80 dark:bg-slate-800/80 sm:p-6">
                     <SectionTitle
                       title="تحلیل قدرت و عملکرد"
                       description="بررسی تغییرات عملکرد در حرکات تمرینی"
@@ -729,7 +723,7 @@ export default function WorkoutAIReport({ onClose }) {
                     <ChartSection exercises={exercises} />
                   </section>
 
-                  <section className="rounded-3xl border border-[#EDF1F6] bg-white p-5 sm:p-6">
+                  <section className="rounded-3xl border border-[#EDF1F6] bg-white p-5 dark:border-slate-700/80 dark:bg-slate-800/80 sm:p-6">
                     <SectionTitle
                       title="جزئیات حرکات"
                       description="مشاهده ست، تکرار، وزنه و میزان پیشرفت هر حرکت"
@@ -742,7 +736,7 @@ export default function WorkoutAIReport({ onClose }) {
               )}
 
               {activeTab === "muscles" && (
-                <section className="rounded-3xl border border-[#EDF1F6] bg-white p-5 sm:p-6">
+                <section className="rounded-3xl border border-[#EDF1F6] bg-white p-5 dark:border-slate-700/80 dark:bg-slate-800/80 sm:p-6">
                   <SectionTitle
                     title="تحلیل گروه‌های عضلانی"
                     description="مقایسه وضعیت گروه‌های عضلانی بر اساس داده‌های تمرینی"
@@ -751,7 +745,7 @@ export default function WorkoutAIReport({ onClose }) {
 
                   <MuscleAnalysis muscles={muscles} />
 
-                  <div className="mt-5 rounded-2xl bg-blue-50 p-4 text-xs leading-7 text-blue-700">
+                  <div className="mt-5 rounded-2xl bg-blue-50 p-4 text-xs leading-7 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
                     توجه: میزان تمرین هر عضله فقط در صورتی قابل تحلیل است که
                     حرکات به گروه عضلانی مرتبط شده باشند و حجم تمرین آن‌ها
                     در داده گزارش وجود داشته باشد.
@@ -761,7 +755,7 @@ export default function WorkoutAIReport({ onClose }) {
 
               {activeTab === "insights" && (
                 <div className="space-y-5">
-                  <section className="rounded-3xl border border-[#EDF1F6] bg-white p-5 sm:p-6">
+                  <section className="rounded-3xl border border-[#EDF1F6] bg-white p-5 dark:border-slate-700/80 dark:bg-slate-800/80 sm:p-6">
                     <SectionTitle
                       title="نقاط قوت ورزشکار"
                       description="عملکردهای مثبت ثبت‌شده در گزارش"
@@ -771,7 +765,7 @@ export default function WorkoutAIReport({ onClose }) {
                     <InsightList items={strengths} type="success" />
                   </section>
 
-                  <section className="rounded-3xl border border-[#EDF1F6] bg-white p-5 sm:p-6">
+                  <section className="rounded-3xl border border-[#EDF1F6] bg-white p-5 dark:border-slate-700/80 dark:bg-slate-800/80 sm:p-6">
                     <SectionTitle
                       title="موارد قابل بهبود"
                       description="بخش‌هایی که نیاز به توجه بیشتری دارند"
@@ -781,7 +775,7 @@ export default function WorkoutAIReport({ onClose }) {
                     <InsightList items={weaknesses} type="warning" />
                   </section>
 
-                  <section className="rounded-3xl border border-[#EDF1F6] bg-white p-5 sm:p-6">
+                  <section className="rounded-3xl border border-[#EDF1F6] bg-white p-5 dark:border-slate-700/80 dark:bg-slate-800/80 sm:p-6">
                     <SectionTitle
                       title="پیشنهادهای هوشمند"
                       description="پیشنهادهایی برای بهبود عملکرد تمرینی"
@@ -796,13 +790,13 @@ export default function WorkoutAIReport({ onClose }) {
           </>
         )}
 
-        <footer className="shrink-0 border-t border-[#E9EEF4] bg-white px-3 py-3 sm:px-6">
+        <footer className="shrink-0 border-t border-[#E9EEF4] bg-white px-3 py-3 dark:border-slate-700 dark:bg-slate-900 sm:px-6">
           <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex gap-2">
               <button
                 type="button"
                 onClick={() => window.print()}
-                className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-[#E3E8EE] px-3 py-3 text-xs text-[#62666D] transition hover:bg-[#F7FAFD] sm:flex-none"
+                className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-[#E3E8EE] px-3 py-3 text-xs text-[#62666D] transition hover:bg-[#F7FAFD] dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 sm:flex-none"
               >
                 <Printer size={16} />
                 چاپ گزارش
@@ -811,7 +805,7 @@ export default function WorkoutAIReport({ onClose }) {
               <button
                 type="button"
                 onClick={copyReport}
-                className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-[#E3E8EE] px-3 py-3 text-xs text-[#62666D] transition hover:bg-[#F7FAFD] sm:flex-none"
+                className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-[#E3E8EE] px-3 py-3 text-xs text-[#62666D] transition hover:bg-[#F7FAFD] dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 sm:flex-none"
               >
                 <Copy size={16} />
                 {copied ? "کپی شد" : "کپی گزارش"}
@@ -831,7 +825,7 @@ export default function WorkoutAIReport({ onClose }) {
               <button
                 type="button"
                 onClick={onClose}
-                className="flex items-center justify-center gap-2 rounded-xl bg-[#F1F4F8] px-4 py-3 text-xs font-semibold text-[#62666D] transition hover:bg-[#E7ECF2]"
+                className="flex items-center justify-center gap-2 rounded-xl bg-[#F1F4F8] px-4 py-3 text-xs font-semibold text-[#62666D] transition hover:bg-[#E7ECF2] dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
               >
                 <X size={16} />
                 بستن
