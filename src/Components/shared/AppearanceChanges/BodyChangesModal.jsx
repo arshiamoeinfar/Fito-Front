@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import AddAPhotoOutlinedIcon from "@mui/icons-material/AddAPhotoOutlined";
@@ -180,7 +179,7 @@ const BodyChangesModal = ({ isOpen, onClose }) => {
     const inputKey = `${currentView.id}-${type}`;
 
     return (
-      <div className="min-w-0 overflow-hidden rounded-3xl border border-slate-100 bg-white p-3 sm:p-4">
+      <div className="min-w-0 overflow-hidden rounded-3xl border border-slate-100 bg-white p-3 dark:border-slate-700 dark:bg-slate-800 sm:p-4">
         <div className="mb-3 flex items-center justify-between gap-2">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
@@ -189,19 +188,23 @@ const BodyChangesModal = ({ isOpen, onClose }) => {
                   type === "before" ? "bg-orange-400" : "bg-[#007BFF]"
                 }`}
               />
-              <h3 className="font-bold text-[#303741]">{title}</h3>
+              <h3 className="font-bold text-[#303741] dark:text-slate-100">
+                {title}
+              </h3>
             </div>
-            <p className="mt-1 text-xs text-[#9AA1AB]">{subtitle}</p>
+            <p className="mt-1 text-xs text-[#9AA1AB] dark:text-slate-400">
+              {subtitle}
+            </p>
           </div>
 
           {uploaded && (
-            <span className="shrink-0 rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-medium text-[#007BFF]">
+            <span className="shrink-0 rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-medium text-[#007BFF] dark:bg-blue-500/15 dark:text-blue-400">
               عکس جدید
             </span>
           )}
         </div>
 
-        <div className="group relative aspect-[4/5] overflow-hidden rounded-2xl bg-[#F1F4F8] sm:aspect-[3/4]">
+        <div className="group relative aspect-[4/5] overflow-hidden rounded-2xl bg-[#F1F4F8] dark:bg-slate-900 sm:aspect-[3/4]">
           {image ? (
             <>
               <img
@@ -213,9 +216,7 @@ const BodyChangesModal = ({ isOpen, onClose }) => {
               <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 bg-gradient-to-t from-black/65 to-transparent p-3 pt-12 opacity-100 transition sm:opacity-0 sm:group-hover:opacity-100">
                 <button
                   type="button"
-                  onClick={() =>
-                    inputRefs.current[inputKey]?.click()
-                  }
+                  onClick={() => inputRefs.current[inputKey]?.click()}
                   className="flex items-center gap-1.5 rounded-xl bg-white/95 px-3 py-2 text-xs font-medium text-[#303741] transition hover:bg-white"
                 >
                   <CameraAltOutlinedIcon sx={{ fontSize: 16 }} />
@@ -237,25 +238,23 @@ const BodyChangesModal = ({ isOpen, onClose }) => {
           ) : (
             <button
               type="button"
-              onClick={() =>
-                inputRefs.current[inputKey]?.click()
-              }
-              className="flex h-full w-full flex-col items-center justify-center gap-3 p-4 text-center transition hover:bg-blue-50/60"
+              onClick={() => inputRefs.current[inputKey]?.click()}
+              className="flex h-full w-full flex-col items-center justify-center gap-3 p-4 text-center transition hover:bg-blue-50/60 dark:hover:bg-slate-800"
             >
-              <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-[#007BFF] shadow-sm">
+              <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-[#007BFF] shadow-sm dark:bg-slate-700 dark:text-blue-400">
                 <AddAPhotoOutlinedIcon sx={{ fontSize: 26 }} />
               </span>
 
               <div>
-                <p className="text-sm font-bold text-[#3D424A]">
+                <p className="text-sm font-bold text-[#3D424A] dark:text-slate-100">
                   افزودن عکس {title}
                 </p>
-                <p className="mt-1 text-xs leading-6 text-[#9AA1AB]">
+                <p className="mt-1 text-xs leading-6 text-[#9AA1AB] dark:text-slate-400">
                   برای انتخاب تصویر کلیک کنید
                 </p>
               </div>
 
-              <span className="rounded-xl bg-white px-4 py-2 text-xs font-semibold text-[#007BFF] shadow-sm">
+              <span className="rounded-xl bg-white px-4 py-2 text-xs font-semibold text-[#007BFF] shadow-sm dark:bg-slate-700 dark:text-blue-400">
                 انتخاب تصویر
               </span>
             </button>
@@ -275,12 +274,12 @@ const BodyChangesModal = ({ isOpen, onClose }) => {
         </div>
 
         <div className="mt-3 flex items-center justify-between gap-2">
-          <span className="text-xs text-[#9299A3]">
+          <span className="text-xs text-[#9299A3] dark:text-slate-400">
             {uploaded ? "تصویر انتخاب شده" : "بدون تصویر جدید"}
           </span>
 
           {uploaded && (
-            <span className="flex items-center gap-1 text-xs font-medium text-emerald-600">
+            <span className="flex items-center gap-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
               <CheckCircleRoundedIcon sx={{ fontSize: 15 }} />
               آماده
             </span>
@@ -303,27 +302,27 @@ const BodyChangesModal = ({ isOpen, onClose }) => {
         role="dialog"
         aria-modal="true"
         aria-labelledby="body-changes-title"
-        className="relative z-10 flex h-full max-h-[95vh] w-full max-w-5xl flex-col overflow-hidden bg-[#F5F7FB] shadow-2xl sm:rounded-[32px] sm:border sm:border-white/20"
+        className="relative z-10 flex h-full max-h-[95vh] w-full max-w-5xl flex-col overflow-hidden bg-[#F5F7FB] shadow-2xl dark:bg-slate-900 sm:rounded-[32px] sm:border sm:border-white/20 dark:sm:border-slate-700"
       >
         {/* Header */}
-        <div className="relative shrink-0 overflow-hidden border-b border-slate-100 bg-white px-4 py-5 sm:px-7 sm:py-6">
-          <div className="pointer-events-none absolute -left-10 -top-20 h-48 w-48 rounded-full bg-blue-100/50 blur-3xl" />
+        <div className="relative shrink-0 overflow-hidden border-b border-slate-100 bg-white px-4 py-5 dark:border-slate-700 dark:bg-slate-800 sm:px-7 sm:py-6">
+          <div className="pointer-events-none absolute -left-10 -top-20 h-48 w-48 rounded-full bg-blue-100/50 blur-3xl dark:bg-blue-500/10" />
 
           <div className="relative flex items-start justify-between gap-4">
             <div className="flex min-w-0 items-center gap-3">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-[#007BFF]">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-[#007BFF] dark:bg-blue-500/15 dark:text-blue-400">
                 <CompareArrowsRoundedIcon sx={{ fontSize: 27 }} />
               </div>
 
               <div className="min-w-0">
                 <h2
                   id="body-changes-title"
-                  className="text-lg font-extrabold text-[#303741] sm:text-2xl"
+                  className="text-lg font-extrabold text-[#303741] dark:text-slate-100 sm:text-2xl"
                 >
                   تغییرات ظاهری بدن
                 </h2>
 
-                <p className="mt-1 text-xs leading-6 text-[#9299A3] sm:text-sm">
+                <p className="mt-1 text-xs leading-6 text-[#9299A3] dark:text-slate-400 sm:text-sm">
                   مقایسه پیشرفت فیزیکی در بازه‌های زمانی مختلف
                 </p>
               </div>
@@ -333,38 +332,38 @@ const BodyChangesModal = ({ isOpen, onClose }) => {
               type="button"
               onClick={onClose}
               aria-label="بستن"
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#F5F7FB] text-[#6B6F77] transition hover:bg-red-50 hover:text-red-500"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#F5F7FB] text-[#6B6F77] transition hover:bg-red-50 hover:text-red-500 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-red-500/10 dark:hover:text-red-400"
             >
               <CloseIcon sx={{ fontSize: 20 }} />
             </button>
           </div>
 
           {/* Progress */}
-          <div className="relative mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-[#F5F8FD] p-3 sm:p-4">
+          <div className="relative mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-[#F5F8FD] p-3 dark:bg-slate-700/60 sm:p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[#007BFF] shadow-sm">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[#007BFF] shadow-sm dark:bg-slate-800 dark:text-blue-400">
                 <ImageOutlinedIcon />
               </div>
 
               <div>
-                <p className="text-sm font-bold text-[#303741]">
+                <p className="text-sm font-bold text-[#303741] dark:text-slate-100">
                   وضعیت تصاویر
                 </p>
-                <p className="mt-1 text-xs text-[#9299A3]">
+                <p className="mt-1 text-xs text-[#9299A3] dark:text-slate-400">
                   {completedViews.toLocaleString("fa-IR")} از ۴ زاویه تکمیل شده
                 </p>
               </div>
             </div>
 
             <div className="min-w-[110px]">
-              <div className="mb-2 flex justify-between text-[10px] text-[#9299A3]">
+              <div className="mb-2 flex justify-between text-[10px] text-[#9299A3] dark:text-slate-400">
                 <span>پیشرفت</span>
                 <span>
                   {Math.round((completedViews / 4) * 100).toLocaleString("fa-IR")}٪
                 </span>
               </div>
 
-              <div className="h-2 overflow-hidden rounded-full bg-slate-200">
+              <div className="h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-600">
                 <div
                   className="h-full rounded-full bg-[#007BFF] transition-all duration-500"
                   style={{ width: `${(completedViews / 4) * 100}%` }}
@@ -375,20 +374,20 @@ const BodyChangesModal = ({ isOpen, onClose }) => {
         </div>
 
         {/* Content */}
-        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-7 sm:py-6">
+        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5 dark:bg-slate-900 sm:px-7 sm:py-6">
           {/* View selector */}
           <div className="mb-6">
             <div className="mb-3 flex items-center justify-between gap-2">
               <div>
-                <h3 className="text-sm font-bold text-[#303741] sm:text-base">
+                <h3 className="text-sm font-bold text-[#303741] dark:text-slate-100 sm:text-base">
                   انتخاب زاویه بدن
                 </h3>
-                <p className="mt-1 text-xs text-[#9299A3]">
+                <p className="mt-1 text-xs text-[#9299A3] dark:text-slate-400">
                   برای مشاهده و مدیریت تصاویر هر زاویه انتخاب کنید
                 </p>
               </div>
 
-              <span className="shrink-0 rounded-lg bg-white px-2.5 py-1.5 text-[10px] text-[#9299A3]">
+              <span className="shrink-0 rounded-lg bg-white px-2.5 py-1.5 text-[10px] text-[#9299A3] dark:bg-slate-800 dark:text-slate-400">
                 {totalPhotos.toLocaleString("fa-IR")} عکس جدید
               </span>
             </div>
@@ -407,20 +406,22 @@ const BodyChangesModal = ({ isOpen, onClose }) => {
                     onClick={() => setSelectedView(view.id)}
                     className={`relative flex min-w-0 items-center justify-between gap-2 rounded-2xl border p-3 text-right transition duration-200 ${
                       active
-                        ? "border-[#007BFF] bg-blue-50 shadow-sm"
-                        : "border-slate-100 bg-white hover:border-blue-200"
+                        ? "border-[#007BFF] bg-blue-50 shadow-sm dark:border-blue-400 dark:bg-blue-500/10"
+                        : "border-slate-100 bg-white hover:border-blue-200 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-blue-500/50"
                     }`}
                   >
                     <div className="min-w-0">
                       <p
                         className={`truncate text-sm font-bold ${
-                          active ? "text-[#007BFF]" : "text-[#505762]"
+                          active
+                            ? "text-[#007BFF] dark:text-blue-400"
+                            : "text-[#505762] dark:text-slate-200"
                         }`}
                       >
                         {view.shortTitle}
                       </p>
 
-                      <p className="mt-1 text-[10px] text-[#A0A6AF]">
+                      <p className="mt-1 text-[10px] text-[#A0A6AF] dark:text-slate-400">
                         {completed
                           ? "هر دو تصویر موجود"
                           : `${hasBefore ? "قبل ✓" : "قبل —"}  |  ${hasAfter ? "بعد ✓" : "بعد —"}`}
@@ -438,7 +439,7 @@ const BodyChangesModal = ({ isOpen, onClose }) => {
                     ) : (
                       <span
                         className={`h-2.5 w-2.5 shrink-0 rounded-full ${
-                          active ? "bg-[#007BFF]" : "bg-slate-200"
+                          active ? "bg-[#007BFF]" : "bg-slate-200 dark:bg-slate-600"
                         }`}
                       />
                     )}
@@ -451,40 +452,31 @@ const BodyChangesModal = ({ isOpen, onClose }) => {
           {/* Comparison title */}
           <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
             <div>
-              <h3 className="font-bold text-[#303741]">
+              <h3 className="font-bold text-[#303741] dark:text-slate-100">
                 مقایسه {currentView.title}
               </h3>
-              <p className="mt-1 text-xs text-[#9299A3]">
+              <p className="mt-1 text-xs text-[#9299A3] dark:text-slate-400">
                 تصاویر مربوط به این زاویه را انتخاب یا جایگزین کنید
               </p>
             </div>
 
-            <span className="rounded-xl bg-blue-50 px-3 py-2 text-xs font-semibold text-[#007BFF]">
+            <span className="rounded-xl bg-blue-50 px-3 py-2 text-xs font-semibold text-[#007BFF] dark:bg-blue-500/15 dark:text-blue-400">
               {currentView.title}
             </span>
           </div>
 
           {/* Before / After */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
-            {renderPhotoCard(
-              "before",
-              "قبل",
-              "تصویر در شروع دوره"
-            )}
-
-            {renderPhotoCard(
-              "after",
-              "بعد",
-              "تصویر در وضعیت فعلی"
-            )}
+            {renderPhotoCard("before", "قبل", "تصویر در شروع دوره")}
+            {renderPhotoCard("after", "بعد", "تصویر در وضعیت فعلی")}
           </div>
 
           {/* Hint */}
-          <div className="mt-4 flex items-start gap-3 rounded-2xl border border-blue-100 bg-blue-50/70 p-3 sm:p-4">
+          <div className="mt-4 flex items-start gap-3 rounded-2xl border border-blue-100 bg-blue-50/70 p-3 dark:border-blue-500/20 dark:bg-blue-500/10 sm:p-4">
             <CameraAltOutlinedIcon
               sx={{ fontSize: 20, color: "#007BFF" }}
             />
-            <p className="text-xs leading-6 text-[#64748B]">
+            <p className="text-xs leading-6 text-[#64748B] dark:text-slate-300">
               برای مقایسه دقیق‌تر، عکس‌های قبل و بعد را با زاویه،
               فاصله و نورپردازی مشابه ثبت کنید. تصاویر انتخاب‌شده
               فعلاً به‌صورت پیش‌نمایش نمایش داده می‌شوند.
@@ -494,61 +486,61 @@ const BodyChangesModal = ({ isOpen, onClose }) => {
           {/* Stats */}
           <div className="mt-7">
             <div className="mb-3">
-              <h3 className="font-bold text-[#303741]">
+              <h3 className="font-bold text-[#303741] dark:text-slate-100">
                 خلاصه تغییرات بدنی
               </h3>
-              <p className="mt-1 text-xs text-[#9299A3]">
+              <p className="mt-1 text-xs text-[#9299A3] dark:text-slate-400">
                 آمار ثبت‌شده در طول دوره
               </p>
             </div>
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-              <div className="rounded-2xl border border-slate-100 bg-white p-4">
+              <div className="rounded-2xl border border-slate-100 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-[#9299A3]">
+                  <span className="text-xs text-[#9299A3] dark:text-slate-400">
                     کاهش وزن
                   </span>
-                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-[#007BFF]">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-[#007BFF] dark:bg-blue-500/15 dark:text-blue-400">
                     <TrendingDownRoundedIcon />
                   </span>
                 </div>
-                <p className="mt-3 text-2xl font-extrabold text-[#007BFF]">
+                <p className="mt-3 text-2xl font-extrabold text-[#007BFF] dark:text-blue-400">
                   -5
-                  <span className="mr-1 text-xs font-medium text-[#9299A3]">
+                  <span className="mr-1 text-xs font-medium text-[#9299A3] dark:text-slate-400">
                     کیلوگرم
                   </span>
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-slate-100 bg-white p-4">
+              <div className="rounded-2xl border border-slate-100 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-[#9299A3]">
+                  <span className="text-xs text-[#9299A3] dark:text-slate-400">
                     کاهش چربی
                   </span>
-                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400">
                     <TrendingDownRoundedIcon />
                   </span>
                 </div>
-                <p className="mt-3 text-2xl font-extrabold text-emerald-600">
+                <p className="mt-3 text-2xl font-extrabold text-emerald-600 dark:text-emerald-400">
                   -8.6
-                  <span className="mr-1 text-xs font-medium text-[#9299A3]">
+                  <span className="mr-1 text-xs font-medium text-[#9299A3] dark:text-slate-400">
                     درصد
                   </span>
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-slate-100 bg-white p-4">
+              <div className="rounded-2xl border border-slate-100 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-[#9299A3]">
+                  <span className="text-xs text-[#9299A3] dark:text-slate-400">
                     مدت زمان
                   </span>
-                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-50 text-violet-600">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-50 text-violet-600 dark:bg-violet-500/15 dark:text-violet-400">
                     <CompareArrowsRoundedIcon />
                   </span>
                 </div>
-                <p className="mt-3 text-2xl font-extrabold text-violet-600">
+                <p className="mt-3 text-2xl font-extrabold text-violet-600 dark:text-violet-400">
                   120
-                  <span className="mr-1 text-xs font-medium text-[#9299A3]">
+                  <span className="mr-1 text-xs font-medium text-[#9299A3] dark:text-slate-400">
                     روز
                   </span>
                 </p>
@@ -558,8 +550,8 @@ const BodyChangesModal = ({ isOpen, onClose }) => {
         </div>
 
         {/* Footer */}
-        <div className="flex shrink-0 flex-col-reverse gap-3 border-t border-slate-100 bg-white px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-7">
-          <p className="text-center text-xs text-[#9299A3] sm:text-right">
+        <div className="flex shrink-0 flex-col-reverse gap-3 border-t border-slate-100 bg-white px-4 py-4 dark:border-slate-700 dark:bg-slate-800 sm:flex-row sm:items-center sm:justify-between sm:px-7">
+          <p className="text-center text-xs text-[#9299A3] dark:text-slate-400 sm:text-right">
             {totalPhotos > 0
               ? `${totalPhotos.toLocaleString("fa-IR")} تصویر جدید انتخاب شده است`
               : "می‌توانید تصاویر هر زاویه را جداگانه اضافه کنید"}
