@@ -460,83 +460,83 @@ export default function Analysis({
         </div>
       ) : null}
 
-      {panel === "compare" ? (
-        <div className="mt-5 rounded-2xl border border-[#EEF2F6] p-4">
-          <p className="text-sm leading-7 text-[#6B6F77]">
-            ثبت قدیمی‌تر را در «ثبت قبلی» و ثبت جدیدتر را در «ثبت بعدی» بگذار.
-          </p>
+   {panel === "compare" ? (
+  <div className="mt-5 rounded-2xl border border-[#E8ECF4] bg-[#FAFBFD] p-4 sm:p-5">
+    <p className="text-sm leading-7 text-[#6B6F77]">
+      ثبت قدیمی‌تر را در «ثبت قبلی» و ثبت جدیدتر را در «ثبت بعدی» بگذار.
+    </p>
 
-          <div className="mt-4 grid gap-3 md:grid-cols-2">
-            <label className="grid gap-2 text-sm text-[#6B6F77]">
-              ثبت قبلی
-              <select
-                value={beforeId}
-                onChange={(event) => setBeforeId(event.target.value)}
-                className="rounded-2xl border border-slate-200 bg-white px-4 py-3"
-              >
-                <option value="">یک تاریخ انتخاب کن</option>
-                {observations.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {observationChoice(item)}
-                  </option>
-                ))}
-              </select>
-            </label>
+    <div className="mt-4 grid gap-3 md:grid-cols-2">
+      <label className="grid min-w-0 gap-2 text-sm font-medium text-[#6B6F77]">
+        ثبت قبلی
+        <select
+          value={beforeId}
+          onChange={(event) => setBeforeId(event.target.value)}
+          className="min-h-11 w-full min-w-0 rounded-xl border border-[#E3E8F0] bg-white px-4 py-3 text-base font-normal text-[#1F2937] outline-none transition focus:border-[#007BFF] focus:ring-4 focus:ring-[#007BFF]/10 sm:text-sm"
+        >
+          <option value="">یک تاریخ انتخاب کن</option>
+          {observations.map((item) => (
+            <option key={item.id} value={item.id}>
+              {observationChoice(item)}
+            </option>
+          ))}
+        </select>
+      </label>
 
-            <label className="grid gap-2 text-sm text-[#6B6F77]">
-              ثبت بعدی
-              <select
-                value={afterId}
-                onChange={(event) => setAfterId(event.target.value)}
-                className="rounded-2xl border border-slate-200 bg-white px-4 py-3"
-              >
-                <option value="">یک تاریخ انتخاب کن</option>
-                {observations.map((item) => (
-                  <option key={`after-${item.id}`} value={item.id}>
-                    {observationChoice(item)}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
+      <label className="grid min-w-0 gap-2 text-sm font-medium text-[#6B6F77]">
+        ثبت بعدی
+        <select
+          value={afterId}
+          onChange={(event) => setAfterId(event.target.value)}
+          className="min-h-11 w-full min-w-0 rounded-xl border border-[#E3E8F0] bg-white px-4 py-3 text-base font-normal text-[#1F2937] outline-none transition focus:border-[#007BFF] focus:ring-4 focus:ring-[#007BFF]/10 sm:text-sm"
+        >
+          <option value="">یک تاریخ انتخاب کن</option>
+          {observations.map((item) => (
+            <option key={`after-${item.id}`} value={item.id}>
+              {observationChoice(item)}
+            </option>
+          ))}
+        </select>
+      </label>
+    </div>
 
-          {beforeId && afterId && beforeId === afterId ? (
-            <p className="mt-3 text-sm text-[#6B6F77]">
-              دو ثبت باید با هم فرق داشته باشند.
+    {beforeId && afterId && beforeId === afterId ? (
+      <p role="alert" className="mt-3 rounded-xl bg-amber-50 px-4 py-2.5 text-sm text-amber-800">
+        دو ثبت باید با هم فرق داشته باشند.
+      </p>
+    ) : null}
+
+    {!beforeId || !afterId ? (
+      <p className="mt-3 rounded-xl bg-[#F1F4F9] px-4 py-2.5 text-sm text-[#6B6F77]">
+        تا هر دو تاریخ را انتخاب نکنی، مقایسه‌ای نشان داده نمی‌شود.
+      </p>
+    ) : null}
+
+    {compare?.metrics?.length ? (
+      <ul className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        {compare.metrics.map((item) => (
+          <li
+            key={item.metric}
+            className="min-w-0 rounded-2xl border border-[#EEF1F6] bg-white p-4"
+          >
+            <p className="text-sm font-medium text-[#1F2937]">
+              {METRIC_LABELS[item.metric] || "اندازه"}
             </p>
-          ) : null}
-
-          {!beforeId || !afterId ? (
-            <p className="mt-3 text-sm text-[#A0A4AA]">
-              تا هر دو تاریخ را انتخاب نکنی، مقایسه‌ای نشان داده نمی‌شود.
+            <p className="mt-2 break-words text-sm text-[#6B6F77]">
+              قبلی {withUnit(item.before, item.metric)}
             </p>
-          ) : null}
-
-          {compare?.metrics?.length ? (
-            <ul className="mt-4 grid gap-3 sm:grid-cols-2">
-              {compare.metrics.map((item) => (
-                <li
-                  key={item.metric}
-                  className="rounded-2xl bg-[#F5F7FB] p-4"
-                >
-                  <p className="text-sm text-[#1F2937]">
-                    {METRIC_LABELS[item.metric] || "اندازه"}
-                  </p>
-                  <p className="mt-2 text-sm text-[#6B6F77]">
-                    قبلی {withUnit(item.before, item.metric)}
-                  </p>
-                  <p className="mt-1 text-sm text-[#6B6F77]">
-                    بعدی {withUnit(item.after, item.metric)}
-                  </p>
-                  <p className="mt-2 text-sm text-[#007BFF]">
-                    {changeText(item.delta, item.metric)}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          ) : null}
-        </div>
-      ) : null}
+            <p className="mt-1 break-words text-sm font-medium text-[#1F2937]">
+              بعدی {withUnit(item.after, item.metric)}
+            </p>
+            <p className="mt-3 inline-flex w-fit max-w-full rounded-full bg-[#EAF4FF] px-3 py-1 text-xs font-medium text-[#0B63CE]">
+              {changeText(item.delta, item.metric)}
+            </p>
+          </li>
+        ))}
+      </ul>
+    ) : null}
+  </div>
+) : null}
 
       {panel === "report" ? (
         <AthleteReport
