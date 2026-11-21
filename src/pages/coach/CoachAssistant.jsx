@@ -5,7 +5,7 @@ import AccountMenu from "../../Components/DashBoardAuth/HeaderDashBoard/AccountM
 import { api, ApiError } from "../../api/client";
 
 const fieldClass =
-  "w-full min-w-0 rounded-2xl border border-[#E9EDF3] bg-[#F7F9FC] px-4 py-3 text-sm text-[#374151] outline-none transition focus:border-[#007BFF] focus:bg-white focus:ring-4 focus:ring-[#007BFF]/10";
+  "w-full min-w-0 rounded-2xl border border-[#E9EDF3] bg-[#F7F9FC] px-4 py-3 text-sm text-[#374151] outline-none transition placeholder:text-[#A0A4AA] focus:border-[#007BFF] focus:bg-white focus:ring-4 focus:ring-[#007BFF]/10 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus:border-blue-500 dark:focus:bg-slate-800 dark:focus:ring-blue-500/10";
 
 function errorText(caught) {
   if (!(caught instanceof ApiError)) return "درخواست ناموفق بود.";
@@ -80,7 +80,7 @@ function MessageText({ body, light = false }) {
           className={`mb-3 border-r-2 pr-3 text-xs leading-6 ${
             light
               ? "border-white/50 text-white/80"
-              : "border-[#D1D5DB] text-[#6B7280]"
+              : "border-[#D1D5DB] text-[#6B7280] dark:border-slate-600 dark:text-slate-400"
           }`}
         >
           {parts.quote}
@@ -130,7 +130,7 @@ function DraftOutline({ generation }) {
 
   if (!outline.length) {
     return (
-      <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-[#374151]">
+      <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-[#374151] dark:text-slate-300">
         {draftPreview(generation)}
       </p>
     );
@@ -139,15 +139,17 @@ function DraftOutline({ generation }) {
   return (
     <div className="mt-3 grid gap-3">
       {title && (
-        <p className="text-sm font-semibold text-[#1F2937]">{title}</p>
+        <p className="text-sm font-semibold text-[#1F2937] dark:text-slate-100">
+          {title}
+        </p>
       )}
 
       {outline.map((day, index) => (
         <div
           key={`${day.weekday ?? "day"}-${index}`}
-          className="rounded-2xl border border-[#EDF0F4] bg-white p-4"
+          className="rounded-2xl border border-[#EDF0F4] bg-white p-4 dark:border-slate-700 dark:bg-slate-800"
         >
-          <p className="text-sm font-semibold text-[#1F2937]">
+          <p className="text-sm font-semibold text-[#1F2937] dark:text-slate-100">
             {day.label}
           </p>
 
@@ -155,13 +157,15 @@ function DraftOutline({ generation }) {
             day.lines.map((line, lineIndex) => (
               <p
                 key={`${index}-${lineIndex}`}
-                className="mt-2 text-xs leading-6 text-[#6B7280]"
+                className="mt-2 text-xs leading-6 text-[#6B7280] dark:text-slate-400"
               >
                 {line}
               </p>
             ))
           ) : (
-            <p className="mt-2 text-xs text-[#A0A4AA]">استراحت</p>
+            <p className="mt-2 text-xs text-[#A0A4AA] dark:text-slate-500">
+              استراحت
+            </p>
           )}
         </div>
       ))}
@@ -774,7 +778,7 @@ export default function CoachAssistant() {
   }
 
   return (
-    <div className="min-h-dvh bg-[#F5F7FB]">
+    <div className="min-h-dvh bg-[#F5F7FB] dark:bg-slate-950">
       <div className="mx-auto grid min-h-dvh w-full max-w-[1600px] grid-cols-1 gap-3 px-3 py-3 sm:gap-4 sm:px-5 sm:py-4 lg:grid-cols-[90px_minmax(0,1fr)] lg:gap-6 lg:px-8 lg:py-6">
         <div className="min-w-0">
           <Navbar />
@@ -783,28 +787,27 @@ export default function CoachAssistant() {
         <main className="flex min-h-0 min-w-0 flex-col lg:h-[calc(100dvh-48px)]">
           <section
             dir="rtl"
-            className="relative flex min-h-[calc(100dvh-110px)] min-w-0 flex-1 flex-col overflow-hidden rounded-2xl bg-white shadow-[0_8px_30px_rgba(15,23,42,0.04)] sm:rounded-3xl lg:grid lg:h-full lg:min-h-0 lg:grid-cols-[260px_minmax(0,1fr)] lg:rounded-[28px]"
+            className="relative flex min-h-[calc(100dvh-110px)] min-w-0 flex-1 flex-col overflow-hidden rounded-2xl bg-white shadow-[0_8px_30px_rgba(15,23,42,0.04)] dark:bg-slate-900 dark:shadow-black/20 sm:rounded-3xl lg:grid lg:h-full lg:min-h-0 lg:grid-cols-[260px_minmax(0,1fr)] lg:rounded-[28px]"
           >
             {/* فهرست شاگردان */}
-            <aside className="z-10 flex min-w-0 flex-col border-b border-[#EEF2F6] bg-[#FBFCFD] p-3 lg:min-h-0 lg:overflow-y-auto lg:border-b-0 lg:border-l lg:p-4">
+            <aside className="z-10 flex min-w-0 flex-col border-b border-[#EEF2F6] bg-[#FBFCFD] p-3 dark:border-slate-800 dark:bg-slate-900 lg:min-h-0 lg:overflow-y-auto lg:border-b-0 lg:border-l lg:p-4">
               <div className="mb-3 flex items-center justify-between gap-2">
                 <div>
-                  <h3 className="text-sm font-bold text-[#1F2937]">
+                  <h3 className="text-sm font-bold text-[#1F2937] dark:text-slate-100">
                     گفتگوها
                   </h3>
-                  <p className="mt-1 text-[11px] text-[#9CA3AF]">
+                  <p className="mt-1 text-[11px] text-[#9CA3AF] dark:text-slate-500">
                     {relationships.length} شاگرد
                   </p>
                 </div>
 
-                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#EAF3FF] text-[#007BFF]">
+                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#EAF3FF] text-[#007BFF] dark:bg-blue-500/10 dark:text-blue-400">
                   <SearchIcon />
                 </span>
               </div>
 
-              {/* جستجوی شاگرد */}
               <div className="relative mb-3">
-                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF]">
+                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] dark:text-slate-500">
                   <SearchIcon />
                 </span>
 
@@ -816,7 +819,7 @@ export default function CoachAssistant() {
                   }
                   placeholder="جستجوی نام شاگرد..."
                   aria-label="جستجوی شاگرد"
-                  className="h-11 w-full rounded-xl border border-[#E9EDF3] bg-white pr-10 pl-9 text-xs text-[#374151] outline-none transition placeholder:text-[#A0A4AA] focus:border-[#007BFF] focus:ring-4 focus:ring-[#007BFF]/10"
+                  className="h-11 w-full rounded-xl border border-[#E9EDF3] bg-white pr-10 pl-9 text-xs text-[#374151] outline-none transition placeholder:text-[#A0A4AA] focus:border-[#007BFF] focus:ring-4 focus:ring-[#007BFF]/10 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500"
                 />
 
                 {studentSearch && (
@@ -824,7 +827,7 @@ export default function CoachAssistant() {
                     type="button"
                     onClick={() => setStudentSearch("")}
                     aria-label="پاک کردن جستجو"
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-lg text-[#9CA3AF] hover:text-[#374151]"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-lg text-[#9CA3AF] hover:text-[#374151] dark:text-slate-500 dark:hover:text-slate-200"
                   >
                     ×
                   </button>
@@ -832,14 +835,14 @@ export default function CoachAssistant() {
               </div>
 
               <div className="mb-2 flex items-center justify-between">
-                <span className="text-[11px] text-[#9CA3AF]">
+                <span className="text-[11px] text-[#9CA3AF] dark:text-slate-500">
                   {filteredRelationships.length} نتیجه
                 </span>
                 {studentSearch && (
                   <button
                     type="button"
                     onClick={() => setStudentSearch("")}
-                    className="text-[11px] text-[#007BFF]"
+                    className="text-[11px] text-[#007BFF] dark:text-blue-400"
                   >
                     پاک کردن فیلتر
                   </button>
@@ -852,11 +855,11 @@ export default function CoachAssistant() {
                   onClick={() => setSelectedId("general")}
                   className={`flex min-w-[155px] shrink-0 items-center gap-3 rounded-2xl border px-3 py-3 text-right transition lg:mb-1 lg:min-w-0 lg:w-full ${
                     selectedId === "general"
-                      ? "border-[#DCEBFF] bg-[#EFF6FF] text-[#007BFF]"
-                      : "border-transparent bg-white text-[#4B5563] hover:border-[#E9EDF3] hover:bg-white"
+                      ? "border-[#DCEBFF] bg-[#EFF6FF] text-[#007BFF] dark:border-blue-500/20 dark:bg-blue-500/10 dark:text-blue-400"
+                      : "border-transparent bg-white text-[#4B5563] hover:border-[#E9EDF3] hover:bg-white dark:bg-slate-800 dark:text-slate-300 dark:hover:border-slate-700 dark:hover:bg-slate-800"
                   }`}
                 >
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#E5F0FF] text-sm text-[#007BFF]">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#E5F0FF] text-sm text-[#007BFF] dark:bg-blue-500/15 dark:text-blue-400">
                     ✦
                   </span>
 
@@ -864,7 +867,7 @@ export default function CoachAssistant() {
                     <span className="block truncate text-xs font-semibold">
                       گفتگوی کلی
                     </span>
-                    <span className="mt-1 block text-[10px] text-[#9CA3AF]">
+                    <span className="mt-1 block text-[10px] text-[#9CA3AF] dark:text-slate-500">
                       بدون شاگرد مشخص
                     </span>
                   </span>
@@ -886,15 +889,15 @@ export default function CoachAssistant() {
                       onClick={() => setSelectedId(String(row.id))}
                       className={`flex min-w-[170px] shrink-0 items-center gap-3 rounded-2xl border px-3 py-3 text-right transition lg:mb-1 lg:min-w-0 lg:w-full ${
                         active
-                          ? "border-[#DCEBFF] bg-[#EFF6FF] text-[#007BFF]"
-                          : "border-transparent bg-white text-[#4B5563] hover:border-[#E9EDF3]"
+                          ? "border-[#DCEBFF] bg-[#EFF6FF] text-[#007BFF] dark:border-blue-500/20 dark:bg-blue-500/10 dark:text-blue-400"
+                          : "border-transparent bg-white text-[#4B5563] hover:border-[#E9EDF3] dark:bg-slate-800 dark:text-slate-300 dark:hover:border-slate-700"
                       }`}
                     >
                       <span
                         className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-xs font-bold ${
                           active
-                            ? "bg-[#DCEBFF] text-[#007BFF]"
-                            : "bg-[#F0F2F5] text-[#6B7280]"
+                            ? "bg-[#DCEBFF] text-[#007BFF] dark:bg-blue-500/15 dark:text-blue-400"
+                            : "bg-[#F0F2F5] text-[#6B7280] dark:bg-slate-700 dark:text-slate-300"
                         }`}
                       >
                         {name.trim().slice(0, 1)}
@@ -905,19 +908,19 @@ export default function CoachAssistant() {
                           {name}
                         </span>
 
-                        <span className="mt-1 flex items-center gap-1.5 text-[10px] text-[#9CA3AF]">
+                        <span className="mt-1 flex items-center gap-1.5 text-[10px] text-[#9CA3AF] dark:text-slate-500">
                           <span
                             className={`h-1.5 w-1.5 rounded-full ${
                               row.status === "active"
                                 ? "bg-emerald-500"
-                                : "bg-[#C4C8CE]"
+                                : "bg-[#C4C8CE] dark:bg-slate-600"
                             }`}
                           />
                           {statusLabel(row.status)}
                         </span>
                       </span>
 
-                      <span className="shrink-0 text-[10px] text-[#9CA3AF]">
+                      <span className="shrink-0 text-[10px] text-[#9CA3AF] dark:text-slate-500">
                         {count > 0 ? `${count} پیام` : ""}
                       </span>
                     </button>
@@ -925,20 +928,20 @@ export default function CoachAssistant() {
                 })}
 
                 {filteredRelationships.length === 0 && (
-                  <div className="flex min-w-[220px] flex-col items-center justify-center rounded-2xl border border-dashed border-[#E5E9EF] bg-white px-4 py-6 text-center lg:min-w-0">
-                    <span className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-[#F3F6FA] text-[#9CA3AF]">
+                  <div className="flex min-w-[220px] flex-col items-center justify-center rounded-2xl border border-dashed border-[#E5E9EF] bg-white px-4 py-6 text-center dark:border-slate-700 dark:bg-slate-800">
+                    <span className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-[#F3F6FA] text-[#9CA3AF] dark:bg-slate-700 dark:text-slate-400">
                       <SearchIcon />
                     </span>
-                    <p className="text-xs font-semibold text-[#4B5563]">
+                    <p className="text-xs font-semibold text-[#4B5563] dark:text-slate-200">
                       شاگردی پیدا نشد
                     </p>
-                    <p className="mt-1 text-[10px] leading-5 text-[#9CA3AF]">
+                    <p className="mt-1 text-[10px] leading-5 text-[#9CA3AF] dark:text-slate-500">
                       نام دیگری جستجو کن.
                     </p>
                     <button
                       type="button"
                       onClick={() => setStudentSearch("")}
-                      className="mt-3 text-xs text-[#007BFF]"
+                      className="mt-3 text-xs text-[#007BFF] dark:text-blue-400"
                     >
                       نمایش همه شاگردها
                     </button>
@@ -948,21 +951,20 @@ export default function CoachAssistant() {
             </aside>
 
             {/* فضای اصلی گفتگو */}
-            <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-[#F7F8FA]">
-              {/* هدر گفتگو */}
-              <header className="z-[5] flex shrink-0 flex-col gap-3 border-b border-[#EEF2F6] bg-white px-4 py-3 sm:px-5 sm:py-4">
+            <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-[#F7F8FA] dark:bg-slate-950">
+              <header className="z-[5] flex shrink-0 flex-col gap-3 border-b border-[#EEF2F6] bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900 sm:px-5 sm:py-4">
                 <div className="flex min-w-0 items-center justify-between gap-3">
                   <div className="flex min-w-0 items-center gap-3">
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#EAF3FF] text-[#007BFF]">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#EAF3FF] text-[#007BFF] dark:bg-blue-500/10 dark:text-blue-400">
                       ✦
                     </span>
 
                     <div className="min-w-0">
-                      <h2 className="truncate text-sm font-bold text-[#1F2937] sm:text-base">
+                      <h2 className="truncate text-sm font-bold text-[#1F2937] dark:text-slate-100 sm:text-base">
                         {selected?.athlete?.display_name || "گفتگوی کلی"}
                       </h2>
 
-                      <p className="mt-1 truncate text-[11px] text-[#9CA3AF]">
+                      <p className="mt-1 truncate text-[11px] text-[#9CA3AF] dark:text-slate-500">
                         {live
                           ? "دستیار در حال پاسخ‌گویی است..."
                           : selected
@@ -988,7 +990,7 @@ export default function CoachAssistant() {
                     className={`rounded-xl px-3 py-2 text-xs font-medium transition ${
                       panel === "settings"
                         ? "bg-[#007BFF] text-white"
-                        : "bg-[#F3F6FA] text-[#4B5563] hover:bg-[#EAF3FF] hover:text-[#007BFF]"
+                        : "bg-[#F3F6FA] text-[#4B5563] hover:bg-[#EAF3FF] hover:text-[#007BFF] dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-blue-500/10 dark:hover:text-blue-400"
                     } ${
                       !settingsReady && panel !== "settings"
                         ? "ring-1 ring-amber-400"
@@ -1011,7 +1013,7 @@ export default function CoachAssistant() {
                     className={`rounded-xl px-3 py-2 text-xs font-medium transition ${
                       panel === "draft"
                         ? "bg-[#007BFF] text-white"
-                        : "bg-[#F3F6FA] text-[#4B5563] hover:bg-[#EAF3FF] hover:text-[#007BFF]"
+                        : "bg-[#F3F6FA] text-[#4B5563] hover:bg-[#EAF3FF] hover:text-[#007BFF] dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-blue-500/10 dark:hover:text-blue-400"
                     }`}
                   >
                     پیش‌نویس
@@ -1020,7 +1022,7 @@ export default function CoachAssistant() {
                     )}
                   </button>
 
-                  <span className="mr-auto hidden text-[11px] text-[#9CA3AF] sm:block">
+                  <span className="mr-auto hidden text-[11px] text-[#9CA3AF] dark:text-slate-500 sm:block">
                     {totalStudentMessages > 0
                       ? `${totalStudentMessages} پیام از طرف شما`
                       : "گفتگوی تازه"}
@@ -1028,11 +1030,10 @@ export default function CoachAssistant() {
                 </div>
               </header>
 
-              {/* خطا و اعلان */}
               {error && (
                 <div
                   role="alert"
-                  className="flex shrink-0 items-start gap-2 border-b border-red-100 bg-red-50 px-4 py-3 text-right text-xs leading-6 text-red-700 sm:px-5"
+                  className="flex shrink-0 items-start gap-2 border-b border-red-100 bg-red-50 px-4 py-3 text-right text-xs leading-6 text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-400 sm:px-5"
                 >
                   <span className="font-bold">!</span>
                   <p className="min-w-0 flex-1 break-words">{error}</p>
@@ -1050,7 +1051,7 @@ export default function CoachAssistant() {
               {notice && (
                 <div
                   role="status"
-                  className="flex shrink-0 items-start gap-2 border-b border-emerald-100 bg-emerald-50 px-4 py-3 text-right text-xs leading-6 text-emerald-700 sm:px-5"
+                  className="flex shrink-0 items-start gap-2 border-b border-emerald-100 bg-emerald-50 px-4 py-3 text-right text-xs leading-6 text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-400 sm:px-5"
                 >
                   <span>✓</span>
                   <p className="min-w-0 flex-1 break-words">{notice}</p>
@@ -1065,9 +1066,7 @@ export default function CoachAssistant() {
                 </div>
               )}
 
-              {/* محتوای گفتگو و پنل */}
               <div className="relative flex min-h-0 min-w-0 flex-1 overflow-hidden">
-                {/* پیام‌ها */}
                 <div
                   ref={scrollerRef}
                   onMouseUp={captureSelection}
@@ -1083,7 +1082,7 @@ export default function CoachAssistant() {
                         top: selectionAsk.top,
                         left: selectionAsk.left,
                       }}
-                      className="absolute z-10 rounded-full bg-[#111827] px-4 py-2 text-xs text-white shadow-xl transition hover:bg-[#374151]"
+                      className="absolute z-10 rounded-full bg-[#111827] px-4 py-2 text-xs text-white shadow-xl transition hover:bg-[#374151] dark:bg-blue-600 dark:hover:bg-blue-500"
                     >
                       ↩ پاسخ به این بخش
                     </button>
@@ -1091,15 +1090,15 @@ export default function CoachAssistant() {
 
                   {messages.length === 0 && !live && (
                     <div className="m-auto flex w-full max-w-md flex-col items-center px-5 py-10 text-center">
-                      <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-[22px] bg-[#EAF3FF] text-2xl text-[#007BFF] shadow-sm">
+                      <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-[22px] bg-[#EAF3FF] text-2xl text-[#007BFF] shadow-sm dark:bg-blue-500/10 dark:text-blue-400">
                         ✦
                       </div>
 
-                      <h3 className="text-base font-bold text-[#1F2937]">
+                      <h3 className="text-base font-bold text-[#1F2937] dark:text-slate-100">
                         از دستیار فیتو بپرس
                       </h3>
 
-                      <p className="mt-3 text-sm leading-7 text-[#9CA3AF]">
+                      <p className="mt-3 text-sm leading-7 text-[#9CA3AF] dark:text-slate-400">
                         می‌توانی درباره تمرین، تغذیه، وضعیت شاگرد یا تحلیل
                         تصاویر سؤال بپرسی. پاسخ‌ها و سابقه هر شاگرد جداگانه
                         نگهداری می‌شوند.
@@ -1126,7 +1125,7 @@ export default function CoachAssistant() {
                         >
                           <article
                             data-quoteable="assistant"
-                            className="min-w-0 max-w-full break-words rounded-3xl rounded-bl-md border border-[#EEF0F3] bg-white px-4 py-4 text-sm leading-8 text-[#1F2937] shadow-sm sm:px-5 sm:text-base"
+                            className="min-w-0 max-w-full break-words rounded-3xl rounded-bl-md border border-[#EEF0F3] bg-white px-4 py-4 text-sm leading-8 text-[#1F2937] shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 sm:px-5 sm:text-base"
                           >
                             {richText(message.body)}
                           </article>
@@ -1135,7 +1134,7 @@ export default function CoachAssistant() {
                             <button
                               type="button"
                               onClick={() => takeQuote(message.body)}
-                              className="mt-2 rounded-lg px-2 py-1 text-[11px] text-[#9CA3AF] transition hover:bg-white hover:text-[#007BFF]"
+                              className="mt-2 rounded-lg px-2 py-1 text-[11px] text-[#9CA3AF] transition hover:bg-white hover:text-[#007BFF] dark:text-slate-500 dark:hover:bg-slate-800 dark:hover:text-blue-400"
                             >
                               ↩ پاسخ به این پیام
                             </button>
@@ -1191,18 +1190,18 @@ export default function CoachAssistant() {
 
                       <div
                         data-quoteable="assistant"
-                        className="w-fit max-w-[96%] self-end break-words rounded-3xl rounded-bl-md border border-[#EEF0F3] bg-white px-4 py-4 text-sm leading-8 text-[#1F2937] shadow-sm sm:max-w-[88%] sm:px-5 sm:text-base lg:max-w-[min(46rem,88%)]"
+                        className="w-fit max-w-[96%] self-end break-words rounded-3xl rounded-bl-md border border-[#EEF0F3] bg-white px-4 py-4 text-sm leading-8 text-[#1F2937] shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 sm:max-w-[88%] sm:px-5 sm:text-base lg:max-w-[min(46rem,88%)]"
                       >
                         {live.statuses.length > 0 && (
-                          <div className="mb-3 space-y-2 border-b border-[#F3F4F6] pb-3 text-xs">
+                          <div className="mb-3 space-y-2 border-b border-[#F3F4F6] pb-3 text-xs dark:border-slate-700">
                             {live.statuses.map((line, index) => (
                               <p
                                 key={`${line}-${index}`}
                                 className={`flex items-center gap-2 ${
                                   index === live.statuses.length - 1 &&
                                   live.assistant === ""
-                                    ? "text-[#007BFF]"
-                                    : "text-[#9CA3AF]"
+                                    ? "text-[#007BFF] dark:text-blue-400"
+                                    : "text-[#9CA3AF] dark:text-slate-500"
                                 }`}
                               >
                                 <span>
@@ -1219,7 +1218,7 @@ export default function CoachAssistant() {
 
                         {live.assistant === "" ? (
                           <div className="flex items-center gap-2 py-2">
-                            <span className="text-xs text-[#9CA3AF]">
+                            <span className="text-xs text-[#9CA3AF] dark:text-slate-500">
                               در حال آماده‌سازی پاسخ
                             </span>
                             <span className="flex gap-1">
@@ -1229,7 +1228,7 @@ export default function CoachAssistant() {
                                   style={{
                                     animationDelay: `${delay}ms`,
                                   }}
-                                  className="h-2 w-2 animate-bounce rounded-full bg-[#007BFF]"
+                                  className="h-2 w-2 animate-bounce rounded-full bg-[#007BFF] dark:bg-blue-400"
                                 />
                               ))}
                             </span>
@@ -1237,7 +1236,7 @@ export default function CoachAssistant() {
                         ) : (
                           <div>
                             {richText(live.assistant)}
-                            <span className="mr-0.5 inline-block h-4 w-0.5 animate-pulse bg-[#007BFF] align-middle" />
+                            <span className="mr-0.5 inline-block h-4 w-0.5 animate-pulse bg-[#007BFF] align-middle dark:bg-blue-400" />
                           </div>
                         )}
                       </div>
@@ -1245,7 +1244,6 @@ export default function CoachAssistant() {
                   )}
                 </div>
 
-                {/* دکمه‌های شناور کنترل اسکرول */}
                 <div className="pointer-events-none absolute bottom-5 left-4 z-10 flex flex-col gap-2 sm:bottom-6 sm:left-6">
                   {showScrollTop && (
                     <button
@@ -1253,7 +1251,7 @@ export default function CoachAssistant() {
                       onClick={scrollToTop}
                       title="رفتن به ابتدای گفتگو"
                       aria-label="رفتن به ابتدای گفتگو"
-                      className="pointer-events-auto flex h-11 w-11 items-center justify-center rounded-2xl border border-[#E8EDF4] bg-white text-[#4B5563] shadow-lg shadow-slate-900/10 transition hover:-translate-y-1 hover:border-[#007BFF] hover:text-[#007BFF] active:scale-95"
+                      className="pointer-events-auto flex h-11 w-11 items-center justify-center rounded-2xl border border-[#E8EDF4] bg-white text-[#4B5563] shadow-lg shadow-slate-900/10 transition hover:-translate-y-1 hover:border-[#007BFF] hover:text-[#007BFF] active:scale-95 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:border-blue-500 dark:hover:text-blue-400"
                     >
                       <ArrowIcon direction="up" />
                     </button>
@@ -1272,17 +1270,16 @@ export default function CoachAssistant() {
                   )}
                 </div>
 
-                {/* پنل کناری / تمام‌صفحه موبایل */}
                 {panel && (
-                  <aside className="absolute inset-0 z-20 flex min-h-0 min-w-0 flex-col overflow-hidden border-[#EEF2F6] bg-white text-right shadow-2xl shadow-slate-900/10 lg:static lg:w-[min(420px,42%)] lg:shrink-0 lg:border-r lg:shadow-none">
-                    <div className="flex shrink-0 items-center justify-between border-b border-[#EEF2F6] px-4 py-4 sm:px-5">
+                  <aside className="absolute inset-0 z-20 flex min-h-0 min-w-0 flex-col overflow-hidden border-[#EEF2F6] bg-white text-right shadow-2xl shadow-slate-900/10 dark:border-slate-700 dark:bg-slate-900 dark:shadow-black/30 lg:static lg:w-[min(420px,42%)] lg:shrink-0 lg:border-r lg:shadow-none">
+                    <div className="flex shrink-0 items-center justify-between border-b border-[#EEF2F6] px-4 py-4 dark:border-slate-800 sm:px-5">
                       <div>
-                        <h3 className="text-sm font-bold text-[#1F2937]">
+                        <h3 className="text-sm font-bold text-[#1F2937] dark:text-slate-100">
                           {panel === "settings"
                             ? "روش کار و دانش مربی"
                             : "مدیریت پیش‌نویس"}
                         </h3>
-                        <p className="mt-1 text-[11px] text-[#9CA3AF]">
+                        <p className="mt-1 text-[11px] text-[#9CA3AF] dark:text-slate-500">
                           {panel === "settings"
                             ? "شخصی‌سازی پاسخ‌های دستیار"
                             : "ساخت و بررسی برنامه"}
@@ -1292,7 +1289,7 @@ export default function CoachAssistant() {
                       <button
                         type="button"
                         onClick={() => setPanel(null)}
-                        className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#F3F6FA] text-lg text-[#6B7280] transition hover:bg-[#E9EDF3]"
+                        className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#F3F6FA] text-lg text-[#6B7280] transition hover:bg-[#E9EDF3] dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                         aria-label="بستن پنل"
                       >
                         ×
@@ -1302,11 +1299,11 @@ export default function CoachAssistant() {
                     <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 sm:p-5">
                       {panel === "settings" ? (
                         <div className="grid gap-5">
-                          <div className="rounded-2xl border border-[#E5F0FF] bg-[#F3F8FF] p-4">
-                            <p className="text-xs font-semibold text-[#007BFF]">
+                          <div className="rounded-2xl border border-[#E5F0FF] bg-[#F3F8FF] p-4 dark:border-blue-500/20 dark:bg-blue-500/10">
+                            <p className="text-xs font-semibold text-[#007BFF] dark:text-blue-400">
                               تنظیمات دستیار
                             </p>
-                            <p className="mt-2 text-xs leading-6 text-[#6B7280]">
+                            <p className="mt-2 text-xs leading-6 text-[#6B7280] dark:text-slate-400">
                               این اطلاعات به دستیار کمک می‌کند پاسخ‌ها را
                               مطابق روش مربی و محدودیت‌های تعریف‌شده ارائه
                               کند.
@@ -1317,7 +1314,7 @@ export default function CoachAssistant() {
                             onSubmit={saveSettings}
                             className="grid gap-4"
                           >
-                            <label className="grid gap-2 text-xs font-medium text-[#4B5563]">
+                            <label className="grid gap-2 text-xs font-medium text-[#4B5563] dark:text-slate-300">
                               روش مربی
                               <textarea
                                 value={methodology}
@@ -1330,7 +1327,7 @@ export default function CoachAssistant() {
                               />
                             </label>
 
-                            <label className="grid gap-2 text-xs font-medium text-[#4B5563]">
+                            <label className="grid gap-2 text-xs font-medium text-[#4B5563] dark:text-slate-300">
                               ترجیح‌ها
                               <textarea
                                 value={preferences}
@@ -1343,7 +1340,7 @@ export default function CoachAssistant() {
                               />
                             </label>
 
-                            <label className="grid gap-2 text-xs font-medium text-[#4B5563]">
+                            <label className="grid gap-2 text-xs font-medium text-[#4B5563] dark:text-slate-300">
                               محدودیت‌ها
                               <textarea
                                 value={constraints}
@@ -1370,14 +1367,14 @@ export default function CoachAssistant() {
                             </button>
                           </form>
 
-                          <div className="h-px bg-[#EEF2F6]" />
+                          <div className="h-px bg-[#EEF2F6] dark:bg-slate-800" />
 
                           <div>
                             <div className="mb-3">
-                              <h4 className="text-sm font-bold text-[#1F2937]">
+                              <h4 className="text-sm font-bold text-[#1F2937] dark:text-slate-100">
                                 دانش اختصاصی مربی
                               </h4>
-                              <p className="mt-1 text-xs leading-6 text-[#9CA3AF]">
+                              <p className="mt-1 text-xs leading-6 text-[#9CA3AF] dark:text-slate-500">
                                 نکته‌ها و اطلاعاتی که می‌خواهی دستیار در
                                 پاسخ‌هایش در نظر بگیرد.
                               </p>
@@ -1413,7 +1410,7 @@ export default function CoachAssistant() {
                                   knowledgeTitle.trim() === "" ||
                                   knowledgeBody.trim() === ""
                                 }
-                                className="rounded-xl border border-[#DCEBFF] bg-[#EFF6FF] px-5 py-3 text-sm font-semibold text-[#007BFF] transition hover:bg-[#E1EEFF] disabled:opacity-50"
+                                className="rounded-xl border border-[#DCEBFF] bg-[#EFF6FF] px-5 py-3 text-sm font-semibold text-[#007BFF] transition hover:bg-[#E1EEFF] disabled:opacity-50 dark:border-blue-500/20 dark:bg-blue-500/10 dark:text-blue-400 dark:hover:bg-blue-500/15"
                               >
                                 ذخیره دانش
                               </button>
@@ -1422,10 +1419,10 @@ export default function CoachAssistant() {
 
                           <div>
                             <div className="mb-3 flex items-center justify-between">
-                              <h4 className="text-sm font-semibold text-[#374151]">
+                              <h4 className="text-sm font-semibold text-[#374151] dark:text-slate-200">
                                 اسناد ذخیره‌شده
                               </h4>
-                              <span className="text-[11px] text-[#9CA3AF]">
+                              <span className="text-[11px] text-[#9CA3AF] dark:text-slate-500">
                                 {documents.length} سند
                               </span>
                             </div>
@@ -1435,19 +1432,19 @@ export default function CoachAssistant() {
                                 {documents.map((document) => (
                                   <div
                                     key={document.id}
-                                    className="flex items-center gap-3 rounded-xl border border-[#EEF2F6] bg-[#FAFBFC] px-3 py-3"
+                                    className="flex items-center gap-3 rounded-xl border border-[#EEF2F6] bg-[#FAFBFC] px-3 py-3 dark:border-slate-700 dark:bg-slate-800"
                                   >
-                                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#EAF3FF] text-[#007BFF]">
+                                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#EAF3FF] text-[#007BFF] dark:bg-blue-500/10 dark:text-blue-400">
                                       ▤
                                     </span>
-                                    <span className="min-w-0 flex-1 truncate text-xs font-medium text-[#4B5563]">
+                                    <span className="min-w-0 flex-1 truncate text-xs font-medium text-[#4B5563] dark:text-slate-300">
                                       {document.title}
                                     </span>
                                   </div>
                                 ))}
                               </div>
                             ) : (
-                              <p className="rounded-xl bg-[#F7F9FC] px-4 py-5 text-center text-xs text-[#9CA3AF]">
+                              <p className="rounded-xl bg-[#F7F9FC] px-4 py-5 text-center text-xs text-[#9CA3AF] dark:bg-slate-800 dark:text-slate-500">
                                 هنوز سندی ذخیره نشده است.
                               </p>
                             )}
@@ -1458,11 +1455,11 @@ export default function CoachAssistant() {
                           onSubmit={createDraft}
                           className="grid gap-4"
                         >
-                          <div className="rounded-2xl border border-[#E5F0FF] bg-[#F3F8FF] p-4">
-                            <p className="text-xs font-semibold text-[#007BFF]">
+                          <div className="rounded-2xl border border-[#E5F0FF] bg-[#F3F8FF] p-4 dark:border-blue-500/20 dark:bg-blue-500/10">
+                            <p className="text-xs font-semibold text-[#007BFF] dark:text-blue-400">
                               ساخت برنامه با دستیار
                             </p>
-                            <p className="mt-2 text-xs leading-6 text-[#6B7280]">
+                            <p className="mt-2 text-xs leading-6 text-[#6B7280] dark:text-slate-400">
                               برای{" "}
                               {selected?.athlete?.display_name ||
                                 "شاگرد انتخاب‌شده"}
@@ -1471,7 +1468,7 @@ export default function CoachAssistant() {
                             </p>
                           </div>
 
-                          <label className="grid gap-2 text-xs font-medium text-[#4B5563]">
+                          <label className="grid gap-2 text-xs font-medium text-[#4B5563] dark:text-slate-300">
                             نوع خروجی
                             <select
                               value={draftKind}
@@ -1488,7 +1485,7 @@ export default function CoachAssistant() {
                             </select>
                           </label>
 
-                          <label className="grid gap-2 text-xs font-medium text-[#4B5563]">
+                          <label className="grid gap-2 text-xs font-medium text-[#4B5563] dark:text-slate-300">
                             توضیحات برنامه
                             <textarea
                               value={draftBody}
@@ -1516,19 +1513,19 @@ export default function CoachAssistant() {
                           </button>
 
                           {selected?.status !== "active" && (
-                            <p className="rounded-xl bg-amber-50 p-3 text-xs leading-6 text-amber-700">
+                            <p className="rounded-xl bg-amber-50 p-3 text-xs leading-6 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400">
                               برای ساخت پیش‌نویس ابتدا یک شاگرد با رابطه
                               فعال انتخاب کن.
                             </p>
                           )}
 
                           {generation && (
-                            <div className="rounded-2xl border border-[#E9EDF3] bg-[#F7F9FC] p-4">
+                            <div className="rounded-2xl border border-[#E9EDF3] bg-[#F7F9FC] p-4 dark:border-slate-700 dark:bg-slate-800">
                               <div className="flex items-center justify-between gap-2">
-                                <p className="text-sm font-bold text-[#374151]">
+                                <p className="text-sm font-bold text-[#374151] dark:text-slate-200">
                                   نتیجه پیش‌نویس
                                 </p>
-                                <span className="rounded-full bg-white px-3 py-1 text-[10px] text-[#6B7280]">
+                                <span className="rounded-full bg-white px-3 py-1 text-[10px] text-[#6B7280] dark:bg-slate-700 dark:text-slate-300">
                                   {statusLabel(generation.status)}
                                 </span>
                               </div>
@@ -1560,7 +1557,7 @@ export default function CoachAssistant() {
                                         "پیش‌نویس رد شد."
                                       )
                                     }
-                                    className="rounded-xl border border-[#E5E7EB] bg-white px-4 py-3 text-xs text-[#6B7280] transition hover:bg-[#F9FAFB] disabled:opacity-50"
+                                    className="rounded-xl border border-[#E5E7EB] bg-white px-4 py-3 text-xs text-[#6B7280] transition hover:bg-[#F9FAFB] disabled:opacity-50 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
                                   >
                                     رد پیش‌نویس
                                   </button>
@@ -1575,18 +1572,17 @@ export default function CoachAssistant() {
                 )}
               </div>
 
-              {/* بخش ارسال پیام */}
               <form
                 onSubmit={sendChat}
-                className="z-[4] shrink-0 border-t border-[#EEF2F6] bg-white px-3 py-3 sm:px-5 sm:py-4 lg:px-8"
+                className="z-[4] shrink-0 border-t border-[#EEF2F6] bg-white px-3 py-3 dark:border-slate-800 dark:bg-slate-900 sm:px-5 sm:py-4 lg:px-8"
               >
                 {quote && (
-                  <div className="mb-3 flex items-start gap-3 rounded-2xl border-r-[3px] border-[#007BFF] bg-[#F3F8FF] px-3 py-3 sm:px-4">
+                  <div className="mb-3 flex items-start gap-3 rounded-2xl border-r-[3px] border-[#007BFF] bg-[#F3F8FF] px-3 py-3 dark:bg-blue-500/10 sm:px-4">
                     <div className="min-w-0 flex-1">
-                      <p className="mb-1 text-[10px] font-semibold text-[#007BFF]">
+                      <p className="mb-1 text-[10px] font-semibold text-[#007BFF] dark:text-blue-400">
                         پاسخ به پیام
                       </p>
-                      <p className="line-clamp-3 break-words text-xs leading-6 text-[#4B5563]">
+                      <p className="line-clamp-3 break-words text-xs leading-6 text-[#4B5563] dark:text-slate-300">
                         {quote}
                       </p>
                     </div>
@@ -1594,7 +1590,7 @@ export default function CoachAssistant() {
                     <button
                       type="button"
                       onClick={() => setQuote("")}
-                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white text-lg text-[#9CA3AF] hover:text-red-500"
+                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white text-lg text-[#9CA3AF] hover:text-red-500 dark:bg-slate-800 dark:text-slate-400"
                       aria-label="حذف نقل‌قول"
                     >
                       ×
@@ -1609,13 +1605,13 @@ export default function CoachAssistant() {
                         <img
                           src={item.url}
                           alt="پیش‌نمایش تصویر"
-                          className="h-16 w-16 rounded-xl border border-[#E9EDF3] object-cover"
+                          className="h-16 w-16 rounded-xl border border-[#E9EDF3] object-cover dark:border-slate-700"
                         />
 
                         <button
                           type="button"
                           onClick={() => removePhoto(index)}
-                          className="absolute -left-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-white text-sm text-red-500 shadow-md"
+                          className="absolute -left-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-white text-sm text-red-500 shadow-md dark:bg-slate-700"
                           aria-label="حذف تصویر"
                         >
                           ×
@@ -1623,13 +1619,13 @@ export default function CoachAssistant() {
                       </div>
                     ))}
 
-                    <span className="text-xs text-[#9CA3AF]">
+                    <span className="text-xs text-[#9CA3AF] dark:text-slate-500">
                       {photos.length} از ۵ تصویر
                     </span>
                   </div>
                 )}
 
-                <div className="rounded-2xl border border-[#E5E9EF] bg-[#F9FAFB] p-3 transition focus-within:border-[#B9D7FF] focus-within:bg-white focus-within:ring-4 focus-within:ring-[#007BFF]/5 sm:rounded-[24px] sm:p-4">
+                <div className="rounded-2xl border border-[#E5E9EF] bg-[#F9FAFB] p-3 transition focus-within:border-[#B9D7FF] focus-within:bg-white focus-within:ring-4 focus-within:ring-[#007BFF]/5 dark:border-slate-700 dark:bg-slate-800 dark:focus-within:border-blue-500 dark:focus-within:bg-slate-800 dark:focus-within:ring-blue-500/10 sm:rounded-[24px] sm:p-4">
                   <input
                     ref={fileRef}
                     type="file"
@@ -1662,10 +1658,10 @@ export default function CoachAssistant() {
                           : "پیام خود را برای دستیار بنویس..."
                     }
                     disabled={!canChat || sending}
-                    className="min-h-24 max-h-56 w-full resize-none bg-transparent py-1 text-sm leading-7 text-[#1F2937] outline-none placeholder:text-[#A0A4AA] disabled:opacity-50 sm:text-base"
+                    className="min-h-24 max-h-56 w-full resize-none bg-transparent py-1 text-sm leading-7 text-[#1F2937] outline-none placeholder:text-[#A0A4AA] disabled:opacity-50 dark:text-slate-100 dark:placeholder:text-slate-500 sm:text-base"
                   />
 
-                  <div className="mt-2 flex flex-wrap items-center justify-between gap-2 border-t border-[#EEF2F6] pt-3">
+                  <div className="mt-2 flex flex-wrap items-center justify-between gap-2 border-t border-[#EEF2F6] pt-3 dark:border-slate-700">
                     <div className="flex min-w-0 flex-wrap items-center gap-2">
                       <button
                         type="button"
@@ -1673,13 +1669,13 @@ export default function CoachAssistant() {
                         disabled={
                           !canChat || sending || photos.length >= 5
                         }
-                        className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs text-[#6B7280] transition hover:bg-[#EFF6FF] hover:text-[#007BFF] disabled:opacity-40"
+                        className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs text-[#6B7280] transition hover:bg-[#EFF6FF] hover:text-[#007BFF] disabled:opacity-40 dark:text-slate-400 dark:hover:bg-blue-500/10 dark:hover:text-blue-400"
                       >
                         <span className="text-base">＋</span>
                         افزودن عکس
                       </button>
 
-                      <span className="hidden text-[10px] text-[#B0B6BF] sm:block">
+                      <span className="hidden text-[10px] text-[#B0B6BF] dark:text-slate-500 sm:block">
                         Enter ارسال · Shift + Enter خط جدید
                       </span>
                     </div>
@@ -1711,7 +1707,7 @@ export default function CoachAssistant() {
                 </div>
 
                 {!canChat && (
-                  <p className="mt-2 text-center text-[10px] leading-5 text-[#9CA3AF]">
+                  <p className="mt-2 text-center text-[10px] leading-5 text-[#9CA3AF] dark:text-slate-500">
                     {!settingsReady
                       ? "برای شروع گفتگو، ابتدا روش کار مربی را تنظیم و ذخیره کن."
                       : "برای گفتگو با دستیار، یک شاگرد با رابطه فعال انتخاب کن."}
