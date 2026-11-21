@@ -28,7 +28,8 @@ import AdminHomepage from "../pages/admin/AdminHomepage";
 import Invitations from "../pages/athlete/Invitations";
 import AthleteFeedback from "../pages/athlete/AthleteFeedback";
 import RequireAccount from "./RequireAccount";
-
+import Analysis from "../Components/DashBoardAuth/AnalysComponents/Analysis";
+import AnalysisToolspage from "../Components/DashBoardAuth/AnalysComponents/AnalysisToolsPage";
 function guarded(profile, page) {
   return <RequireAccount profile={profile}>{page}</RequireAccount>;
 }
@@ -41,6 +42,11 @@ export default function AppRoutes() {
       <Route path="/dashboardnutrition" element={guarded("athlete", <DashBoardNutrition />)} />
       <Route path="/dashboardAthlete/start-training" element={guarded("athlete", <StartTrain />)} />
       <Route path="/AnalysisPage" element={guarded("athlete", <AnalysisPage />)} />
+      <Route path="/AnalysisPage/analysis" element={guarded("athlete", <Analysis />)} />
+      <Route
+        path="/AnalysisPage/tools"
+        element={guarded("athlete", <AnalysisToolspage />)}
+      />
       <Route path="/trainingpage" element={guarded("athlete", <TrainingPage />)} />
       <Route path="/trainingpage/exercises/:exerciseId" element={guarded("athlete", <ExerciseGuide />)} />
       <Route path="/settings" element={guarded("athlete", <Settings />)} />

@@ -7,7 +7,6 @@ import LetterImg from "../../../assets/Icons/Letter.svg";
 import BtnHeader from "./BtnHeader/BtnHeader";
 import ThemeSwitcher from "../../shared/ThemeSwitcher/ThemeSwitcher";
 import { api } from "../../../api/client";
-
 function isMessageNotice(row) {
   return (
     row?.type === "feedback_replied" || row?.subject_type === "feedback_message"
@@ -146,10 +145,12 @@ export default function HeaderDashBoard({
   searchResults,
   onSearchPick,
   searchHint = "",
+
 }) {
   const [notifications, setNotifications] = useState([]);
   const [noticeError, setNoticeError] = useState("");
   const navigate = useNavigate();
+
   const location = useLocation();
 
   useEffect(() => {
@@ -254,7 +255,8 @@ export default function HeaderDashBoard({
             {btnTrue && (
               <BtnHeader
                 imgBtn={imgBtn}
-                onClick={onAction}
+                onClick={() => navigate("/AnalysisPage/tools")}
+                onAction={onAction}
                 label={actionLabel}
               />
             )}
