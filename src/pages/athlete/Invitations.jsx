@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import Navbar from "../../Components/shared/Navbar/Navbar";
 import HeaderDashBoard from "../../Components/DashBoardAuth/HeaderDashBoard/HeaderDashBoard";
@@ -57,32 +56,32 @@ function statusLabel(status) {
 
 function statusStyle(status) {
   if (status === "active") {
-    return "bg-emerald-50 text-emerald-600";
+    return "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400";
   }
 
   if (status === "ended") {
-    return "bg-slate-100 text-slate-500";
+    return "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400";
   }
 
   if (status === "pending") {
-    return "bg-amber-50 text-amber-600";
+    return "bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400";
   }
 
-  return "bg-slate-100 text-slate-500";
+  return "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400";
 }
 
 function EmptyState({ icon: Icon, title, description }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-[#FAFBFD] px-5 py-12 text-center">
-      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-50 text-[#007BFF]">
+    <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-[#FAFBFD] px-5 py-12 text-center dark:border-slate-700 dark:bg-slate-800/50">
+      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-50 text-[#007BFF] dark:bg-blue-950/50 dark:text-blue-400">
         <Icon sx={{ fontSize: 30 }} />
       </div>
 
-      <h3 className="mt-4 text-sm font-bold text-[#374151]">
+      <h3 className="mt-4 text-sm font-bold text-[#374151] dark:text-slate-100">
         {title}
       </h3>
 
-      <p className="mt-2 max-w-sm text-xs leading-7 text-[#9AA1AB]">
+      <p className="mt-2 max-w-sm text-xs leading-7 text-[#9AA1AB] dark:text-slate-400">
         {description}
       </p>
     </div>
@@ -93,21 +92,21 @@ function SectionHeader({ icon: Icon, title, description, count }) {
   return (
     <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
       <div className="flex min-w-0 items-center gap-3">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-[#007BFF]">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-[#007BFF] dark:bg-blue-950/50 dark:text-blue-400">
           <Icon sx={{ fontSize: 23 }} />
         </div>
 
         <div className="min-w-0">
-          <h2 className="font-bold text-[#303741] sm:text-lg">
+          <h2 className="font-bold text-[#303741] dark:text-slate-100 sm:text-lg">
             {title}
           </h2>
-          <p className="mt-1 text-xs text-[#9AA1AB]">
+          <p className="mt-1 text-xs text-[#9AA1AB] dark:text-slate-400">
             {description}
           </p>
         </div>
       </div>
 
-      <span className="shrink-0 rounded-xl bg-[#F5F7FB] px-3 py-2 text-xs font-semibold text-[#6B6F77]">
+      <span className="shrink-0 rounded-xl bg-[#F5F7FB] px-3 py-2 text-xs font-semibold text-[#6B6F77] dark:bg-slate-800 dark:text-slate-300">
         {count.toLocaleString("fa-IR")} مورد
       </span>
     </div>
@@ -244,10 +243,10 @@ export default function Invitations() {
   );
 
   return (
-    <div className="min-h-screen bg-[#F5F7FB] flex justify-center">
-      <div className="w-full max-w-[1600px] grid grid-cols-1 md:grid-cols-[90px_minmax(0,1fr)] gap-4 md:gap-6 px-3 py-4 sm:px-5 md:px-8 md:py-6">
+    <div className="flex min-h-screen justify-center bg-[#F5F7FB] dark:bg-slate-950">
+      <div className="grid w-full max-w-[1600px] grid-cols-1 gap-4 px-3 py-4 sm:px-5 md:grid-cols-[90px_minmax(0,1fr)] md:gap-6 md:px-8 md:py-6">
         {/* Navbar */}
-        <div className="">
+        <div>
           <Navbar />
         </div>
 
@@ -263,7 +262,7 @@ export default function Invitations() {
             {error && (
               <div
                 dir="rtl"
-                className="col-span-12 flex items-start gap-3 rounded-2xl border border-red-100 bg-red-50 p-4 text-right"
+                className="col-span-12 flex items-start gap-3 rounded-2xl border border-red-100 bg-red-50 p-4 text-right dark:border-red-900/60 dark:bg-red-950/30"
               >
                 <InfoOutlinedIcon
                   sx={{ fontSize: 21 }}
@@ -271,10 +270,10 @@ export default function Invitations() {
                 />
 
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-red-700">
+                  <p className="text-sm font-semibold text-red-700 dark:text-red-300">
                     مشکلی پیش آمده
                   </p>
-                  <p className="mt-1 break-words text-xs leading-6 text-red-600">
+                  <p className="mt-1 break-words text-xs leading-6 text-red-600 dark:text-red-400">
                     {error}
                   </p>
                 </div>
@@ -282,7 +281,7 @@ export default function Invitations() {
                 <button
                   type="button"
                   onClick={() => setError(null)}
-                  className="shrink-0 text-xs text-red-500"
+                  className="shrink-0 text-xs text-red-500 transition hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                 >
                   بستن
                 </button>
@@ -292,14 +291,14 @@ export default function Invitations() {
             {notice && (
               <div
                 dir="rtl"
-                className="col-span-12 flex items-center gap-3 rounded-2xl border border-emerald-100 bg-emerald-50 p-4 text-right"
+                className="col-span-12 flex items-center gap-3 rounded-2xl border border-emerald-100 bg-emerald-50 p-4 text-right dark:border-emerald-900/60 dark:bg-emerald-950/30"
               >
                 <CheckCircleOutlineRoundedIcon
                   sx={{ fontSize: 22 }}
-                  className="shrink-0 text-emerald-600"
+                  className="shrink-0 text-emerald-600 dark:text-emerald-400"
                 />
 
-                <p className="text-sm text-emerald-700">
+                <p className="text-sm text-emerald-700 dark:text-emerald-300">
                   {notice}
                 </p>
               </div>
@@ -310,58 +309,58 @@ export default function Invitations() {
               dir="rtl"
               className="col-span-12 grid grid-cols-1 gap-3 sm:grid-cols-3"
             >
-              <div className="relative overflow-hidden rounded-3xl bg-white p-5 shadow-sm shadow-slate-200/40">
-                <div className="absolute -left-8 -top-8 h-24 w-24 rounded-full bg-blue-50" />
+              <div className="relative overflow-hidden rounded-3xl bg-white p-5 shadow-sm shadow-slate-200/40 dark:bg-slate-900 dark:shadow-black/10">
+                <div className="absolute -left-8 -top-8 h-24 w-24 rounded-full bg-blue-50 dark:bg-blue-950/40" />
 
                 <div className="relative flex items-center justify-between gap-3">
                   <div>
-                    <p className="text-xs text-[#9299A3]">
+                    <p className="text-xs text-[#9299A3] dark:text-slate-400">
                       دعوت‌های دریافتی
                     </p>
-                    <p className="mt-3 text-2xl font-extrabold text-[#303741]">
+                    <p className="mt-3 text-2xl font-extrabold text-[#303741] dark:text-slate-100">
                       {invitations.length.toLocaleString("fa-IR")}
                     </p>
                   </div>
 
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-[#007BFF]">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-[#007BFF] dark:bg-blue-950/50 dark:text-blue-400">
                     <MarkEmailUnreadOutlinedIcon sx={{ fontSize: 25 }} />
                   </div>
                 </div>
               </div>
 
-              <div className="relative overflow-hidden rounded-3xl bg-white p-5 shadow-sm shadow-slate-200/40">
-                <div className="absolute -left-8 -top-8 h-24 w-24 rounded-full bg-emerald-50" />
+              <div className="relative overflow-hidden rounded-3xl bg-white p-5 shadow-sm shadow-slate-200/40 dark:bg-slate-900 dark:shadow-black/10">
+                <div className="absolute -left-8 -top-8 h-24 w-24 rounded-full bg-emerald-50 dark:bg-emerald-950/40" />
 
                 <div className="relative flex items-center justify-between gap-3">
                   <div>
-                    <p className="text-xs text-[#9299A3]">
+                    <p className="text-xs text-[#9299A3] dark:text-slate-400">
                       مربیان فعال
                     </p>
-                    <p className="mt-3 text-2xl font-extrabold text-[#303741]">
+                    <p className="mt-3 text-2xl font-extrabold text-[#303741] dark:text-slate-100">
                       {activeRelationships.length.toLocaleString("fa-IR")}
                     </p>
                   </div>
 
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400">
                     <GroupsOutlinedIcon sx={{ fontSize: 25 }} />
                   </div>
                 </div>
               </div>
 
-              <div className="relative overflow-hidden rounded-3xl bg-white p-5 shadow-sm shadow-slate-200/40">
-                <div className="absolute -left-8 -top-8 h-24 w-24 rounded-full bg-amber-50" />
+              <div className="relative overflow-hidden rounded-3xl bg-white p-5 shadow-sm shadow-slate-200/40 dark:bg-slate-900 dark:shadow-black/10">
+                <div className="absolute -left-8 -top-8 h-24 w-24 rounded-full bg-amber-50 dark:bg-amber-950/40" />
 
                 <div className="relative flex items-center justify-between gap-3">
                   <div>
-                    <p className="text-xs text-[#9299A3]">
+                    <p className="text-xs text-[#9299A3] dark:text-slate-400">
                       ارتباط‌های در انتظار
                     </p>
-                    <p className="mt-3 text-2xl font-extrabold text-[#303741]">
+                    <p className="mt-3 text-2xl font-extrabold text-[#303741] dark:text-slate-100">
                       {pendingRelationships.length.toLocaleString("fa-IR")}
                     </p>
                   </div>
 
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-600">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400">
                     <HourglassEmptyRoundedIcon sx={{ fontSize: 25 }} />
                   </div>
                 </div>
@@ -371,7 +370,7 @@ export default function Invitations() {
             {/* Invitations */}
             <section
               dir="rtl"
-              className="col-span-12 min-w-0 rounded-3xl border border-slate-100 bg-white p-4 shadow-sm shadow-slate-200/30 sm:p-6 md:p-7"
+              className="col-span-12 min-w-0 rounded-3xl border border-slate-100 bg-white p-4 shadow-sm shadow-slate-200/30 dark:border-slate-800 dark:bg-slate-900 dark:shadow-black/10 sm:p-6 md:p-7"
             >
               <SectionHeader
                 icon={MarkEmailUnreadOutlinedIcon}
@@ -395,37 +394,37 @@ export default function Invitations() {
                     return (
                       <article
                         key={invitation.id}
-                        className="overflow-hidden rounded-3xl border border-slate-100 bg-[#FAFBFD] transition hover:border-blue-100"
+                        className="overflow-hidden rounded-3xl border border-slate-100 bg-[#FAFBFD] transition hover:border-blue-100 dark:border-slate-700 dark:bg-slate-800/60 dark:hover:border-blue-900"
                       >
                         <div className="p-4 sm:p-5">
                           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                             <div className="flex min-w-0 items-center gap-3">
-                              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-100 text-[#007BFF]">
+                              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-100 text-[#007BFF] dark:bg-blue-950/60 dark:text-blue-400">
                                 <PersonOutlineRoundedIcon
                                   sx={{ fontSize: 27 }}
                                 />
                               </div>
 
                               <div className="min-w-0">
-                                <p className="text-xs text-[#9299A3]">
+                                <p className="text-xs text-[#9299A3] dark:text-slate-400">
                                   دعوت از طرف مربی
                                 </p>
 
-                                <h3 className="mt-1 break-words text-base font-bold text-[#303741]">
+                                <h3 className="mt-1 break-words text-base font-bold text-[#303741] dark:text-slate-100">
                                   {invitation.coach?.display_name || "مربی"}
                                 </h3>
                               </div>
                             </div>
 
                             <div className="flex flex-wrap items-center gap-2">
-                              <span className="flex items-center gap-1.5 rounded-xl bg-amber-50 px-3 py-2 text-xs font-medium text-amber-600">
+                              <span className="flex items-center gap-1.5 rounded-xl bg-amber-50 px-3 py-2 text-xs font-medium text-amber-600 dark:bg-amber-950/40 dark:text-amber-400">
                                 <AccessTimeRoundedIcon
                                   sx={{ fontSize: 15 }}
                                 />
                                 در انتظار پاسخ
                               </span>
 
-                              <span className="flex items-center gap-1.5 rounded-xl bg-white px-3 py-2 text-xs text-[#9299A3]">
+                              <span className="flex items-center gap-1.5 rounded-xl bg-white px-3 py-2 text-xs text-[#9299A3] dark:bg-slate-700 dark:text-slate-300">
                                 <CalendarTodayOutlinedIcon
                                   sx={{ fontSize: 14 }}
                                 />
@@ -434,7 +433,7 @@ export default function Invitations() {
                             </div>
                           </div>
 
-                          <div className="mt-5 flex flex-col gap-2 border-t border-slate-100 pt-4 sm:flex-row">
+                          <div className="mt-5 flex flex-col gap-2 border-t border-slate-100 pt-4 dark:border-slate-700 sm:flex-row">
                             <button
                               type="button"
                               disabled={pending}
@@ -451,7 +450,7 @@ export default function Invitations() {
                               type="button"
                               disabled={pending}
                               onClick={() => decline(invitation)}
-                              className="flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-medium text-[#6B6F77] transition hover:border-red-200 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                              className="flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-medium text-[#6B6F77] transition hover:border-red-200 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:border-red-900 dark:hover:bg-red-950/40 dark:hover:text-red-400 sm:w-auto"
                             >
                               <CancelOutlinedIcon
                                 sx={{ fontSize: 18 }}
@@ -463,17 +462,17 @@ export default function Invitations() {
 
                         {/* OTP */}
                         {isAccepting && (
-                          <div className="border-t border-blue-100 bg-blue-50/70 p-4 sm:p-5">
+                          <div className="border-t border-blue-100 bg-blue-50/70 p-4 dark:border-blue-900/50 dark:bg-blue-950/30 sm:p-5">
                             <div className="flex items-start gap-3">
-                              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#007BFF]">
+                              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#007BFF] dark:bg-slate-800 dark:text-blue-400">
                                 <KeyOutlinedIcon />
                               </div>
 
                               <div className="min-w-0">
-                                <h4 className="text-sm font-bold text-[#303741]">
+                                <h4 className="text-sm font-bold text-[#303741] dark:text-slate-100">
                                   تأیید شماره همراه
                                 </h4>
-                                <p className="mt-1 text-xs leading-6 text-[#8490A0]">
+                                <p className="mt-1 text-xs leading-6 text-[#8490A0] dark:text-slate-400">
                                   کد پنج‌رقمی ارسال‌شده به شماره همراه خود را وارد کنید تا دعوت تأیید شود.
                                 </p>
                               </div>
@@ -483,7 +482,7 @@ export default function Invitations() {
                               onSubmit={accept}
                               className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end"
                             >
-                              <label className="grid flex-1 gap-2 text-xs font-medium text-[#6B6F77]">
+                              <label className="grid flex-1 gap-2 text-xs font-medium text-[#6B6F77] dark:text-slate-300">
                                 کد تأیید
                                 <input
                                   value={code}
@@ -498,7 +497,7 @@ export default function Invitations() {
                                     )
                                   }
                                   placeholder="مثلاً ۱۲۳۴۵"
-                                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-center text-lg font-bold tracking-[0.5em] text-[#303741] outline-none transition placeholder:tracking-normal placeholder:text-sm focus:border-[#007BFF] focus:ring-4 focus:ring-blue-100"
+                                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-center text-lg font-bold tracking-[0.5em] text-[#303741] outline-none transition placeholder:tracking-normal placeholder:text-sm placeholder:text-slate-400 focus:border-[#007BFF] focus:ring-4 focus:ring-blue-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:ring-blue-900/40"
                                   dir="ltr"
                                 />
                               </label>
@@ -531,7 +530,7 @@ export default function Invitations() {
                                   setCode("");
                                   setError(null);
                                 }}
-                                className="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm text-[#6B6F77] transition hover:bg-slate-50 disabled:opacity-50"
+                                className="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm text-[#6B6F77] transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                               >
                                 انصراف
                               </button>
@@ -548,7 +547,7 @@ export default function Invitations() {
             {/* Relationships */}
             <section
               dir="rtl"
-              className="col-span-12 min-w-0 rounded-3xl border border-slate-100 bg-white p-4 shadow-sm shadow-slate-200/30 sm:p-6 md:p-7"
+              className="col-span-12 min-w-0 rounded-3xl border border-slate-100 bg-white p-4 shadow-sm shadow-slate-200/30 dark:border-slate-800 dark:bg-slate-900 dark:shadow-black/10 sm:p-6 md:p-7"
             >
               <SectionHeader
                 icon={GroupsOutlinedIcon}
@@ -568,21 +567,21 @@ export default function Invitations() {
                   {relationships.map((relationship) => (
                     <article
                       key={relationship.id}
-                      className="flex min-w-0 flex-col justify-between gap-4 rounded-3xl border border-slate-100 bg-[#FAFBFD] p-4 transition hover:border-blue-100 sm:p-5"
+                      className="flex min-w-0 flex-col justify-between gap-4 rounded-3xl border border-slate-100 bg-[#FAFBFD] p-4 transition hover:border-blue-100 dark:border-slate-700 dark:bg-slate-800/60 dark:hover:border-blue-900 sm:p-5"
                     >
                       <div className="flex min-w-0 items-center justify-between gap-3">
                         <div className="flex min-w-0 items-center gap-3">
-                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-[#007BFF]">
+                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-[#007BFF] dark:bg-blue-950/50 dark:text-blue-400">
                             <PersonOutlineRoundedIcon
                               sx={{ fontSize: 26 }}
                             />
                           </div>
 
                           <div className="min-w-0">
-                            <p className="text-[11px] text-[#9AA1AB]">
+                            <p className="text-[11px] text-[#9AA1AB] dark:text-slate-400">
                               مربی شما
                             </p>
-                            <h3 className="mt-1 truncate text-sm font-bold text-[#303741]">
+                            <h3 className="mt-1 truncate text-sm font-bold text-[#303741] dark:text-slate-100">
                               {relationship.coach?.display_name || "—"}
                             </h3>
                           </div>
@@ -597,15 +596,15 @@ export default function Invitations() {
                         </span>
                       </div>
 
-                      <div className="flex items-center justify-between gap-2 border-t border-slate-100 pt-4">
-                        <div className="flex items-center gap-2 text-xs text-[#9299A3]">
+                      <div className="flex items-center justify-between gap-2 border-t border-slate-100 pt-4 dark:border-slate-700">
+                        <div className="flex items-center gap-2 text-xs text-[#9299A3] dark:text-slate-400">
                           <CalendarTodayOutlinedIcon
                             sx={{ fontSize: 16 }}
                           />
                           وضعیت ارتباط
                         </div>
 
-                        <span className="text-xs font-medium text-[#6B6F77]">
+                        <span className="text-xs font-medium text-[#6B6F77] dark:text-slate-300">
                           {statusLabel(relationship.status)}
                         </span>
                       </div>
@@ -618,17 +617,17 @@ export default function Invitations() {
             {/* Help */}
             <div
               dir="rtl"
-              className="col-span-12 flex items-start gap-3 rounded-3xl border border-blue-100 bg-blue-50/60 p-4 sm:p-5"
+              className="col-span-12 flex items-start gap-3 rounded-3xl border border-blue-100 bg-blue-50/60 p-4 dark:border-blue-900/50 dark:bg-blue-950/30 sm:p-5"
             >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#007BFF]">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#007BFF] dark:bg-slate-800 dark:text-blue-400">
                 <InfoOutlinedIcon />
               </div>
 
               <div>
-                <h3 className="text-sm font-bold text-[#3D424A]">
+                <h3 className="text-sm font-bold text-[#3D424A] dark:text-slate-100">
                   راهنمای دعوت‌ها
                 </h3>
-                <p className="mt-1 text-xs leading-7 text-[#7B8795]">
+                <p className="mt-1 text-xs leading-7 text-[#7B8795] dark:text-slate-400">
                   برای شروع همکاری، دعوت مربی را انتخاب و کد تأیید ارسال‌شده به شماره همراه خود را وارد کنید. پس از تأیید، ارتباط شما در بخش ارتباط‌های من نمایش داده می‌شود.
                 </p>
               </div>
