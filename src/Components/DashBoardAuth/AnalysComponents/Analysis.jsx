@@ -208,125 +208,213 @@ export default function Analysis({
         ))}
       </div>
 
-      {panel === "sizes" ? (
-        <div className="mt-5">
-          <form
-            onSubmit={saveObservation}
-            className="grid gap-3 md:grid-cols-4"
-          >
-            <label className="text-sm text-[#6B6F77]">
+   {panel === "sizes" ? (
+  (() => {
+    const ring =
+      "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#007BFF] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#121A2B]";
+    const control =
+      "mt-2 min-h-12 w-full min-w-0 rounded-xl border border-[#E3E8F0] bg-white px-4 py-3 text-base font-normal text-[#1F2937] outline-none transition placeholder:text-[#A0A4AA] focus:border-[#007BFF] focus:ring-4 focus:ring-[#007BFF]/10 sm:text-sm dark:border-[#2A3550] dark:bg-[#0B1220] dark:text-[#F3F4F6] dark:placeholder:text-[#6B7690] dark:[color-scheme:dark] dark:focus:ring-[#007BFF]/25";
+    const labelClass = "min-w-0 text-sm font-medium text-[#6B6F77] dark:text-[#9AA3B2]";
+    const setMetric = (key, value) => setMetrics((current) => ({ ...current, [key]: value }));
+    const extraFilled = EXTRA_FIELDS.filter(([key]) => String(metrics[key] ?? "").trim() !== "").length;
+
+    return (
+      <div className="mt-5 flex flex-col gap-6">
+        {/* ───────── فرم ثبت ───────── */}
+        <form
+          onSubmit={saveObservation}
+          aria-labelledby="sizes-form-title"
+          className="rounded-2xl border border-[#E8ECF4] bg-white p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)] sm:p-5 dark:border-[#232D42] dark:bg-[#121A2B] dark:shadow-none"
+        >
+          <div className="flex items-center gap-3">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#EAF4FF] text-[#007BFF] dark:bg-[#12294A] dark:text-[#6CB0FF]">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden="true">
+                <path d="M3 8h18v8H3zM7 8v4M11 8v3M15 8v4M19 8v3" />
+              </svg>
+            </span>
+            <h4 id="sizes-form-title" className="text-base font-semibold text-[#1F2937] dark:text-[#F3F4F6]">
+              ثبت اندازه‌ی جدید
+            </h4>
+          </div>
+
+          <div className="mt-5 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
+            <label className={`${labelClass} col-span-2 md:col-span-1`}>
               زمان
               <JalaliField
                 required
                 withTime
                 value={measuredAt}
                 onChange={setMeasuredAt}
-                className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3"
+                className={control}
               />
             </label>
 
             {MAIN_FIELDS.map(([key, label]) => (
-              <label key={key} className="text-sm text-[#6B6F77]">
+              <label key={key} className={labelClass}>
                 {label}
                 <input
                   inputMode="decimal"
+                  autoComplete="off"
                   value={metrics[key]}
-                  onChange={(event) =>
-                    setMetrics((current) => ({
-                      ...current,
-                      [key]: event.target.value,
-                    }))
-                  }
-                  className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3"
+                  onChange={(event) => setMetric(key, event.target.value)}
+                  className={control}
                 />
               </label>
             ))}
+          </div>
 
-            <details className="rounded-2xl bg-[#F5F7FB] p-4 md:col-span-4">
-              <summary className="cursor-pointer text-sm text-[#007BFF]">
-                سایزهای دیگر
-              </summary>
-              <div className="mt-3 grid gap-3 md:grid-cols-4">
-                {EXTRA_FIELDS.map(([key, label]) => (
-                  <label key={key} className="text-sm text-[#6B6F77]">
-                    {label}
-                    <input
-                      inputMode="decimal"
-                      value={metrics[key]}
-                      onChange={(event) =>
-                        setMetrics((current) => ({
-                          ...current,
-                          [key]: event.target.value,
-                        }))
-                      }
-                      className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3"
-                    />
-                  </label>
-                ))}
-              </div>
-            </details>
-
-            <label className="flex items-center gap-2 text-sm text-[#6B6F77] md:col-span-4">
-              <input
-                type="checkbox"
-                checked={share}
-                disabled={!active}
-                onChange={(event) => {
-                  shareTouched.current = true;
-                  setShare(event.target.checked);
-                }}
-              />
-              مربی و دستیار هوش مصنوعی این ثبت را می‌بینند
-            </label>
-
-            <button
-              type="submit"
-              disabled={pending}
-              className="w-fit rounded-2xl bg-[#007BFF] px-5 py-3 text-sm text-white disabled:opacity-50 md:col-span-4"
+          {/* سایزهای دیگر */}
+          <details className="group mt-4 rounded-2xl bg-[#F5F7FB] dark:bg-[#0F1626] [&[open]>summary_svg]:rotate-180">
+            <summary
+              className={`flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-[#007BFF] dark:text-[#6CB0FF] [&::-webkit-details-marker]:hidden ${ring}`}
             >
-              ثبت اندازه
-            </button>
-          </form>
+              <span className="flex items-center gap-2">
+                سایزهای دیگر
+                {extraFilled > 0 ? (
+                  <span className="rounded-full bg-[#EAF4FF] px-2 py-0.5 text-xs text-[#0B63CE] dark:bg-[#12294A] dark:text-[#7CB4FF]">
+                    {extraFilled.toLocaleString("fa-IR")} مورد پر شده
+                  </span>
+                ) : null}
+              </span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 transition-transform" aria-hidden="true">
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </summary>
 
-          <ul className="mt-4 space-y-3">
-            {observations.length === 0 ? (
-              <li className="text-sm text-[#A0A4AA]">
-                هنوز اندازه‌ای ثبت نشده است.
-              </li>
+            <div className="grid grid-cols-2 gap-3 px-4 pb-4 sm:gap-4 md:grid-cols-4">
+              {EXTRA_FIELDS.map(([key, label]) => (
+                <label key={key} className={labelClass}>
+                  {label}
+                  <input
+                    inputMode="decimal"
+                    autoComplete="off"
+                    value={metrics[key]}
+                    onChange={(event) => setMetric(key, event.target.value)}
+                    className={control}
+                  />
+                </label>
+              ))}
+            </div>
+          </details>
+
+          {/* اشتراک‌گذاری */}
+          <label
+            className={`mt-4 flex items-start gap-3 rounded-2xl border px-4 py-3.5 text-sm transition ${
+              active
+                ? "cursor-pointer border-[#E3E8F0] hover:border-[#BFDBFF] dark:border-[#2A3550] dark:hover:border-[#35517F]"
+                : "cursor-not-allowed border-[#EEF1F6] opacity-70 dark:border-[#232D42]"
+            } ${share ? "bg-[#F2F8FF] dark:bg-[#0F2038]" : "bg-white dark:bg-[#0B1220]"}`}
+          >
+            <input
+              type="checkbox"
+              checked={share}
+              disabled={!active}
+              onChange={(event) => {
+                shareTouched.current = true;
+                setShare(event.target.checked);
+              }}
+              className="mt-0.5 h-5 w-5 shrink-0 cursor-[inherit] accent-[#007BFF]"
+            />
+            <span className="min-w-0">
+              <span className="block leading-7 text-[#1F2937] dark:text-[#E5E7EB]">
+                مربی و دستیار هوش مصنوعی این ثبت را می‌بینند
+              </span>
+              {!active ? (
+                <span className="mt-0.5 block text-xs text-[#8A93A3] dark:text-[#8B97AD]">
+                  رابطه‌ی فعالی با مربی نیست.
+                </span>
+              ) : null}
+            </span>
+          </label>
+
+          <button
+            type="submit"
+            disabled={pending}
+            aria-busy={pending}
+            className={`mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#007BFF] px-6 py-3 text-sm font-medium text-white shadow-[0_8px_20px_-8px_rgba(0,123,255,0.5)] transition hover:bg-[#0069D9] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto dark:shadow-none ${ring}`}
+          >
+            {pending ? (
+              <svg viewBox="0 0 24 24" className="h-4 w-4 motion-safe:animate-spin" fill="none" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" stroke="currentColor" strokeOpacity="0.25" strokeWidth="3" />
+                <path d="M21 12a9 9 0 00-9-9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+              </svg>
             ) : null}
+            {pending ? "در حال ثبت" : "ثبت اندازه"}
+          </button>
+        </form>
 
-            {observations.map((item) => (
-              <li key={item.id} className="rounded-2xl bg-[#F5F7FB] p-4">
-                <p className="text-sm text-[#1F2937]">
-                  {when(item.measured_at)}
-                  {sourceLabel(item.source)
-                    ? ` · ${sourceLabel(item.source)}`
-                    : ""}
-                </p>
+        {/* ───────── فهرست ثبت‌ها ───────── */}
+        <section aria-labelledby="sizes-list-title">
+          <div className="mb-3 flex items-center gap-2">
+            <h4 id="sizes-list-title" className="text-base font-semibold text-[#1F2937] dark:text-[#F3F4F6]">
+              اندازه‌های ثبت‌شده
+            </h4>
+            {observations.length > 0 ? (
+              <span className="rounded-full bg-[#EEF1F6] px-2.5 py-0.5 text-xs font-medium text-[#6B6F77] dark:bg-[#1E293B] dark:text-[#9AA3B2]">
+                {observations.length.toLocaleString("fa-IR")}
+              </span>
+            ) : null}
+          </div>
 
-                {metricEntries(item.metrics).length === 0 ? (
-                  <p className="mt-2 text-sm text-[#A0A4AA]">
-                    در این ثبت اندازه‌ای نیست.
-                  </p>
-                ) : (
-                  <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
-                    {metricEntries(item.metrics).map(([key, value]) => (
-                      <div key={key}>
-                        <p className="text-xs text-[#A0A4AA]">
-                          {METRIC_LABELS[key] || "اندازه"}
-                        </p>
-                        <p className="mt-1 text-base text-[#1F2937]">
-                          {withUnit(value, key)}
-                        </p>
+          {observations.length === 0 ? (
+            <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-[#DDE3EE] bg-[#FAFBFD] px-4 py-10 text-center dark:border-[#2A3550] dark:bg-[#0F1626]">
+              <span className="text-3xl" aria-hidden="true">📏</span>
+              <p className="text-sm font-medium text-[#4B5563] dark:text-[#B6C2D6]">
+                هنوز اندازه‌ای ثبت نشده است.
+              </p>
+            </div>
+          ) : (
+            <ul className="grid gap-3">
+              {observations.map((item) => {
+                const entries = metricEntries(item.metrics);
+
+                return (
+                  <li
+                    key={item.id}
+                    className="rounded-2xl border border-[#E8ECF4] bg-white p-4 sm:p-5 dark:border-[#232D42] dark:bg-[#121A2B]"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <p className="text-sm font-semibold text-[#1F2937] dark:text-[#F3F4F6]">
+                        {when(item.measured_at)}
+                      </p>
+                      {sourceLabel(item.source) ? (
+                        <span className="rounded-full bg-[#EEF1F6] px-2.5 py-1 text-xs font-medium text-[#6B6F77] dark:bg-[#1E293B] dark:text-[#9AA3B2]">
+                          {sourceLabel(item.source)}
+                        </span>
+                      ) : null}
+                    </div>
+
+                    {entries.length === 0 ? (
+                      <p className="mt-3 rounded-xl bg-[#F5F7FB] px-4 py-3 text-sm text-[#6B6F77] dark:bg-[#0F1626] dark:text-[#9AA3B2]">
+                        در این ثبت اندازه‌ای نیست.
+                      </p>
+                    ) : (
+                      <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
+                        {entries.map(([key, value]) => (
+                          <div
+                            key={key}
+                            className="min-w-0 rounded-xl bg-[#F5F7FB] px-3.5 py-3 dark:bg-[#0F1626]"
+                          >
+                            <p className="truncate text-xs text-[#8A93A3] dark:text-[#8B97AD]">
+                              {METRIC_LABELS[key] || "اندازه"}
+                            </p>
+                            <p className="mt-1 break-words text-base font-bold text-[#1F2937] dark:text-[#F3F4F6]">
+                              {withUnit(value, key)}
+                            </p>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                )}
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </section>
+      </div>
+    );
+  })()
+) : null}
 
       {panel === "photos" ? (
         <div>
