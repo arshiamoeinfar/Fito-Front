@@ -631,8 +631,7 @@ export default function AnalysisPage() {
               newStatus={fresh ? "جدید" : ""}
               btnTrue
               imgBtn={DocumentAdd}
-              actionLabel={toolsOpen ? "بستن ثبت‌ها" : "ثبت و گزارش"}
-              onAction={() => setToolsOpen((open) => !open)}
+              actionLabel={toolsOpen ? "بستن ثبت‌ها" : "ثبت اطلاعات و گزارش"}
             />
             <div className="col-span-12 lg:col-span-6">
               <AIAnalysisCard text={analysisText} />

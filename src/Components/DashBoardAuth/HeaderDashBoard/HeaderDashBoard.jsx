@@ -255,8 +255,7 @@ export default function HeaderDashBoard({
             {btnTrue && (
               <BtnHeader
                 imgBtn={imgBtn}
-                onClick={() => navigate("/AnalysisPage/tools")}
-                onAction={onAction}
+                onClick={onAction || (() => navigate("/AnalysisPage/tools"))}
                 label={actionLabel}
               />
             )}
