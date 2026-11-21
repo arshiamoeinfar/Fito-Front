@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import JalaliField from "../../Components/shared/JalaliField/JalaliField";
 import { dateFromJalali, faDigits, isoDate, jalaliParts, MONTHS, parseMoment, shiftMonth, showDate, todayDateValue } from "../../lib/jalali";
@@ -36,6 +36,26 @@ const BODY_SERIES = [
   ["bmi_calculated", "شاخص توده بدنی", "", "#94A3B8"],
   ["bmi", "شاخص توده بدنی ثبت‌شده", "", "#64748B"],
 ];
+
+// رنگ و ترتیب نمایش هر نوع ثبت
+const KIND_STYLE = {
+  اندازه: "bg-[#EAF4FF] text-[#0B63CE]",
+  قدرت: "bg-[#EEF0FF] text-[#4F46E5]",
+  تمرین: "bg-[#E6F7F4] text-[#0F766E]",
+  عکس: "bg-[#FDEBF3] text-[#BE185D]",
+  "برنامه تمرین": "bg-[#EAF4FF] text-[#0B63CE]",
+  "برنامه غذا": "bg-[#FFF4E0] text-[#B45309]",
+};
+const KIND_ORDER = ["اندازه", "قدرت", "تمرین"];
+
+const PRESETS = [
+  ["این ماه", 0],
+  ["۳ ماه اخیر", 2],
+  ["۶ ماه اخیر", 5],
+  ["۱ سال اخیر", 11],
+];
+
+/* ═════════════ منطق داده (بدون تغییر) ═════════════ */
 
 function numberOf(value) {
   if (value === null || value === undefined || value === "") {
@@ -166,6 +186,96 @@ function monthTicks(fromMs, toMs) {
   return ticks;
 }
 
+/* ═════════════ کمکی‌های رابط ═════════════ */
+
+function useMedia(query) {
+  const [matches, setMatches] = useState(() => typeof window !== "undefined" && Boolean(window.matchMedia?.(query).matches));
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) {
+      return undefined;
+    }
+    const media = window.matchMedia(query);
+    const handler = (event) => setMatches(event.matches);
+    setMatches(media.matches);
+    media.addEventListener("change", handler);
+    return () => media.removeEventListener("change", handler);
+  }, [query]);
+
+  return matches;
+}
+
+const fieldInput = "min-h-11 w-full rounded-xl border border-[#E3E8F0] bg-white px-4 py-3 text-base text-[#1F2937] outline-none transition focus:border-[#007BFF] focus:ring-4 focus:ring-[#007BFF]/10 sm:text-sm";
+const focusRing = "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#007BFF] focus-visible:ring-offset-2";
+
+function Icon({ name, className = "h-4 w-4" }) {
+  const paths = {
+    download: "M12 4v11M7.5 11L12 15.5 16.5 11M5 19h14",
+    print: "M7 9V4h10v5M7 17H5a1 1 0 01-1-1v-5a2 2 0 012-2h12a2 2 0 012 2v5a1 1 0 01-1 1h-2M7 14h10v6H7z",
+    close: "M6 6l12 12M18 6L6 18",
+    chevron: "M6 9l6 6 6-6",
+    info: "M12 11v5M12 8h.01M12 21a9 9 0 100-18 9 9 0 000 18z",
+  };
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <path d={paths[name]} />
+    </svg>
+  );
+}
+
+function Segmented({ label, options, value, onChange, className = "" }) {
+  return (
+    <div role="group" aria-label={label} className={`grid gap-1 rounded-2xl bg-[#EEF1F6] p-1 ${className}`}>
+      {options.map(([id, text]) => (
+        <button
+          key={id}
+          type="button"
+          onClick={() => onChange(id)}
+          aria-pressed={value === id}
+          className={`min-h-10 rounded-xl px-3 py-2 text-sm transition ${focusRing} ${
+            value === id ? "bg-white font-medium text-[#007BFF] shadow-sm" : "text-[#6B6F77] hover:text-[#1F2937]"
+          }`}
+        >
+          {text}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function KindChip({ kind }) {
+  return (
+    <span className={`inline-flex w-fit shrink-0 items-center whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-medium ${KIND_STYLE[kind] || "bg-[#F1F4F9] text-[#6B6F77]"}`}>
+      {kind}
+    </span>
+  );
+}
+
+function EmptyBox({ emoji, title, text }) {
+  return (
+    <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-[#DDE3EE] bg-[#FAFBFD] px-4 py-10 text-center">
+      <span className="text-3xl" aria-hidden="true">{emoji}</span>
+      <p className="text-sm font-medium text-[#4B5563]">{title}</p>
+      {text ? <p className="max-w-sm text-xs leading-6 text-[#8A93A3]">{text}</p> : null}
+    </div>
+  );
+}
+
+function Row({ at, kind, title, detail }) {
+  return (
+    <li className="flex flex-col gap-1.5 rounded-2xl border border-[#EEF1F6] bg-white px-4 py-3 sm:flex-row sm:items-center sm:gap-4">
+      <div className="flex items-center justify-between gap-3 sm:w-56 sm:shrink-0 sm:justify-start">
+        <span className="text-xs text-[#6B6F77] sm:w-24 sm:text-sm">{showDate(at)}</span>
+        <KindChip kind={kind} />
+      </div>
+      <div className="flex min-w-0 flex-1 items-center justify-between gap-3">
+        <span className="min-w-0 break-words text-sm text-[#1F2937]">{title}</span>
+        <span className="shrink-0 text-sm font-medium text-[#374151]">{detail}</span>
+      </div>
+    </li>
+  );
+}
+
 export default function AthleteReport({ name, observations = [], records = [], photos = [], workouts = [], meals = [], sessions = [], programsEmpty = "برنامه‌ای برای این شاگرد ثبت نشده است." }) {
   const series = useMemo(() => {
     const rows = [];
@@ -215,8 +325,13 @@ export default function AthleteReport({ name, observations = [], records = [], p
   const [from, setFrom] = useState(() => monthsAgo(5));
   const [to, setTo] = useState(todayDateValue);
   const [shape, setShape] = useState("curve");
-  const [shapeOpen, setShapeOpen] = useState(false);
-  const active = series.filter((item) => picked[item.id] ?? (item.id === "weight_kg" || item.id === "waist_cm" || item.metric === "max_weight_g"));
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [tab, setTab] = useState("records");
+  const [visible, setVisible] = useState(12);
+  const narrow = useMedia("(max-width: 639px)");
+
+  const isOn = (item) => picked[item.id] ?? (item.id === "weight_kg" || item.id === "waist_cm" || item.metric === "max_weight_g");
+  const active = series.filter(isOn);
 
   function order(points) {
     return [...points].sort((left, right) => (sort === "asc" ? timeOf(left.at) - timeOf(right.at) : timeOf(right.at) - timeOf(left.at)));
@@ -236,6 +351,12 @@ export default function AthleteReport({ name, observations = [], records = [], p
   const curves = curveRows(chart.rows, active.length);
   const shapeLabel = CHART_SHAPES.find(([id]) => id === shape)?.[1] || "منحنی";
 
+  // برچسب‌های محور در موبایل کمتر می‌شوند تا روی هم نیفتند؛ برای چاپ همان chart.ticks کامل می‌ماند
+  const maxLabels = narrow ? 4 : 8;
+  const stride = Math.max(1, Math.ceil(chart.ticks.length / maxLabels));
+  const shownTicks = chart.ticks.filter((_, index) => index % stride === 0);
+  const sideMargin = narrow ? 12 : 24;
+
   const programs = order([
     ...workouts.map((item) => ({ at: item.starts_on, kind: "برنامه تمرین", title: item.program?.title || "برنامه تمرین", detail: item.ends_on ? `تا ${showDate(item.ends_on)}` : (item.status === "active" ? "باز" : "تاریخ اتمام ثبت نشده") })),
     ...meals.map((item) => ({ at: item.starts_on, kind: "برنامه غذا", title: item.plan?.title || "برنامه غذا", detail: item.ends_on ? `تا ${showDate(item.ends_on)}` : (item.status === "active" ? "باز" : "تاریخ اتمام ثبت نشده") })),
@@ -251,6 +372,18 @@ export default function AthleteReport({ name, observations = [], records = [], p
     ...photos.map((photo) => ({ at: photo.taken_at, kind: "عکس", title: "عکس بدن", detail: "ثبت شده" })),
     ...sessions.map((session) => ({ at: session.performed_on, kind: "تمرین", title: "جلسه تمرین", detail: `${(session.sets || []).length.toLocaleString("fa-IR")} ست · ${session.status === "completed" ? "تمام شده" : "باز"}` })),
   ]).filter((row) => inRange(row.at));
+
+  // خلاصه‌ی هر مورد: آخرین مقدار تا پایان بازه و تغییر نسبت به اولین ثبت داخل بازه
+  const summaries = active.map((item) => {
+    const sorted = [...item.points].map((point) => ({ ...point, time: timeOf(point.at) })).sort((left, right) => left.time - right.time);
+    const last = [...sorted].reverse().find((point) => point.time <= toMs) ?? null;
+    const first = sorted.find((point) => point.time >= fromMs && point.time <= toMs) ?? null;
+    const diff = first && last && first !== last ? Math.round((last.value - first.value) * 100) / 100 : null;
+    return { item, last, diff };
+  });
+
+  const todayValue = todayDateValue();
+  const presets = PRESETS.map(([label, count]) => ({ label, value: monthsAgo(count) }));
 
   function exportCsv() {
     downloadCsv([
@@ -299,168 +432,307 @@ export default function AthleteReport({ name, observations = [], records = [], p
     });
   }
 
+  const tooltipFormatter = (value, seriesName, item) => {
+    const index = active.findIndex((entry) => entry.label === seriesName);
+    const raw = item?.payload?.[`s${index}raw`];
+    const unit = active[index]?.unit;
+    return [raw == null ? "—" : `${shownNumber(raw)}${unit ? ` ${unit}` : ""}`, seriesName];
+  };
+  const tooltipStyle = { borderRadius: 12, border: "1px solid #E5E7EB", fontSize: 12, boxShadow: "0 8px 24px -12px rgba(16,24,40,0.2)" };
+
+  const listSource = tab === "records" ? timeline : programs;
+  const shownRows = listSource.slice(0, visible);
+
   return (
-    <div className="mt-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm leading-7 text-[#6B6F77]">موردهای نمودار را انتخاب کن. بازه را با نوشتن تاریخ شمسی، مثل ۱۴۰۵/۰۱/۰۱، یا از تقویم عوض کن تا ماه‌های دیگر هم روی محور بیایند.</p>
-        <div className="flex flex-wrap gap-2">
-          <button type="button" onClick={exportCsv} className="rounded-2xl bg-white px-4 py-2 text-sm text-[#007BFF] ring-1 ring-[#D6E6FF]">خروجی اکسل</button>
-          <button type="button" onClick={printReport} className="rounded-2xl bg-[#007BFF] px-4 py-2 text-sm text-white">چاپ و PDF</button>
+    <div className="mt-5 flex flex-col gap-5">
+      {/* ───────── سرتیتر و خروجی‌ها ───────── */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h3 className="text-lg font-semibold text-[#1F2937]">گزارش پیشرفت</h3>
+          <p className="mt-1 text-sm leading-7 text-[#6B6F77]">بازه و موردها را انتخاب کن تا نمودار و فهرست ثبت‌ها به‌روز شود.</p>
+        </div>
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:shrink-0">
+          <button type="button" onClick={exportCsv} className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-white px-4 py-2 text-sm text-[#007BFF] ring-1 ring-[#D6E6FF] transition hover:bg-[#F2F8FF] ${focusRing}`}>
+            <Icon name="download" />
+            خروجی اکسل
+          </button>
+          <button type="button" onClick={printReport} className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-[#007BFF] px-4 py-2 text-sm text-white transition hover:bg-[#0069D9] ${focusRing}`}>
+            <Icon name="print" />
+            چاپ و PDF
+          </button>
         </div>
       </div>
-      <label className="mt-4 grid max-w-xs gap-2 text-sm text-[#6B6F77]">
-        مرتب‌سازی تاریخ
-        <select className="rounded-2xl border border-slate-200 bg-white px-4 py-3" value={sort} onChange={(event) => setSort(event.target.value)}>
-          <option value="asc">از قدیمی به جدید</option>
-          <option value="desc">از جدید به قدیمی</option>
-        </select>
-      </label>
-      <div className="mt-4 flex flex-wrap gap-2">
-        {series.length === 0 ? <p className="text-sm text-[#A0A4AA]">هنوز داده‌ای برای نمودار نیست.</p> : null}
-        {series.map((item) => {
-          const on = picked[item.id] ?? (item.id === "weight_kg" || item.id === "waist_cm" || item.metric === "max_weight_g");
-          return (
+
+      {/* ───────── پنل تنظیمات ───────── */}
+      <section aria-label="تنظیمات گزارش" className="rounded-2xl bg-[#F8FAFC] p-4 sm:p-5">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <label className="grid gap-2 text-xs font-medium text-[#6B6F77]">
+            از تاریخ
+            <JalaliField value={from} onChange={setFrom} className={fieldInput} />
+          </label>
+          <label className="grid gap-2 text-xs font-medium text-[#6B6F77]">
+            تا تاریخ
+            <JalaliField value={to} onChange={setTo} className={fieldInput} />
+          </label>
+        </div>
+
+        <div className="mt-3 flex flex-wrap items-center gap-2" role="group" aria-label="بازه‌های آماده">
+          {presets.map((preset) => {
+            const on = from === preset.value && to === todayValue;
+            return (
+              <button
+                key={preset.label}
+                type="button"
+                onClick={() => {
+                  setFrom(preset.value);
+                  setTo(todayValue);
+                }}
+                aria-pressed={on}
+                className={`min-h-9 rounded-full px-4 text-xs transition ${focusRing} ${on ? "bg-[#007BFF] text-white" : "bg-white text-[#4B5563] ring-1 ring-[#E3E8F0] hover:ring-[#BFDBFF]"}`}
+              >
+                {preset.label}
+              </button>
+            );
+          })}
+        </div>
+        {!rangeOk ? (
+          <p role="alert" className="mt-3 rounded-xl bg-red-50 px-4 py-2.5 text-sm text-red-700">تاریخ شروع باید قبل از تاریخ پایان باشد.</p>
+        ) : (
+          <p className="mt-3 text-xs leading-6 text-[#8A93A3]">تاریخ را می‌توانی شمسی تایپ کنی، مثل ۱۴۰۵/۰۱/۰۱، یا از تقویم انتخاب کنی.</p>
+        )}
+
+        {/* انتخاب موردها */}
+        <div className="mt-4 border-t border-[#E8ECF4] pt-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-sm font-medium text-[#374151]">
+              موردهای نمودار
+              <span className="mr-2 text-xs font-normal text-[#8A93A3]">{faDigits(active.length)} از {faDigits(series.length)}</span>
+            </p>
             <button
-              key={item.id}
               type="button"
-              onClick={() => setPicked((current) => ({ ...current, [item.id]: !on }))}
-              className={`rounded-2xl px-3 py-2 text-sm ${on ? "bg-[#007BFF] text-white" : "bg-[#F5F7FB] text-[#6B6F77]"}`}
+              onClick={() => setPickerOpen((open) => !open)}
+              aria-expanded={pickerOpen}
+              className={`inline-flex min-h-9 items-center gap-1.5 rounded-full bg-white px-4 text-xs text-[#007BFF] ring-1 ring-[#D6E6FF] transition hover:bg-[#F2F8FF] ${focusRing}`}
             >
-              {item.label}
-            </button>
-          );
-        })}
-      </div>
-      <h4 className="mt-6 text-base text-[#1F2937]">گزارش کامل</h4>
-      <div className="mt-3 grid gap-3 md:grid-cols-2">
-        <label className="grid gap-2 text-sm text-[#6B6F77]">
-          از تاریخ
-          <JalaliField value={from} onChange={setFrom} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm" />
-        </label>
-        <label className="grid gap-2 text-sm text-[#6B6F77]">
-          تا تاریخ
-          <JalaliField value={to} onChange={setTo} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm" />
-        </label>
-      </div>
-      {!rangeOk ? <p className="mt-3 text-sm text-red-700">تاریخ شروع باید قبل از تاریخ پایان باشد.</p> : (
-        <div className="mt-4 rounded-2xl bg-[#F5F7FB] p-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-sm text-[#1F2937]">نمودار {shapeLabel}</p>
-            <button type="button" onClick={() => setShapeOpen((open) => !open)} className="rounded-2xl bg-white px-4 py-2 text-sm text-[#007BFF] ring-1 ring-[#D6E6FF]">
-              سفارشی‌سازی نمودار
+              {pickerOpen ? "بستن فهرست" : "انتخاب موردها"}
+              <Icon name="chevron" className={`h-3.5 w-3.5 transition ${pickerOpen ? "rotate-180" : ""}`} />
             </button>
           </div>
-          {shapeOpen ? (
+
+          {series.length === 0 ? (
+            <p className="mt-3 text-sm text-[#A0A4AA]">هنوز داده‌ای برای نمودار نیست.</p>
+          ) : !pickerOpen ? (
             <div className="mt-3 flex flex-wrap gap-2">
-              {CHART_SHAPES.map(([id, label]) => (
+              {active.length === 0 ? <p className="text-sm text-[#A0A4AA]">هیچ موردی انتخاب نشده.</p> : null}
+              {active.map((item) => (
                 <button
-                  key={id}
+                  key={item.id}
                   type="button"
-                  onClick={() => setShape(id)}
-                  className={`rounded-2xl px-3 py-2 text-sm ${shape === id ? "bg-[#007BFF] text-white" : "bg-white text-[#6B6F77]"}`}
+                  onClick={() => setPicked((current) => ({ ...current, [item.id]: false }))}
+                  aria-label={`حذف ${item.label} از نمودار`}
+                  className={`inline-flex min-h-9 items-center gap-2 rounded-full bg-white px-3 text-xs text-[#374151] ring-1 ring-[#E3E8F0] transition hover:ring-[#BFDBFF] ${focusRing}`}
                 >
-                  {label}
+                  <span className="h-2.5 w-2.5 rounded-full" style={{ background: item.color }} aria-hidden="true" />
+                  {item.label}
+                  <Icon name="close" className="h-3 w-3 text-[#8A93A3]" />
                 </button>
               ))}
             </div>
-          ) : null}
-          <p className="mt-1 text-xs leading-6 text-[#6B6F77]">{SHAPE_HINT[shape]} مقدار واقعی را با نگه داشتن روی نمودار ببین.</p>
-          <div className="mt-3 flex flex-wrap gap-3">
-            {active.map((item) => (
-              <span key={item.id} className="text-xs" style={{ color: item.color }}>{item.label}</span>
-            ))}
-          </div>
-          {active.length === 0 ? <p className="mt-3 text-sm text-[#A0A4AA]">حداقل یک مورد را برای نمودار روشن کن.</p> : (
-            <div className="mt-3 h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                {shape === "column" ? (
-                  <BarChart data={columns} margin={{ top: 8, right: 28, left: 28, bottom: 8 }}>
-                    <CartesianGrid stroke="#E5E7EB" />
-                    <XAxis dataKey="label" interval={0} tick={{ fontSize: 11 }} />
-                    <YAxis hide domain={[0, 100]} />
-                    <Tooltip
-                      labelFormatter={(value) => value}
-                      formatter={(value, name, item) => {
-                        const index = active.findIndex((series) => series.label === name);
-                        const raw = item?.payload?.[`s${index}raw`];
-                        const unit = active[index]?.unit;
-                        return [raw == null ? "—" : `${shownNumber(raw)}${unit ? ` ${unit}` : ""}`, name];
-                      }}
-                    />
-                    {active.map((item, index) => (
-                      <Bar key={item.id} dataKey={`s${index}`} name={item.label} fill={item.color} maxBarSize={22} radius={[4, 4, 0, 0]} />
-                    ))}
-                  </BarChart>
-                ) : (
-                  <LineChart data={shape === "curve" ? curves : chart.rows} margin={{ top: shape === "curve" ? 28 : 8, right: 28, left: 28, bottom: 8 }}>
-                    <CartesianGrid stroke="#E5E7EB" />
-                    <XAxis dataKey="time" type="number" domain={[fromMs, toMs]} scale="time" ticks={chart.ticks} interval={0} tickFormatter={monthLabel} tick={{ fontSize: 11 }} />
-                    <YAxis hide domain={shape === "curve" ? [0, 118] : [0, 100]} />
-                    <Tooltip
-                      labelFormatter={(value) => showDate(new Date(Number(value)))}
-                      formatter={(value, name, item) => {
-                        const index = active.findIndex((series) => series.label === name);
-                        const raw = item?.payload?.[`s${index}raw`];
-                        const unit = active[index]?.unit;
-                        return [raw == null ? "—" : `${shownNumber(raw)}${unit ? ` ${unit}` : ""}`, name];
-                      }}
-                    />
-                    {active.map((item, index) => (
-                      <Line
-                        key={item.id}
-                        type={shape === "curve" ? "monotone" : "stepAfter"}
-                        dataKey={`s${index}`}
-                        name={item.label}
-                        stroke={item.color}
-                        strokeWidth={2.5}
-                        connectNulls
-                        dot={shape === "line" ? false : (props) => {
-                          const source = shape === "curve" ? curves : chart.rows;
-                          const raw = props.payload?.[`s${index}raw`];
-                          const previous = source[props.index - 1]?.[`s${index}raw`];
-                          if (props.cx == null || raw == null || raw === previous) {
-                            return null;
-                          }
-                          const lift = 12 + (index % 3) * 11;
-                          return (
-                            <g>
-                              <circle cx={props.cx} cy={props.cy} r={4.5} fill={item.color} />
-                              {shape === "curve" ? (
-                                <text x={props.cx} y={props.cy - lift} textAnchor="middle" fontSize="10" fill={item.color}>{shownNumber(raw)}</text>
-                              ) : null}
-                            </g>
-                          );
-                        }}
-                      />
-                    ))}
-                  </LineChart>
-                )}
-              </ResponsiveContainer>
+          ) : (
+            <div className="mt-3 grid gap-4">
+              {KIND_ORDER.map((kind) => {
+                const group = series.filter((item) => item.kind === kind);
+                if (group.length === 0) return null;
+                return (
+                  <div key={kind}>
+                    <p className="mb-2 text-xs text-[#8A93A3]">{kind}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {group.map((item) => {
+                        const on = isOn(item);
+                        return (
+                          <button
+                            key={item.id}
+                            type="button"
+                            onClick={() => setPicked((current) => ({ ...current, [item.id]: !on }))}
+                            aria-pressed={on}
+                            className={`inline-flex min-h-10 items-center gap-2 rounded-full px-4 text-sm transition ${focusRing} ${on ? "text-white shadow-sm" : "bg-white text-[#6B6F77] ring-1 ring-[#E3E8F0] hover:ring-[#BFDBFF]"}`}
+                            style={on ? { background: item.color } : undefined}
+                          >
+                            {!on ? <span className="h-2.5 w-2.5 rounded-full" style={{ background: item.color }} aria-hidden="true" /> : null}
+                            {item.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+              <div className="flex flex-wrap gap-3 text-xs">
+                <button type="button" onClick={() => setPicked(Object.fromEntries(series.map((item) => [item.id, false])))} className={`rounded-lg px-1 text-[#6B6F77] underline underline-offset-4 ${focusRing}`}>پاک کردن همه</button>
+                <button type="button" onClick={() => setPicked({})} className={`rounded-lg px-1 text-[#007BFF] underline underline-offset-4 ${focusRing}`}>برگشت به پیش‌فرض</button>
+              </div>
             </div>
           )}
         </div>
-      )}
-      <h4 className="mt-6 text-base text-[#1F2937]">برنامه‌ها</h4>
-      {programs.length === 0 ? <p className="mt-2 text-sm text-[#A0A4AA]">{programsEmpty}</p> : (
-        <ul className="mt-3 space-y-2">
-          {programs.map((row, index) => (
-            <li key={`${row.kind}-${row.title}-${index}`} className="rounded-2xl bg-[#F5F7FB] px-4 py-3 text-sm text-[#1F2937]">
-              {showDate(row.at)} · {row.kind} · {row.title} · {row.detail}
-            </li>
-          ))}
-        </ul>
-      )}
-      <h4 className="mt-6 text-base text-[#1F2937]">ثبت‌های این بازه</h4>
-      {timeline.length === 0 ? <p className="mt-2 text-sm text-[#A0A4AA]">در این بازه ثبتی نیست.</p> : (
-        <ul className="mt-3 space-y-2">
-          {timeline.map((row, index) => (
-            <li key={`${row.kind}-${row.title}-${row.at}-${index}`} className="rounded-2xl bg-[#F5F7FB] px-4 py-3 text-sm text-[#1F2937]">
-              {showDate(row.at)} · {row.kind} · {row.title} · {row.detail}
-            </li>
-          ))}
-        </ul>
-      )}
-      <p className="mt-3 text-xs leading-6 text-[#A0A4AA]">برای PDF، در پنجره چاپ مقصد را «ذخیره به صورت PDF» بگذار. تاریخ ذخیره‌شده در سیستم میلادی می‌ماند و اینجا شمسی دیده می‌شود.</p>
+      </section>
+
+      {/* ───────── نمودار ───────── */}
+      {rangeOk ? (
+        <section aria-label="نمودار" className="rounded-2xl border border-[#E8ECF4] bg-white p-4 sm:p-5">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <h4 className="text-base font-semibold text-[#1F2937]">نمودار {shapeLabel}</h4>
+            <Segmented label="شکل نمودار" options={CHART_SHAPES} value={shape} onChange={setShape} className="grid-cols-2 sm:grid-cols-4" />
+          </div>
+
+          {active.length === 0 ? (
+            <div className="mt-4">
+              <EmptyBox emoji="📈" title="موردی برای نمودار انتخاب نشده" text="از بخش «موردهای نمودار» حداقل یک مورد را روشن کن." />
+            </div>
+          ) : (
+            <>
+              {/* خلاصه‌ی هر مورد */}
+              <ul className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+                {summaries.map(({ item, last, diff }) => (
+                  <li key={item.id} className="relative overflow-hidden rounded-2xl border border-[#EEF1F6] bg-[#FAFBFD] px-4 py-3">
+                    <span className="absolute inset-y-0 right-0 w-1" style={{ background: item.color }} aria-hidden="true" />
+                    <p className="truncate text-xs text-[#6B6F77]">{item.label}</p>
+                    <div className="mt-1 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                      <p className="text-lg font-bold text-[#1F2937]">
+                        {last ? shownNumber(last.value) : "—"}
+                        {last && item.unit ? <span className="mr-1 text-xs font-normal text-[#8A93A3]">{item.unit}</span> : null}
+                      </p>
+                      {diff != null ? (
+                        <span dir="ltr" className="rounded-full bg-white px-2 py-0.5 text-[11px] font-medium text-[#4B5563] ring-1 ring-[#E3E8F0]">
+                          {diff > 0 ? "▲ " : diff < 0 ? "▼ " : ""}{diff === 0 ? "بدون تغییر" : shownNumber(Math.abs(diff))}
+                        </span>
+                      ) : null}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="mt-4 h-64 sm:h-80" role="img" aria-label={`نمودار ${shapeLabel} برای ${active.map((item) => item.label).join("، ")}`}>
+                <ResponsiveContainer width="100%" height="100%">
+                  {shape === "column" ? (
+                    <BarChart data={columns} margin={{ top: 8, right: sideMargin, left: sideMargin, bottom: 8 }}>
+                      <CartesianGrid stroke="#EEF1F6" vertical={false} />
+                      <XAxis dataKey="label" interval={stride - 1} tick={{ fontSize: 11, fill: "#6B6F77" }} axisLine={{ stroke: "#E5E7EB" }} tickLine={false} />
+                      <YAxis hide domain={[0, 100]} />
+                      <Tooltip cursor={{ fill: "rgba(0,123,255,0.05)" }} contentStyle={tooltipStyle} labelFormatter={(value) => value} formatter={tooltipFormatter} />
+                      {active.map((item, index) => (
+                        <Bar key={item.id} dataKey={`s${index}`} name={item.label} fill={item.color} maxBarSize={22} radius={[4, 4, 0, 0]} />
+                      ))}
+                    </BarChart>
+                  ) : (
+                    <LineChart data={shape === "curve" ? curves : chart.rows} margin={{ top: shape === "curve" ? 28 : 8, right: sideMargin, left: sideMargin, bottom: 8 }}>
+                      <CartesianGrid stroke="#EEF1F6" vertical={false} />
+                      <XAxis dataKey="time" type="number" domain={[fromMs, toMs]} scale="time" ticks={shownTicks} interval={0} tickFormatter={monthLabel} tick={{ fontSize: 11, fill: "#6B6F77" }} axisLine={{ stroke: "#E5E7EB" }} tickLine={false} />
+                      <YAxis hide domain={shape === "curve" ? [0, 118] : [0, 100]} />
+                      <Tooltip contentStyle={tooltipStyle} labelFormatter={(value) => showDate(new Date(Number(value)))} formatter={tooltipFormatter} />
+                      {active.map((item, index) => (
+                        <Line
+                          key={item.id}
+                          type={shape === "curve" ? "monotone" : "stepAfter"}
+                          dataKey={`s${index}`}
+                          name={item.label}
+                          stroke={item.color}
+                          strokeWidth={2.5}
+                          connectNulls
+                          dot={shape === "line" ? false : (props) => {
+                            const source = shape === "curve" ? curves : chart.rows;
+                            const raw = props.payload?.[`s${index}raw`];
+                            const previous = source[props.index - 1]?.[`s${index}raw`];
+                            if (props.cx == null || raw == null || raw === previous) {
+                              return null;
+                            }
+                            const lift = 12 + (index % 3) * 11;
+                            return (
+                              <g key={`${item.id}-${props.index}`}>
+                                <circle cx={props.cx} cy={props.cy} r={4.5} fill={item.color} stroke="#fff" strokeWidth={1.5} />
+                                {shape === "curve" ? (
+                                  <text x={props.cx} y={props.cy - lift} textAnchor="middle" fontSize="10" fill={item.color}>{shownNumber(raw)}</text>
+                                ) : null}
+                              </g>
+                            );
+                          }}
+                        />
+                      ))}
+                    </LineChart>
+                  )}
+                </ResponsiveContainer>
+              </div>
+
+              <p className="mt-3 flex items-start gap-2 text-xs leading-6 text-[#8A93A3]">
+                <Icon name="info" className="mt-1 h-3.5 w-3.5 shrink-0" />
+                <span>
+                  {SHAPE_HINT[shape]} هر مورد در مقیاس خودش کشیده می‌شود تا موردهای با واحد متفاوت کنار هم دیده شوند؛ مقدار واقعی را با {narrow ? "لمس" : "نگه داشتن ماوس روی"} نمودار ببین.
+                </span>
+              </p>
+            </>
+          )}
+        </section>
+      ) : null}
+
+      {/* ───────── ثبت‌ها و برنامه‌ها ───────── */}
+      <section aria-label="فهرست ثبت‌ها" className="rounded-2xl border border-[#E8ECF4] bg-white p-4 sm:p-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <Segmented
+            label="نوع فهرست"
+            options={[
+              ["records", `ثبت‌های این بازه (${faDigits(timeline.length)})`],
+              ["programs", `برنامه‌ها (${faDigits(programs.length)})`],
+            ]}
+            value={tab}
+            onChange={(id) => {
+              setTab(id);
+              setVisible(12);
+            }}
+            className="grid-cols-2"
+          />
+          <Segmented
+            label="مرتب‌سازی تاریخ"
+            options={[
+              ["desc", "جدیدترین"],
+              ["asc", "قدیمی‌ترین"],
+            ]}
+            value={sort}
+            onChange={setSort}
+            className="grid-cols-2 sm:w-60"
+          />
+        </div>
+
+        <div className="mt-4" aria-live="polite">
+          {listSource.length === 0 ? (
+            tab === "records" ? (
+              <EmptyBox emoji="🗂️" title="در این بازه ثبتی نیست" text="بازه را بزرگ‌تر کن یا موردهای بیشتری را انتخاب کن." />
+            ) : (
+              <EmptyBox emoji="📋" title={programsEmpty} />
+            )
+          ) : (
+            <>
+              <ul className="grid gap-2">
+                {shownRows.map((row, index) => (
+                  <Row key={`${row.kind}-${row.title}-${row.at}-${index}`} at={row.at} kind={row.kind} title={row.title} detail={row.detail} />
+                ))}
+              </ul>
+              {listSource.length > visible ? (
+                <button
+                  type="button"
+                  onClick={() => setVisible((count) => count + 20)}
+                  className={`mt-3 min-h-11 w-full rounded-2xl bg-[#F5F7FB] text-sm text-[#007BFF] transition hover:bg-[#EAF1FB] ${focusRing}`}
+                >
+                  نمایش بیشتر ({faDigits(listSource.length - visible)} مورد دیگر)
+                </button>
+              ) : null}
+            </>
+          )}
+        </div>
+      </section>
+
+      <p className="flex items-start gap-2 text-xs leading-6 text-[#A0A4AA]">
+        <Icon name="info" className="mt-1 h-3.5 w-3.5 shrink-0" />
+        <span>برای PDF، در پنجره چاپ مقصد را «ذخیره به صورت PDF» بگذار. تاریخ ذخیره‌شده در سیستم میلادی می‌ماند و اینجا شمسی دیده می‌شود.</span>
+      </p>
     </div>
   );
 }
