@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import Ranking from "../../../../assets/Icons/Ranking.svg";
 import {
@@ -10,6 +9,10 @@ import {
   CalendarTodayOutlined,
   FitnessCenterRounded,
 } from "@mui/icons-material";
+
+// ===============================
+// Default Records
+// ===============================
 
 const DEFAULT_RECORDS = [
   {
@@ -61,7 +64,7 @@ const DEFAULT_RECORDS = [
 function RecordRow({ record, isOpen, onToggle }) {
   return (
     <div
-      className={`group border-b border-slate-100 last:border-b-0 ${
+      className={`group border-b border-slate-100 last:border-b-0 dark:border-slate-700 ${
         isOpen ? "pb-4" : ""
       }`}
     >
@@ -75,8 +78,8 @@ function RecordRow({ record, isOpen, onToggle }) {
         <div
           className={`relative flex size-12 shrink-0 items-center justify-center rounded-2xl transition-all duration-200 sm:size-14 ${
             record.isNew
-              ? "bg-gradient-to-br from-blue-50 to-blue-100 group-hover:from-blue-100 group-hover:to-blue-200"
-              : "bg-slate-50 group-hover:bg-blue-50"
+              ? "bg-gradient-to-br from-blue-50 to-blue-100 group-hover:from-blue-100 group-hover:to-blue-200 dark:from-blue-950/60 dark:to-blue-900/60 dark:group-hover:from-blue-900 dark:group-hover:to-blue-800"
+              : "bg-slate-50 group-hover:bg-blue-50 dark:bg-slate-800 dark:group-hover:bg-blue-950/50"
           }`}
         >
           <img
@@ -86,7 +89,7 @@ function RecordRow({ record, isOpen, onToggle }) {
           />
 
           {record.isNew && (
-            <span className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full border-2 border-white bg-[#007BFF]">
+            <span className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full border-2 border-white bg-[#007BFF] dark:border-slate-900">
               <span className="size-1.5 rounded-full bg-white" />
             </span>
           )}
@@ -95,12 +98,12 @@ function RecordRow({ record, isOpen, onToggle }) {
         {/* Main Content */}
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h4 className="truncate text-sm font-primary text-slate-700 transition group-hover:text-[#007BFF] sm:text-base">
+            <h4 className="truncate text-sm font-primary text-slate-700 transition group-hover:text-[#007BFF] dark:text-slate-200 sm:text-base">
               {record.exercise}
             </h4>
 
             {record.isNew && (
-              <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-orange-100 bg-orange-50 px-2 py-1 text-[10px] font-bold text-orange-600 sm:text-[11px]">
+              <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-orange-100 bg-orange-50 px-2 py-1 text-[10px] font-bold text-orange-600 dark:border-orange-900/60 dark:bg-orange-950/40 dark:text-orange-300 sm:text-[11px]">
                 <LocalFireDepartmentRounded sx={{ fontSize: 13 }} />
                 رکورد جدید
               </span>
@@ -108,11 +111,14 @@ function RecordRow({ record, isOpen, onToggle }) {
           </div>
 
           <div className="mt-2 flex flex-wrap items-center gap-2">
-            <span className="text-sm font-primary " dir="ltr">
+            <span
+              className="text-sm font-primary text-slate-700 dark:text-slate-200"
+              dir="ltr"
+            >
               {record.value}
             </span>
-            <span className="size-1 rounded-full bg-slate-300" />
-            <span className="text-[11px] text-slate-400">
+            <span className="size-1 rounded-full bg-slate-300 dark:bg-slate-600" />
+            <span className="text-[11px] text-slate-400 dark:text-slate-500">
               {record.date}
             </span>
           </div>
@@ -122,8 +128,8 @@ function RecordRow({ record, isOpen, onToggle }) {
         <div
           className={`flex size-8 shrink-0 items-center justify-center rounded-xl transition-all ${
             isOpen
-              ? "rotate-180 bg-blue-50 text-[#007BFF]"
-              : "bg-slate-50 text-slate-400 group-hover:bg-blue-50 group-hover:text-[#007BFF]"
+              ? "rotate-180 bg-blue-50 text-[#007BFF] dark:bg-blue-950/60 dark:text-blue-300"
+              : "bg-slate-50 text-slate-400 group-hover:bg-blue-50 group-hover:text-[#007BFF] dark:bg-slate-800 dark:text-slate-400 dark:group-hover:bg-blue-950/50 dark:group-hover:text-blue-300"
           }`}
         >
           <KeyboardArrowDownRounded />
@@ -139,19 +145,19 @@ function RecordRow({ record, isOpen, onToggle }) {
         }`}
       >
         <div className="overflow-hidden">
-          <div className="grid grid-cols-1 gap-2 rounded-2xl bg-slate-50 p-3 sm:grid-cols-2 sm:p-4">
+          <div className="grid grid-cols-1 gap-2 rounded-2xl bg-slate-50 p-3 dark:bg-slate-800/70 sm:grid-cols-2 sm:p-4">
             {/* Previous Record */}
-            <div className="flex min-w-0 items-center gap-3 rounded-xl bg-white p-3">
-              <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-500">
+            <div className="flex min-w-0 items-center gap-3 rounded-xl bg-white p-3 dark:bg-slate-800">
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-300">
                 <TrendingUpRounded sx={{ fontSize: 19 }} />
               </div>
 
               <div className="min-w-0">
-                <p className="text-[11px] text-slate-400">
+                <p className="text-[11px] text-slate-400 dark:text-slate-500">
                   رکورد قبلی
                 </p>
                 <p
-                  className="mt-1 truncate text-sm font-primary text-slate-600"
+                  className="mt-1 truncate text-sm font-primary text-slate-600 dark:text-slate-200"
                   dir="ltr"
                 >
                   {record.previous || "ثبت نشده"}
@@ -160,16 +166,16 @@ function RecordRow({ record, isOpen, onToggle }) {
             </div>
 
             {/* Record Date */}
-            <div className="flex min-w-0 items-center gap-3 rounded-xl bg-white p-3">
-              <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[#007BFF]">
+            <div className="flex min-w-0 items-center gap-3 rounded-xl bg-white p-3 dark:bg-slate-800">
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[#007BFF] dark:bg-blue-950/50 dark:text-blue-300">
                 <CalendarTodayOutlined sx={{ fontSize: 17 }} />
               </div>
 
               <div className="min-w-0">
-                <p className="text-[11px] text-slate-400">
+                <p className="text-[11px] text-slate-400 dark:text-slate-500">
                   تاریخ ثبت رکورد
                 </p>
-                <p className="mt-1 truncate text-sm font-bold text-slate-600">
+                <p className="mt-1 truncate text-sm font-bold text-slate-600 dark:text-slate-200">
                   {record.date}
                 </p>
               </div>
@@ -193,9 +199,7 @@ export default function PersonalRecordsCard({
   const [openId, setOpenId] = useState(null);
   const [showAll, setShowAll] = useState(false);
 
-  const visibleRecords = showAll
-    ? records
-    : records.slice(0, 3);
+  const visibleRecords = showAll ? records : records.slice(0, 3);
 
   const newestRecord = records.find((record) => record.isNew);
 
@@ -213,20 +217,20 @@ export default function PersonalRecordsCard({
   return (
     <section
       dir="rtl"
-      className="h-full w-full min-w-0 rounded-3xl border border-slate-100 bg-white p-4 shadow-sm sm:p-6 lg:p-7"
+      className="h-full w-full min-w-0 rounded-3xl border border-slate-100 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900 sm:p-6 lg:p-7"
     >
       {/* Header */}
       <div className="mb-5 flex items-center justify-between gap-3 sm:mb-6">
         <div className="flex min-w-0 items-center gap-3">
-          <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-[#007BFF]">
+          <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-[#007BFF] dark:bg-blue-950/50 dark:text-blue-300">
             <EmojiEventsRounded sx={{ fontSize: 23 }} />
           </div>
 
           <div className="min-w-0">
-            <h3 className="text-lg text-[#6B6F77]">
+            <h3 className="text-lg text-[#6B6F77] dark:text-slate-200">
               {title}
             </h3>
-            <p className="mt-1 text-xs text-slate-400">
+            <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
               بهترین عملکردهای ثبت‌شده
             </p>
           </div>
@@ -236,7 +240,7 @@ export default function PersonalRecordsCard({
           <button
             type="button"
             onClick={() => setShowAll(!showAll)}
-            className="flex shrink-0 items-center gap-1 rounded-xl px-2 py-2 text-xs  text-[#007BFF] transition hover:bg-blue-50 sm:px-3 sm:text-sm"
+            className="flex shrink-0 items-center gap-1 rounded-xl px-2 py-2 text-xs text-[#007BFF] transition hover:bg-blue-50 dark:hover:bg-blue-950/50 sm:px-3 sm:text-sm"
           >
             {showAll ? "نمایش کمتر" : "مشاهده همه"}
 
@@ -256,25 +260,28 @@ export default function PersonalRecordsCard({
         <button
           type="button"
           onClick={handleFireClick}
-          className="group mb-5 flex w-full items-center gap-3 overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-l from-blue-50 via-[#F5F9FF] to-white p-3.5 text-right transition hover:border-blue-200 hover:shadow-sm sm:p-4"
+          className="group mb-5 flex w-full items-center gap-3 overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-l from-blue-50 via-[#F5F9FF] to-white p-3.5 text-right transition hover:border-blue-200 hover:shadow-sm dark:border-blue-900/60 dark:from-blue-950/60 dark:via-slate-800 dark:to-slate-800 dark:hover:border-blue-800 sm:p-4"
         >
-          <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#007BFF] shadow-sm sm:size-11">
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#007BFF] shadow-sm dark:bg-slate-700 dark:text-blue-300 sm:size-11">
             <LocalFireDepartmentRounded sx={{ fontSize: 23 }} />
           </div>
 
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-bold text-[#007BFF]">
+            <p className="text-xs font-bold text-[#007BFF] dark:text-blue-300">
               آخرین رکورد جدید
             </p>
-            <p className="mt-1 truncate text-sm font-black text-slate-700">
+            <p className="mt-1 truncate text-sm font-black text-slate-700 dark:text-slate-100">
               {newestRecord.exercise}
             </p>
-            <p className="mt-1 text-xs text-slate-500" dir="ltr">
+            <p
+              className="mt-1 text-xs text-slate-500 dark:text-slate-400"
+              dir="ltr"
+            >
               {newestRecord.value}
             </p>
           </div>
 
-          <div className="flex shrink-0 items-center gap-1 text-xs font-bold text-[#007BFF] transition group-hover:translate-x-[-2px]">
+          <div className="flex shrink-0 items-center gap-1 text-xs font-bold text-[#007BFF] transition group-hover:translate-x-[-2px] dark:text-blue-300">
             مشاهده
             <KeyboardArrowDownRounded
               sx={{ fontSize: 17 }}
@@ -287,16 +294,16 @@ export default function PersonalRecordsCard({
       {/* Records List */}
       <div className="min-w-0">
         {visibleRecords.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 px-4 py-10 text-center">
-            <div className="flex size-14 items-center justify-center rounded-2xl bg-slate-50 text-slate-300">
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 px-4 py-10 text-center dark:border-slate-700">
+            <div className="flex size-14 items-center justify-center rounded-2xl bg-slate-50 text-slate-300 dark:bg-slate-800 dark:text-slate-500">
               <FitnessCenterRounded sx={{ fontSize: 28 }} />
             </div>
 
-            <p className="mt-3 text-sm font-semibold text-slate-600">
+            <p className="mt-3 text-sm font-semibold text-slate-600 dark:text-slate-300">
               {emptyLabel}
             </p>
 
-            <p className="mt-1 text-xs text-slate-400">
+            <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
               با پیشرفت در تمرینات، رکوردهایت اینجا نمایش داده می‌شوند.
             </p>
           </div>
@@ -316,12 +323,12 @@ export default function PersonalRecordsCard({
 
       {/* Footer */}
       {records.length > 0 && (
-        <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4">
-          <span className="text-xs text-slate-400">
+        <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4 dark:border-slate-700">
+          <span className="text-xs text-slate-400 dark:text-slate-500">
             مجموع رکوردهای ثبت‌شده
           </span>
 
-          <span className="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-600">
+          <span className="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
             {records.length} رکورد
           </span>
         </div>
