@@ -22,6 +22,7 @@ import NutritionReport from "../../Components/shared/NutritionReport/NutritionRe
 import { api, ApiError, toApiError } from "../../api/client";
 import JalaliField from "../../Components/shared/JalaliField/JalaliField";
 import { faDigits, isoDate, jalaliParts, monthDays, showDate, todayDateValue } from "../../lib/jalali";
+import { CoachFoodIntake } from "../../Components/nutrition/FoodIntakeLog";
 import AthleteReport from "./AthleteReport";
 import BodyPhotoSets from "../../Components/shared/BodyPhotoSets/BodyPhotoSets";
 import HealthInfoCard from "../../Components/CoachDashboard/HealthInfoCard.jsx.jsx";
@@ -369,7 +370,7 @@ function SupplementGlyph() {
   );
 }
 
-function AthleteNutritionTab({ assignment, loadError }) {
+function AthleteNutritionTab({ assignment, loadError, relationshipId }) {
   const [weekIndex, setWeekIndex] = useState(0);
   const days = Array.isArray(assignment?.version?.days)
     ? assignment.version.days
@@ -584,6 +585,7 @@ function AthleteNutritionTab({ assignment, loadError }) {
           </div>
         )}
       </section>
+      <CoachFoodIntake relationshipId={relationshipId} />
     </>
   );
 }
@@ -1823,6 +1825,7 @@ export default function CoachAthleteProfile() {
                   meals.find((item) => item.status === "active") ?? null
                 }
                 loadError={mealError}
+                relationshipId={row?.id}
               />
             ) : null}
 

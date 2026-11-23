@@ -273,6 +273,12 @@ const ATHLETE_NAV_ITEMS = [
     inactive: CoachMessagesInactive,
   },
   {
+    to: "/athlete-plan",
+    label: "پلن",
+    active: CoachProgramsActive,
+    inactive: CoachProgramsInactive,
+  },
+  {
     to: "/settings",
     label: "تنظیمات",
     active: SettingIcon,

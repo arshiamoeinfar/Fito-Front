@@ -6,18 +6,35 @@ import ExerciseLibrary from "../../Components/CoachDashboard/programs/ExerciseLi
 import imgExercise from "../../assets/imges/image 13.png";
 import { api, ApiError } from "../../api/client";
 
+function exerciseImage(exercise) {
+  const media = (exercise.media || []).find((item) => item.media_type === "image" && item.path);
+
+  return media ? `/storage/${media.path}` : imgExercise;
+}
+
 function toCard(exercise) {
-  const primary = (exercise.muscles || []).find((muscle) => muscle.involvement === "primary") || exercise.muscles?.[0];
+  const muscles = exercise.muscles || [];
+  const primary = muscles.find((muscle) => muscle.involvement === "primary") || muscles[0];
   const muscle = primary?.name_fa || "عمومی";
+  const secondaryMuscles = muscles
+    .filter((item) => item.involvement === "secondary" && item.name_fa && item.name_fa !== muscle)
+    .map((item) => item.name_fa);
+  const steps = String(exercise.instructions || "")
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
 
   return {
     id: exercise.id,
     name: exercise.name,
     muscle,
+    secondaryMuscles,
+    trackingType: exercise.tracking_type || "",
+    goal: exercise.goal || "",
     target: `عضله هدف: ${muscle}`,
-    description: exercise.instructions || "",
-    instructions: exercise.instructions ? [exercise.instructions] : undefined,
-    image: imgExercise,
+    description: exercise.goal || steps[0] || "",
+    instructions: steps,
+    image: exerciseImage(exercise),
   };
 }
 

@@ -389,7 +389,7 @@ export default function Analysis({
               }`}
             />
             <span className="text-xs font-medium text-[#D7E1EF]">
-              {active ? "ارتباط فعال" : "ارتباط غیرفعال"}
+              {active ? "ارتباط فعال با مربی" : "بدون مربی فعال"}
             </span>
           </div>
         </div>
@@ -808,9 +808,9 @@ export default function Analysis({
 
           {!active && !photoClosed && (
             <div className="flex items-center gap-3 rounded-xl border border-[#E8EDF4] bg-white p-4 dark:border-[#29364C] dark:bg-[#151F31]">
-              <Icon name="lock" className="h-5 w-5 shrink-0 text-[#98A2B3]" />
-              <p className="text-xs text-[#8490A2]">
-                رابطه فعالی برای ارسال عکس وجود ندارد.
+              <Icon name="image" className="h-5 w-5 shrink-0 text-[#98A2B3]" />
+              <p className="text-xs leading-6 text-[#8490A2]">
+                مربی فعالی نداری. عکس جلو، بغل و پشت برای دستیار خودت ذخیره می‌شود.
               </p>
             </div>
           )}
@@ -820,7 +820,7 @@ export default function Analysis({
               <BodyPhotoSets
                 sets={sets}
                 previews={previewMap}
-                canUpload={active}
+                canUpload
                 canReview={false}
                 pending={pending}
                 onUpload={uploadPhoto}

@@ -321,31 +321,43 @@ function MealPlanSkeleton() {
 
 /* ───────────────────────── FoodInput ───────────────────────── */
 
+function foodKcal(food) {
+  return Number(food?.energy_kcal || food?.current_revision?.energy_kcal) || 0;
+}
+
 function buildOptions(value, foods) {
   const query = norm(value);
-
-  const mine = foods
-    .filter((food) => food?.name)
+  const named = foods.filter((food) => food?.name);
+  const bank = named
+    .filter((food) => food.coach_profile_id == null)
     .map((food) => ({
       name: food.name.trim(),
-      kcal: Number(food.energy_kcal) || 0,
+      kcal: foodKcal(food),
+      source: "bank",
+    }));
+  const mine = named
+    .filter((food) => food.coach_profile_id != null)
+    .map((food) => ({
+      name: food.name.trim(),
+      kcal: foodKcal(food),
       source: "mine",
     }));
 
-  const mineNames = new Set(mine.map((food) => norm(food.name)));
+  const known = new Set([...bank, ...mine].map((food) => norm(food.name)));
 
   const common = COMMON_FOODS
-    .filter((food) => !mineNames.has(norm(food.name)))
+    .filter((food) => !known.has(norm(food.name)))
     .map((food) => ({ ...food, source: "common" }));
 
   if (!query) {
-    return [...mine.slice(0, 6), ...common.slice(0, 8)];
+    return [...bank.slice(0, 8), ...mine.slice(0, 4), ...common.slice(0, 4)];
   }
 
   const match = (food) => norm(food.name).includes(query);
   const starts = (food) => (norm(food.name).startsWith(query) ? 0 : 1);
 
   const found = [
+    ...bank.filter(match),
     ...mine.filter(match),
     ...common.filter(match),
   ]
@@ -428,6 +440,7 @@ function FoodInput({ value, foods, autoFocus, onChange, onPick }) {
   }
 
   const sections = [
+    ["bank", "بانک غذا"],
     ["mine", "غذاهای شما"],
     ["common", "پیشنهاد رایج"],
     ["create", "غذای جدید"],
@@ -497,7 +510,7 @@ function FoodInput({ value, foods, autoFocus, onChange, onPick }) {
 
                     <span className="shrink-0 text-[10px] text-[#94A3B8] sm:text-[11px]">
                       {source === "common" && `${toFa(option.grams)} گرم`}
-                      {source === "mine" &&
+                      {(source === "mine" || source === "bank") &&
                         option.kcal > 0 &&
                         `${toFa(option.kcal)} کالری / ۱۰۰ گرم`}
                       {source === "create" && "＋"}
@@ -507,6 +520,12 @@ function FoodInput({ value, foods, autoFocus, onChange, onPick }) {
               </div>
             );
           })}
+          <p className="px-3 py-2 text-[10px] leading-5 text-[#94A3B8]">
+            ارزش غذایی بانک:{" "}
+            <a href="https://sorenfit.ir/calories" rel="nofollow" className="underline">
+              سورن‌فیت
+            </a>
+          </p>
         </div>
       )}
     </div>
@@ -632,8 +651,8 @@ export default function CoachMeal() {
     const map = new Map();
 
     for (const food of foods) {
-      if (food?.name && Number(food.energy_kcal) > 0) {
-        map.set(norm(food.name), Number(food.energy_kcal));
+      if (food?.name && foodKcal(food) > 0) {
+        map.set(norm(food.name), foodKcal(food));
       }
     }
 

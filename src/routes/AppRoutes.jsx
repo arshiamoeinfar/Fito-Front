@@ -27,6 +27,8 @@ import AdminSettings from "../pages/admin/AdminSettings";
 import AdminHomepage from "../pages/admin/AdminHomepage";
 import Invitations from "../pages/athlete/Invitations";
 import AthleteFeedback from "../pages/athlete/AthleteFeedback";
+import AthletePlan from "../pages/athlete/AthletePlan";
+import AthleteIntake from "../pages/athlete/AthleteIntake";
 import RequireAccount from "./RequireAccount";
 import Analysis from "../Components/DashBoardAuth/AnalysComponents/Analysis";
 import AnalysisToolspage from "../Components/DashBoardAuth/AnalysComponents/AnalysisToolsPage";
@@ -52,6 +54,8 @@ export default function AppRoutes() {
       <Route path="/settings" element={guarded("athlete", <Settings />)} />
       <Route path="/invitations" element={guarded("athlete", <Invitations />)} />
       <Route path="/feedback" element={guarded("athlete", <AthleteFeedback />)} />
+      <Route path="/athlete-plan" element={guarded("athlete", <AthletePlan />)} />
+      <Route path="/athlete-intake" element={guarded("athlete", <AthleteIntake />)} />
       <Route path="/coach/dashboard" element={guarded("coach", <Coach />)} />
       <Route path="/coach/athletes" element={guarded("coach", <CoachAthletes />)} />
       <Route path="/coach/athletes/:id" element={guarded("coach", <CoachAthleteProfile />)} />

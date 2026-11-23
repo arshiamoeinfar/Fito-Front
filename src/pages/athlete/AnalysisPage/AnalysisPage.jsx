@@ -396,7 +396,7 @@ export default function AnalysisPage() {
   }
 
   async function uploadPhoto({ takenAt, note, items }) {
-    if (!relationshipId || items.length === 0) return;
+    if (items.length === 0) return;
     const form = new FormData();
     const taken = takenAt.length === 16 ? `${takenAt}:00` : takenAt;
     items.forEach((item) => {
@@ -406,7 +406,9 @@ export default function AnalysisPage() {
     });
     form.append("note", note);
     form.append("taken_at", taken);
-    form.append("coaching_relationship_id", relationshipId);
+    if (relationshipId) {
+      form.append("coaching_relationship_id", relationshipId);
+    }
     setPending(true);
     setError("");
     setNotice("");

@@ -10,6 +10,7 @@ import WorkoutHistory from "../../../Components/DashBoardAuth/TrainigPage/Workou
 import WorkoutNotes from "../../../Components/DashBoardAuth/TrainigPage/WorkoutNotes/WorkoutNotes";
 import PersonalRecordsCard from "../../../Components/DashBoardAuth/TrainigPage/PersonalRecordsCard/PersonalRecordsCard";
 import { api } from "../../../api/client";
+import SelfProgramBanner from "../../../Components/athlete/SelfProgramBanner";
 import { useSession } from "../../../api/session";
 import { showDate } from "../../../lib/jalali";
 import Walk from "../../../assets/imges/walk.png";
@@ -51,7 +52,8 @@ function dayLabel(day) {
 }
 
 function programTitle(assignment) {
-  return assignment?.program?.title || "برنامه تمرین";
+  const title = assignment?.program?.title || "برنامه تمرین";
+  return assignment?.coaching_relationship_id == null && assignment?.id ? `${title} (هوش مصنوعی)` : title;
 }
 
 function mediaSrc(path) {
@@ -614,6 +616,7 @@ export default function TrainingPage() {
               searchHint={ready ? "" : "در حال خواندن تمرین‌ها..."}
             />
             {error ? <p className="col-span-12 rounded-3xl bg-red-50 px-6 py-4 text-sm text-red-700">{error}</p> : null}
+            <SelfProgramBanner onDone={() => window.location.reload()} />
             <div className="col-span-12 grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-5">
               <StatCard title="وزن" value={weight?.value ?? "—"} img={Walk} />
               <StatCard title="جلسه ثبت‌شده" value={String(sessions.length)} img={Walk} />

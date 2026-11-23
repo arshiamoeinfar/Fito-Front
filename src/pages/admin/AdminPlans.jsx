@@ -26,6 +26,7 @@ const EMPTY_PLAN = {
   athlete_capacity: "",
   ai_request_quota: "",
   is_sellable: true,
+  audience: "coach",
   features: [],
 };
 
@@ -161,6 +162,7 @@ function AdminDesk() {
           athlete_capacity: Number(draft.athlete_capacity),
           ai_request_quota: quota === "" ? null : Number(quota),
           is_sellable: draft.is_sellable,
+          audience: draft.audience,
           features: draft.features,
         },
       });
@@ -249,6 +251,17 @@ function AdminDesk() {
                     </label>
                     <Field label="سهمیه دستیار" value={draft.ai_request_quota} onChange={(value) => updateDraft("ai_request_quota", value)} numeric />
                     <Field label="توضیح" value={draft.description} onChange={(value) => updateDraft("description", value)} />
+                    <label className="grid gap-2 text-xs text-[#6B6F77]">
+                      مخاطب
+                      <select
+                        value={draft.audience}
+                        onChange={(event) => updateDraft("audience", event.target.value)}
+                        className="rounded-2xl border border-[#F0F2F5] px-4 py-3 text-sm text-[#4B5563]"
+                      >
+                        <option value="coach">مربی</option>
+                        <option value="athlete">ورزشکار</option>
+                      </select>
+                    </label>
                   </div>
                   <fieldset className="mt-4 grid gap-2 md:grid-cols-3">
                     <legend className="mb-2 text-xs text-[#6B6F77]">قابلیت‌ها</legend>

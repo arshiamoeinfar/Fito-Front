@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import Navbar from "../../Components/shared/Navbar/Navbar";
 import HeaderDashBoard from "../../Components/DashBoardAuth/HeaderDashBoard/HeaderDashBoard";
@@ -146,18 +146,35 @@ function periodText(row) {
   return `شروع ${showDate(row.starts_on)} · اتمام ${row.ends_on ? showDate(row.ends_on) : end}`;
 }
 
+function exerciseImage(exercise) {
+  const media = (exercise.media || []).find((item) => item.media_type === "image" && item.path);
+
+  return media ? `/storage/${media.path}` : imgExercise;
+}
+
 function toCard(exercise) {
-  const primary = (exercise.muscles || []).find((muscle) => muscle.involvement === "primary") || exercise.muscles?.[0];
+  const muscles = exercise.muscles || [];
+  const primary = muscles.find((muscle) => muscle.involvement === "primary") || muscles[0];
   const muscle = primary?.name_fa || "عمومی";
+  const secondaryMuscles = muscles
+    .filter((item) => item.involvement === "secondary" && item.name_fa && item.name_fa !== muscle)
+    .map((item) => item.name_fa);
+  const steps = String(exercise.instructions || "")
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
 
   return {
     id: exercise.id,
     name: exercise.name,
     muscle,
+    secondaryMuscles,
+    trackingType: exercise.tracking_type || "",
+    goal: exercise.goal || "",
     target: `عضله هدف: ${muscle}`,
-    description: exercise.instructions || "",
-    instructions: exercise.instructions ? [exercise.instructions] : undefined,
-    image: imgExercise,
+    description: exercise.goal || steps[0] || "",
+    instructions: steps,
+    image: exerciseImage(exercise),
   };
 }
 
@@ -227,6 +244,7 @@ export default function CoachProgram() {
   const [students, setStudents] = useState([]);
   const [holders, setHolders] = useState([]);
   const [studentId, setStudentId] = useState("");
+  const suggestionCache = useRef(new Map());
   const [startsOn, setStartsOn] = useState(today);
   const [endsOn, setEndsOn] = useState("");
   const [bankDay, setBankDay] = useState(0);
@@ -320,13 +338,37 @@ export default function CoachProgram() {
     }));
   }
 
+  useEffect(() => {
+    suggestionCache.current.clear();
+  }, [studentId]);
+
+  async function loadSuggestion(exerciseId) {
+    if (!studentId) {
+      return null;
+    }
+
+    const key = `${studentId}:${exerciseId}`;
+
+    if (suggestionCache.current.has(key)) {
+      return suggestionCache.current.get(key);
+    }
+
+    try {
+      const body = await api(`/api/v1/coach/relationships/${studentId}/exercise-suggestions?exercise_id=${exerciseId}`);
+      suggestionCache.current.set(key, body);
+      return body;
+    } catch {
+      return null;
+    }
+  }
+
   function addFromBank(exercise) {
     const move = {
       name: exercise.name || "",
-      sets: "4",
-      reps: "12",
-      rest: "60",
-      weight: "",
+      sets: exercise.sets != null && exercise.sets !== "" ? String(exercise.sets) : "3",
+      reps: exercise.reps != null && exercise.reps !== "" ? String(exercise.reps) : "10",
+      rest: exercise.rest != null && exercise.rest !== "" ? String(exercise.rest) : "60",
+      weight: exercise.weight != null && exercise.weight !== "" ? String(exercise.weight) : "",
       note: "",
       muscle: exercise.muscle || "",
     };
@@ -636,6 +678,7 @@ export default function CoachProgram() {
     name: row.athlete?.display_name || "شاگرد",
     subtitle: "شاگرد فعال",
   }));
+  const selectedStudent = builderStudents.find((row) => row.id === String(studentId || ""));
 
   function updatePlanItem(id, fieldName, value) {
     const index = Number(String(id).split("-")[1]);
@@ -692,6 +735,9 @@ export default function CoachProgram() {
                   activeMuscle={bankMuscle}
                   onMuscleChange={setBankMuscle}
                   onAddExercise={addFromBank}
+                  studentId={String(studentId || "")}
+                  studentName={selectedStudent?.name || ""}
+                  loadSuggestion={loadSuggestion}
                 />
                 <WorkoutPlanTable
                   day={activeDay?.name || "شنبه"}

@@ -9,6 +9,8 @@ import AIChat from "../../../Components/DashBoardAuth/DashBoardAuthlete/Aichat/A
 import { api } from "../../../api/client";
 import { printMealPlan } from "../../../lib/printDocument";
 import AddFoodModal from "../../../Components/DashBoardAuth/NutrationPage/AddFoodModal/AddFoodModal";
+import AthleteFoodIntake from "../../../Components/nutrition/FoodIntakeLog";
+import SelfProgramBanner from "../../../Components/athlete/SelfProgramBanner";
 import imgLunch from "../../../assets/imges/lunch.png";
 import ImgFood from "../../../assets/imges/image 17.png";
 
@@ -255,6 +257,7 @@ function MealCard({ meal, isOpen, onToggle, onAddFood }) {
 }
 
 export default function DashBoardNutrition() {
+  const [plans, setPlans] = useState([]);
   const [assignment, setAssignment] = useState(null);
   const [dayId, setDayId] = useState("");
   const [error, setError] = useState("");
@@ -265,12 +268,9 @@ export default function DashBoardNutrition() {
 
   useEffect(() => {
     api("/api/v1/athlete/meal-assignments").then((body) => {
-      const rows = body.assignments ?? [];
-      const picked = rows.find((row) => row.status === "active") ?? null;
-      const days = picked?.version?.days ?? [];
-      const first = pickDay(days);
-      setAssignment(picked);
-      setDayId(first ? String(first.id) : "");
+      const rows = (body.assignments ?? []).filter((row) => row.status === "active");
+      setPlans(rows);
+      choosePlan(rows[0] ?? null);
     }).catch((caught) => setError(caught.message)).finally(() => setLoaded(true));
   }, []);
 
@@ -281,7 +281,19 @@ export default function DashBoardNutrition() {
   const activeMeal = meals.find((meal) => String(meal.id) === activeMealId) ?? null;
   const totals = day?.totals;
   const rings = macroRings(totals);
-  const planTitle = assignment?.plan?.title || "برنامه غذا";
+  function choosePlan(row) {
+    const nextDays = row?.version?.days ?? [];
+    const first = pickDay(nextDays);
+    setAssignment(row);
+    setDayId(first ? String(first.id) : "");
+  }
+
+  function planLabel(row) {
+    const title = row?.plan?.title || "برنامه غذا";
+    return row?.coaching_relationship_id == null ? `${title} (هوش مصنوعی)` : title;
+  }
+
+  const planTitle = assignment ? planLabel(assignment) : "برنامه غذا";
 
   useEffect(() => {
     setOpenMealId(meals[0] ? String(meals[0].id) : "");
@@ -356,6 +368,7 @@ export default function DashBoardNutrition() {
           <div className="grid grid-cols-12 gap-4 lg:gap-6">
             <HeaderDashBoard title="تغذیه من" description="برنامه تغذیه و موارد دریافتی بدن رو از این قسمت برسی کن" />
             {error ? <p className="col-span-12 rounded-3xl bg-white px-6 py-4 text-sm text-red-700">{error}</p> : null}
+            <SelfProgramBanner onDone={() => window.location.reload()} />
             <div className="col-span-12 grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-5">
               <StatCard title="کالری" value={rings.kcal ? faNumber(rings.kcal) : "—"} type="circle" progress={rings.calories} />
               <StatCard title="کربوهیدرات" value={totals ? `${faNumber(rings.carbs, 0)}g` : "—"} type="circle" progress={rings.carbs} color="#6578BC" colorBg="#DBE3FF" />
@@ -363,9 +376,24 @@ export default function DashBoardNutrition() {
               <StatCard title="چربی" value={totals ? `${faNumber(rings.fat, 0)}g` : "—"} type="circle" progress={rings.fat} color="#41CCD4" colorBg="#DBFDFF" />
             </div>
             <div className="col-span-12 min-w-0 lg:col-span-8">
+              <AthleteFoodIntake />
+              {plans.length > 1 ? (
+                <div className="mt-5 flex flex-wrap gap-2">
+                  {plans.map((row) => (
+                    <button
+                      key={row.id}
+                      type="button"
+                      onClick={() => choosePlan(row)}
+                      className={`rounded-full px-4 py-2 text-sm ${row.id === assignment?.id ? "bg-[#16845A] text-white" : "bg-white text-[#4B5563]"}`}
+                    >
+                      {planLabel(row)}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
               {!loaded ? <p className="mt-5 rounded-3xl bg-white px-6 py-5 text-sm text-[#6B6F77]">در حال آوردن برنامه.</p> : null}
               {loaded && !assignment ? (
-                <p className="mt-5 rounded-3xl bg-white px-6 py-8 text-sm leading-8 text-[#6B6F77]">الان برنامهٔ غذایی فعالی نداری. وقتی مربی برنامه بدهد، هر روز جدا همین‌جا دیده می‌شود.</p>
+                <p className="mt-5 rounded-3xl bg-white px-6 py-8 text-sm leading-8 text-[#6B6F77]">الان برنامهٔ غذایی فعالی نداری. وقتی مربی برنامه بدهد همین‌جا دیده می‌شود. با پلن خودت هم هوش مصنوعی می‌تواند برنامه بسازد.</p>
               ) : null}
               {day ? (
                 <div className="mt-5 flex min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">

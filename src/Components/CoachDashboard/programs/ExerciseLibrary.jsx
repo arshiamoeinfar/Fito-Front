@@ -2,7 +2,8 @@ import { useMemo, useState } from "react";
 import { Search, PlusCircle, Play } from "lucide-react";
 import imgExercise from "../../../assets/imges/image 13.png"
 import ExerciseDetailsModal from "./ExerciseDetailsModal";
-const muscleGroups = ["همه", "زیر بغل", "سینه", "پشت پا", "جلو پا", "سرشانه" ,"بازو" ];
+const muscleGroups = ["همه", "زیر بغل", "سینه", "پشت پا", "جلو پا", "سرشانه", "بازو", "شکم", "باسن", "ساق", "ساعد", "کول", "پشت", "کاردیو", "گردن", "تمام‌بدن", "عمومی"];
+const PAGE_SIZE = 48;
 
 const fallbackExercises = [
   { id: "ex-1", name: "کرانچ جانبی", muscle: "زیر بغل", target: "عضله هدف: زیربغل، دوسر بازو", image: {imgExercise}, description: "برای مبتدیان با وزنه سبک عالی است. حتماً کتف‌ها را جمع نگه دارید." },
@@ -25,20 +26,27 @@ export default function ExerciseLibrary({
   onMuscleChange = () => {},
   onAddExercise = () => {},
   onPreviewExercise,
+  studentId = "",
+  studentName = "",
+  loadSuggestion,
 }) {
   const [localSearch, setLocalSearch] = useState("");
-  const [localMuscle, setLocalMuscle] = useState("زیر بغل");
+  const [localMuscle, setLocalMuscle] = useState("همه");
+  const [shown, setShown] = useState(PAGE_SIZE);
   const isControlledSearch = typeof onSearchChange === "function" && search !== undefined;
   const query = search ?? localSearch;
   const selectedMuscle = activeMuscle ?? localMuscle;
   const [selectedExercise, setSelectedExercise] = useState(null);
+  const [busyId, setBusyId] = useState(null);
 
   const setQuery = (value) => {
+    setShown(PAGE_SIZE);
     if (isControlledSearch) onSearchChange(value);
     else setLocalSearch(value);
   };
 
   const setMuscle = (value) => {
+    setShown(PAGE_SIZE);
     onMuscleChange(value);
     setLocalMuscle(value);
   };
@@ -55,11 +63,60 @@ export default function ExerciseLibrary({
     });
   }, [exercises, query, selectedMuscle]);
 
+  const visibleExercises = filteredExercises.slice(0, shown);
 
-function handleAddExercise(exercise) {
-  onAddExercise(exercise);
-  setSelectedExercise(null);
-}
+
+  async function enrich(exercise) {
+    if (!studentId || typeof loadSuggestion !== "function") {
+      return exercise;
+    }
+
+    const suggestion = await loadSuggestion(exercise.id);
+
+    if (!suggestion) {
+      return exercise;
+    }
+
+    return {
+      ...exercise,
+      sets: suggestion.sets,
+      reps: suggestion.reps,
+      rest: suggestion.rest_seconds,
+      weight: suggestion.weight_kg ?? "",
+      reason: suggestion.reason,
+    };
+  }
+
+  async function openExercise(exercise) {
+    setBusyId(exercise.id);
+
+    try {
+      const ready = await enrich(exercise);
+      setSelectedExercise(ready);
+      onPreviewExercise?.(ready);
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function addDirect(exercise) {
+    if (busyId) {
+      return;
+    }
+
+    setBusyId(exercise.id);
+
+    try {
+      onAddExercise(await enrich(exercise));
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  function handleAddExercise(exercise) {
+    onAddExercise(exercise);
+    setSelectedExercise(null);
+  }
   return (
     <section dir="rtl" className="w-full rounded-[22px] bg-white px-4 py-5 sm:px-6 sm:py-6">
       <div className="mb-7 flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
@@ -97,17 +154,14 @@ function handleAddExercise(exercise) {
       </div>
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-        {filteredExercises.map((exercise) => (
+        {visibleExercises.map((exercise) => (
           <article
             key={exercise.id}
             className="group min-w-0 rounded-[27px] border border-[#C9C9C9] bg-white p-3 transition hover:border-[#1685F8] hover:shadow-[0_5px_18px_rgba(20,120,240,0.08)]"
           >
             <button
               type="button"
-              onClick={() => {
-                setSelectedExercise(exercise);
-                onPreviewExercise?.(exercise);
-              }}
+              onClick={() => openExercise(exercise)}
               aria-label={`پیش‌نمایش ${exercise.name}`}
               className="relative block w-full overflow-hidden rounded-[23px] bg-[#0D3B68] text-white"
             >
@@ -140,19 +194,23 @@ function handleAddExercise(exercise) {
 
               <div className="relative mt-5 rounded-[17px] bg-[#E5F1FF] px-3 pb-4 pt-7 text-right">
                 <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[#087FF5] px-5 py-1 text-xs font-medium text-white">
-                  AI
+                  راهنما
                 </span>
-                <p className="line-clamp-2 min-h-[44px] text-xs leading-6 text-[#7A8797]">
+                <p
+                  dir={/[\u0600-\u06FF]/.test(exercise.description || "") ? "rtl" : "ltr"}
+                  className="line-clamp-2 min-h-[44px] text-xs leading-6 text-[#7A8797]"
+                >
                   {exercise.description || "برای اجرای صحیح حرکت، فرم بدن را کنترل کنید و از وزنه مناسب استفاده کنید."}
                 </p>
               </div>
 
               <button
                 type="button"
-                onClick={() => onAddExercise(exercise)}
-                className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-[#087FF5] px-2 py-2.5 text-sm font-primary text-white transition hover:bg-blue-500 active:scale-[0.98] cursor-pointer"
+                onClick={() => addDirect(exercise)}
+                disabled={busyId === exercise.id}
+                className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-[#087FF5] px-2 py-2.5 text-sm font-primary text-white transition hover:bg-blue-500 active:scale-[0.98] cursor-pointer disabled:cursor-wait disabled:opacity-70"
               >
-                افزودن به لیست
+                {busyId === exercise.id ? "در حال خواندن تحلیل" : "افزودن به لیست"}
                 <PlusCircle size={21} strokeWidth={2} />
               </button>
             </div>
@@ -165,8 +223,24 @@ function handleAddExercise(exercise) {
           حرکتی با این جست‌وجو یا دسته‌بندی پیدا نشد.
         </div>
       )}
+      <p className="mt-6 text-center text-xs text-slate-400">
+        Exercise data by{" "}
+        <a href="https://repdb.co" rel="nofollow" className="underline">
+          RepDB
+        </a>
+      </p>
+      {shown < filteredExercises.length && (
+        <button
+          type="button"
+          onClick={() => setShown((current) => current + PAGE_SIZE)}
+          className="mx-auto mt-6 block rounded-full bg-[#F1F6FC] px-6 py-2.5 text-sm font-medium text-[#087BEE]"
+        >
+          {`نمایش بیشتر (${filteredExercises.length - shown} حرکت مانده)`}
+        </button>
+      )}
       <ExerciseDetailsModal
         exercise={selectedExercise}
+        student={studentId ? { id: studentId, name: studentName } : null}
         onClose={() => setSelectedExercise(null)}
         onAdd={handleAddExercise}
       />

@@ -1,6 +1,6 @@
 
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 import Navbar from "../../../Components/shared/Navbar/Navbar";
 import HeaderDashBoard from "../../../Components/DashBoardAuth/HeaderDashBoard/HeaderDashBoard";
@@ -41,7 +41,11 @@ export default function AnalysisToolsPage() {
 
   const [observations, setObservations] = useState([]);
   const [relationshipId, setRelationshipId] = useState("");
-  const [panel, setPanel] = useState("sizes");
+  const [searchParams] = useSearchParams();
+  const requestedPanel = searchParams.get("panel");
+  const [panel, setPanel] = useState(
+    ["sizes", "photos", "records", "compare", "report"].includes(requestedPanel) ? requestedPanel : "sizes",
+  );
 
   const [measuredAt, setMeasuredAt] = useState(nowDateTimeValue);
   const [metrics, setMetrics] = useState(emptyMetrics);
@@ -326,7 +330,7 @@ export default function AnalysisToolsPage() {
   }
 
   async function uploadPhoto({ takenAt, note, items }) {
-    if (!relationshipId || items.length === 0) return;
+    if (items.length === 0) return;
 
     const form = new FormData();
 
@@ -340,7 +344,9 @@ export default function AnalysisToolsPage() {
 
     form.append("note", note);
     form.append("taken_at", taken);
-    form.append("coaching_relationship_id", relationshipId);
+    if (relationshipId) {
+      form.append("coaching_relationship_id", relationshipId);
+    }
 
     setPending(true);
     setError("");
