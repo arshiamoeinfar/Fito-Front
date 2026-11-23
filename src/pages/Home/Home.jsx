@@ -90,6 +90,59 @@ const ICONS = {
   pin: "M12 21C12 21 5 14.5 5 10A7 7 0 0 1 19 10C19 14.5 12 21 12 21Z",
 };
 
+function namedCard(blocks, hints, fallback) {
+  const cards = items(blocks, "feature_cards", []);
+  const found = cards.find((card) => hints.some((hint) => String(card?.title || "").includes(hint)));
+
+  return {
+    title: found?.title || fallback.title,
+    text: found?.description || fallback.text,
+  };
+}
+
+function percentNumber(value) {
+  const number = Number(String(value ?? "").replace("%", "").replace(/,/g, ""));
+
+  return Number.isFinite(number) ? Math.max(0, Math.min(100, number)) : null;
+}
+
+function splitLines(value) {
+  if (Array.isArray(value)) {
+    return value.filter((item) => typeof item === "string" && item.trim() !== "");
+  }
+
+  if (typeof value !== "string") {
+    return [];
+  }
+
+  return value.split(/\n+/).map((item) => item.trim()).filter(Boolean);
+}
+
+function chartPoints(values) {
+  const rows = (Array.isArray(values) ? values : [])
+    .map((value) => Number(value))
+    .filter((value) => Number.isFinite(value));
+
+  if (rows.length < 2) {
+    return "";
+  }
+
+  const max = Math.max(...rows);
+  const min = Math.min(...rows);
+  const span = max - min || 1;
+
+  return rows.map((value, index) => {
+    const x = (index / (rows.length - 1)) * 200;
+    const y = 70 - ((value - min) / span) * 60;
+
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(" ");
+}
+
+function concealed(sections, key) {
+  return regionStyle(sections, key)?.display === "none";
+}
+
 const Ico = ({ n, s = 18, className = "" }) => (
   <svg
     width={s}
@@ -228,7 +281,7 @@ const Window = ({ children }) => (
    Dashboard preview
 ========================= */
 
-function DashboardPreview({ blocks, overrides = null }) {
+function DashboardPreview({ blocks, overrides = null, coachLive = null }) {
   const line = (key, fallback) =>
     overrides && Object.prototype.hasOwnProperty.call(overrides, key)
       ? overrides[key]
@@ -285,19 +338,19 @@ function DashboardPreview({ blocks, overrides = null }) {
       <div className="absolute -top-2 -left-5 hidden w-60 rounded-2xl bg-white p-4 shadow-2xl ring-1 ring-slate-100 sm:block">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-50 text-sm font-bold text-[#007BFF]">
-            م
+            {line("preview_initials", "ف")}
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <p className="truncate text-xs font-bold text-slate-800">
-                محمد رضایی
+                {line("preview_name", "ثبت نشده")}
               </p>
               <div className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-green-500 text-white">
                 <Check size={11} strokeWidth={3} />
               </div>
             </div>
             <p className="mt-1 text-[10px] text-slate-400">
-              تمرین امروز را تکمیل کرد
+              {line("preview_workout_label", "ثبت نشده")}
             </p>
           </div>
         </div>
@@ -305,34 +358,31 @@ function DashboardPreview({ blocks, overrides = null }) {
       <div className="absolute -bottom-9 -left-5 hidden w-56 rounded-2xl bg-white p-4 shadow-2xl ring-1 ring-slate-100 sm:block">
         <div className="mb-3 flex items-center justify-between">
           <div>
-            <p className={`text-xs font-bold ${INK}`}>وضعیت شاگردان</p>
-            <p className="text-[9px] text-slate-400">گزارش عملکرد هفتگی</p>
+            <p className={`text-xs font-bold ${INK}`}>{text(blocks, "coaches_panel_title", "شاگردان من")}</p>
+            <p className="text-[9px] text-slate-400">{text(blocks, "coaches_panel_label", "داشبورد مربی")}</p>
           </div>
           <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-50 text-[#007BFF]">
             <Users size={16} />
           </div>
         </div>
-        <div className="mb-3 flex items-end justify-between">
+        <div className="mb-3 flex items-end justify-between gap-2">
           <div>
-            <p className="text-2xl font-black text-slate-800">۸۴</p>
-            <p className="text-[9px] text-slate-400">شاگرد فعال</p>
+            <p className="text-2xl font-black text-slate-800">{coachLive?.count || text(blocks, "coaches_panel_count", "ثبت نشده")}</p>
+            <p className="text-[9px] text-slate-400">{line("preview_body_label", "پیشرفت بدن")}</p>
           </div>
-          <span className="rounded-lg bg-green-50 px-2 py-1 text-[9px] font-bold text-green-600">
-            +۱۲٪ رشد
-          </span>
+          {line("preview_body_delta", "") ? (
+            <span className="rounded-lg bg-green-50 px-2 py-1 text-[9px] font-bold text-green-600">
+              {line("preview_body_delta", "")}
+            </span>
+          ) : null}
         </div>
         <div className="flex h-12 items-end gap-1.5">
-          {[35, 55, 42, 75, 58, 90, 100].map((height, i) => (
+          {(chart.length ? chart : []).map((height, i) => (
             <div
               key={i}
-              className="flex-1 rounded-t-md bg-blue-100"
-              style={{ height: `${height}%` }}
-            >
-              <div
-                className="w-full rounded-t-md bg-[#007BFF]"
-                style={{ height: "65%" }}
-              />
-            </div>
+              className="flex-1 rounded-t-md bg-[#007BFF]"
+              style={{ height: `${Math.max(8, Math.min(100, Number(height) || 0))}%` }}
+            />
           ))}
         </div>
       </div>
@@ -340,96 +390,8 @@ function DashboardPreview({ blocks, overrides = null }) {
   );
 }
 
-function HeroVisual({ blocks, overrides }) {
-  const [failed, setFailed] = useState(false);
-  const src = text(blocks, "preview_image", "/images/dash.png");
-
-  if (overrides || !src || failed) {
-    return <DashboardPreview blocks={blocks} overrides={overrides} />;
-  }
-
-  return (
-    <div className="relative mx-auto w-full max-w-[640px] py-12">
-      <img
-        src={src}
-        alt="داشبورد فیتو"
-        onError={() => setFailed(true)}
-        className="w-full rounded-2xl shadow-[0_40px_90px_-25px_rgba(0,90,255,0.55)] ring-1 ring-white/10"
-      />
-
-      <Float className="-top-1 left-0 flex items-center gap-3 sm:-left-6">
-        <span className="grid h-8 w-8 place-items-center rounded-full bg-emerald-100 text-emerald-600">
-          <Ico n="check" s={16} />
-        </span>
-        <span>
-          <b className={`block ${INK}`}>
-            {text(blocks, "hero_float_done", "مریم تمرین امروز را تمام کرد")}
-          </b>
-          <span className="text-slate-400">
-            {text(blocks, "hero_float_done_sub", "روز پا · ۵۸ دقیقه · ۴۲۰ کالری")}
-          </span>
-        </span>
-      </Float>
-
-      <Float className="-top-6 right-0 flex items-center gap-3 sm:-right-4">
-        <span>
-          <b className={`block text-sm ${INK}`}>
-            {text(blocks, "hero_float_goal", "هدف هفتگی")}
-          </b>
-          <span className="text-slate-400">
-            {text(blocks, "hero_float_goal_sub", "۲۴ از ۳۲ جلسه انجام شد")}
-          </span>
-        </span>
-        <Ring v={75} size={54}>
-          75%
-        </Ring>
-      </Float>
-
-      <Float className="-bottom-2 left-0 w-44 sm:-left-6">
-        <div className="mb-2 flex justify-between font-bold">
-          <span className={INK}>
-            {text(blocks, "hero_float_cal", "کالری امروز")}
-          </span>
-          <span dir="ltr" className="text-[#007BFF]">
-            1,850 / 2,400
-          </span>
-        </div>
-        {[
-          ["پروتئین", "70%", "bg-[#007BFF]"],
-          ["کربوهیدرات", "55%", "bg-sky-400"],
-          ["چربی", "35%", "bg-amber-400"],
-        ].map(([l, w, c]) => (
-          <div
-            key={l}
-            className="mb-1.5 flex items-center gap-2 text-[10px] text-slate-400"
-          >
-            <span className="w-14">{l}</span>
-            <Bar w={w} c={c} />
-          </div>
-        ))}
-      </Float>
-
-      <div className="absolute -bottom-6 right-0 z-10 w-60 rounded-2xl bg-[#0b1530] p-4 text-xs text-white shadow-2xl sm:-right-4">
-        <b className="mb-1 flex items-center gap-1.5">
-          <span className="text-sky-300">✦</span>
-          {text(blocks, "hero_float_ai_title", "پیشنهاد دستیار AI")}
-        </b>
-        <p className="leading-6 text-slate-300">
-          {text(
-            blocks,
-            "hero_float_ai_text",
-            "پیشرفت قدرتی علی ۲ هفته ثابت مانده. حجم تمرین پا را ۱۰٪ افزایش دهید.",
-          )}
-        </p>
-        <div className="mt-3 flex gap-2">
-          <span className="rounded-lg bg-[#007BFF] px-3 py-1.5 font-bold">
-            {text(blocks, "hero_float_apply", "اعمال در برنامه")}
-          </span>
-          <span className="rounded-lg bg-white/10 px-3 py-1.5">جزئیات</span>
-        </div>
-      </div>
-    </div>
-  );
+function HeroVisual({ blocks, overrides, coachLive }) {
+  return <DashboardPreview blocks={blocks} overrides={overrides} coachLive={coachLive} />;
 }
 
 /* =========================
@@ -440,17 +402,45 @@ function Features({ blocks, sections, athleteLive, coachLive }) {
   const students = (
     coachLive
       ? coachLive.students
-      : items(blocks, "coach_students", [
-          { avatar: "AR", name: "علی رضایی", status: "فعال", percent: "88%" },
-          { avatar: "MK", name: "مریم کریمی", status: "فعال", percent: "74%" },
-          {
-            avatar: "RM",
-            name: "رضا محمدی",
-            status: "نیاز به بررسی",
-            percent: "40%",
-          },
-        ])
-  ).slice(0, 3);
+      : items(blocks, "coach_students", [])
+  ).slice(0, 4);
+  const coachPoints = items(blocks, "coach_points", [
+    { text: "پروفایل کامل و سوابق هر شاگرد" },
+    { text: "فیلتر بر اساس هدف و وضعیت" },
+    { text: "هشدار خودکار برای شاگردان غیرفعال" },
+  ]).map((row) => row.text).filter(Boolean);
+  const workoutTitle = `${text(blocks, "workout_title", "")} ${text(blocks, "workout_title_muted", "")}`.trim();
+  const nutritionTitle = `${text(blocks, "nutrition_title", "")} ${text(blocks, "nutrition_title_muted", "")}`.trim();
+  const coachTitle = `${text(blocks, "coaches_title", "")} ${text(blocks, "coaches_title_muted", "")}`.trim();
+  const aiTitle = `${text(blocks, "ai_title", "")} ${text(blocks, "ai_title_muted", "")}`.trim();
+  const bodyCard = namedCard(blocks, ["آنالیز"], {
+    title: "آنالیز بدن",
+    text: "اندازه‌های ترکیب بدنی و پیشرفت ظاهری را با عکس‌های دوره‌ای ثبت و مقایسه کنید.",
+  });
+  const progressCard = namedCard(blocks, ["گزارش"], {
+    title: "گزارش پیشرفت",
+    text: "نمودارها و آمار تصویری برای پایش دقیق روند رشد هر شاگرد در طول زمان.",
+  });
+  const chatCard = namedCard(blocks, ["ارتباط"], {
+    title: "ارتباط مستقیم",
+    text: "گفتگوی داخلی بین مربی و شاگرد، بدون نیاز به پیام‌رسان‌های بیرونی.",
+  });
+  const bodyFigure = athleteLive?.bodyValue || text(blocks, "preview_body_value", "ثبت نشده");
+  const bodyDelta = athleteLive?.bodyDelta || text(blocks, "preview_body_delta", "");
+  const progressSeries = athleteLive?.chart?.length ? athleteLive.chart : items(blocks, "preview_chart", []);
+  const progressLine = chartPoints(progressSeries);
+  const nutritionValue = athleteLive?.kcalLabel || text(blocks, "nutrition_card_value", "ثبت نشده");
+  const waterPercentLabel = athleteLive ? athleteLive.waterPercent : text(blocks, "nutrition_water_percent", "ثبت نشده");
+  const nutritionRing = percentNumber(waterPercentLabel) ?? 0;
+  const chatMessages = [
+    { sender: "user", name: text(blocks, "preview_role", "ورزشکار"), message: text(blocks, "ai_user", "") },
+    { sender: "coach", name: text(blocks, "ai_name", "فیتو"), message: text(blocks, "ai_reply", "") },
+  ].filter((item) => item.message.trim());
+  const aiChips = items(blocks, "ai_chips", [
+    { label: "تحلیل عملکرد" },
+    { label: "تحلیل تغذیه" },
+    { label: "پیشنهاد هوشمند" },
+  ]).map((row) => row.label).filter(Boolean);
   const exercises = (
     athleteLive?.exercises?.length
       ? athleteLive.exercises
@@ -487,7 +477,7 @@ function Features({ blocks, sections, athleteLive, coachLive }) {
   </FadeInUp>
 
   <div className="grid gap-5 md:grid-cols-3">
-    {/* 1. مدیریت شاگردان - ۲ ستون */}
+    {concealed(sections, "coaches") ? null : (
     <div
       id="coaches"
       className={`${CARD} md:col-span-2 dark:border dark:border-slate-800 dark:bg-[--surface]`}
@@ -496,7 +486,7 @@ function Features({ blocks, sections, athleteLive, coachLive }) {
         <div className="space-y-5">
           <FHead
             icon="users"
-            title={text(blocks, "coaches_title", "مدیریت شاگردان")}
+            title={coachTitle || "ثبت نشده"}
             text={text(
               blocks,
               "coaches_lead",
@@ -504,11 +494,7 @@ function Features({ blocks, sections, athleteLive, coachLive }) {
             )}
           />
           <ul className="space-y-3 text-xs font-semibold text-slate-600 dark:text-slate-300">
-            {[
-              "پروفایل کامل و سوابق هر شاگرد",
-              "فیلتر بر اساس هدف و وضعیت",
-              "هشدار خودکار برای شاگردان غیرفعال",
-            ].map((t) => (
+            {coachPoints.map((t) => (
               <li key={t} className="flex items-center gap-2.5">
                 <span className="grid h-5 w-5 shrink-0 place-items-center rounded-lg bg-blue-50 text-[#007BFF] dark:bg-blue-500/15 dark:text-blue-400">
                   <Ico n="check" s={11} />
@@ -523,10 +509,10 @@ function Features({ blocks, sections, athleteLive, coachLive }) {
             </span>
             <div>
               <p className="text-[11px] font-extrabold text-slate-800 dark:text-slate-100">
-                تمام شاگردانت، یک‌جا
+                {text(blocks, "coaches_highlight_title", "ثبت نشده")}
               </p>
               <p className="mt-1 text-[10px] text-slate-500 dark:text-slate-400">
-                مدیریت ساده‌تر، پیگیری دقیق‌تر
+                {text(blocks, "coaches_highlight_text", "ثبت نشده")}
               </p>
             </div>
           </div>
@@ -536,15 +522,15 @@ function Features({ blocks, sections, athleteLive, coachLive }) {
           <div className="mb-4 flex items-center justify-between">
             <div>
               <p className="text-xs font-extrabold text-slate-800 dark:text-white">
-                شاگردان من
+                {text(blocks, "coaches_panel_title", "شاگردان من")}
               </p>
               <p className="mt-1 text-[10px] text-slate-400">
-                مدیریت و پیگیری عملکرد
+                {coachLive?.count || text(blocks, "coaches_panel_count", "ثبت نشده")}
               </p>
             </div>
             <span className="flex items-center gap-1.5 rounded-xl bg-[#007BFF] px-3 py-2 text-[10px] font-bold text-white shadow-lg shadow-blue-500/20">
               <Ico n="plus" s={12} />
-              شاگرد جدید
+              {text(blocks, "coaches_add_label", "شاگرد جدید")}
             </span>
           </div>
 
@@ -557,11 +543,13 @@ function Features({ blocks, sections, athleteLive, coachLive }) {
           </div>
 
           <ul className="space-y-2">
-            {students.map((s) => {
+            {students.length === 0 ? <li className="px-2 py-3 text-[11px] text-slate-400">شاگردی ثبت نشده</li> : null}
+            {students.map((s, index) => {
               const ok = s.status !== "نیاز به بررسی";
+              const progress = percentNumber(s.percent);
               return (
                 <li
-                  key={s.name}
+                  key={`${s.name}-${index}`}
                   className="rounded-xl border border-slate-100 bg-white p-3 transition-colors hover:border-blue-200 dark:border-slate-700/80 dark:bg-slate-800/80 dark:hover:border-blue-500/40"
                 >
                   <div className="mb-2.5 flex items-center gap-2.5">
@@ -586,19 +574,21 @@ function Features({ blocks, sections, athleteLive, coachLive }) {
                       {s.status}
                     </span>
                   </div>
+                  {progress === null ? null : (
                   <div className="flex items-center gap-2">
                     <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
                       <div
                         className={`h-full rounded-full ${
                           ok ? "bg-[#007BFF]" : "bg-amber-400"
                         }`}
-                        style={{ width: s.percent || "70%" }}
+                        style={{ width: `${progress}%` }}
                       />
                     </div>
                     <span className="w-8 text-left text-[9px] font-bold text-slate-500 dark:text-slate-400">
-                      {s.percent || "70%"}
+                      {s.percent}
                     </span>
                   </div>
+                  )}
                 </li>
               );
             })}
@@ -606,15 +596,16 @@ function Features({ blocks, sections, athleteLive, coachLive }) {
         </div>
       </div>
     </div>
+    )}
 
-    {/* 2. طراحی برنامه تمرینی - ۱ ستون */}
+    {concealed(sections, "workout") ? null : (
     <div
       id="workout"
       className={`${CARD} dark:border dark:border-slate-800 dark:bg-[--surface]`}
     >
       <FHead
         icon="dumbbell"
-        title="طراحی برنامه تمرینی"
+        title={workoutTitle || "ثبت نشده"}
         text={text(
           blocks,
           "workout_lead",
@@ -622,9 +613,13 @@ function Features({ blocks, sections, athleteLive, coachLive }) {
         )}
       />
       <div className="mb-4 flex gap-2">
-        {["شنبه", "یکشنبه", "دوشنبه"].map((d, i) => (
+        {[
+          text(blocks, "workout_card_label", "ثبت نشده"),
+          text(blocks, "workout_card_title", "ثبت نشده"),
+          text(blocks, "workout_card_percent", "ثبت نشده"),
+        ].map((d, i) => (
           <span
-            key={d}
+            key={`${d}-${i}`}
             className={`flex-1 rounded-xl px-2 py-2.5 text-center text-[10px] font-bold transition-colors ${
               i === 0
                 ? "bg-[#007BFF] text-white shadow-md shadow-blue-500/20"
@@ -638,9 +633,9 @@ function Features({ blocks, sections, athleteLive, coachLive }) {
       <div className="mb-3 flex items-center justify-between">
         <div>
           <b className="text-xs text-slate-800 dark:text-white">
-            برنامه تمرینی
+            {text(blocks, "workout_card_label", "ثبت نشده")}
           </b>
-          <p className="mt-1 text-[9px] text-slate-400">تمرینات روز شنبه</p>
+          <p className="mt-1 text-[9px] text-slate-400">{text(blocks, "workout_card_title", "ثبت نشده")}</p>
         </div>
         <span className="rounded-lg bg-blue-50 px-2 py-1 text-[9px] font-bold text-[#007BFF] dark:bg-blue-950/40 dark:text-blue-400">
           {exercises.length} حرکت
@@ -681,27 +676,28 @@ function Features({ blocks, sections, athleteLive, coachLive }) {
       </div>
       <div className="mt-3 flex items-center justify-center gap-2 rounded-xl border border-dashed border-blue-300 bg-blue-50/40 py-3 text-[10px] font-bold text-[#007BFF] transition-colors hover:bg-blue-50 dark:border-blue-900/60 dark:bg-blue-950/20 dark:text-blue-400 dark:hover:bg-blue-950/40">
         <Ico n="plus" s={15} />
-        افزودن تمرین
+        {text(blocks, "workout_link", "ثبت نشده")}
       </div>
       <div className="mt-4 flex items-center justify-between rounded-xl bg-[#0b1530] px-3 py-3 dark:bg-slate-900 dark:ring-1 dark:ring-slate-700">
         <div className="flex items-center gap-2">
           <Ico n="check-circle" s={16} className="text-emerald-400" />
           <span className="text-[10px] font-medium text-slate-200">
-            برنامه آماده ارسال است
+            {text(blocks, "workout_done", "ثبت نشده")}
           </span>
         </div>
-        <span className="text-[10px] font-bold text-blue-400">Fito</span>
+        <span className="text-[10px] font-bold text-blue-400">{text(blocks, "logo_name", "Fito")}</span>
       </div>
     </div>
+    )}
 
-    {/* 3. برنامه تغذیه - ۱ ستون */}
+    {concealed(sections, "nutrition") ? null : (
     <div
       id="nutrition"
       className={`${CARD} dark:border dark:border-slate-800 dark:bg-[--surface]`}
     >
       <FHead
         icon="apple"
-        title="برنامه تغذیه"
+        title={nutritionTitle || "ثبت نشده"}
         text={text(
           blocks,
           "nutrition_lead",
@@ -716,30 +712,28 @@ function Features({ blocks, sections, athleteLive, coachLive }) {
             </div>
             <div>
               <b className="block text-xs text-slate-800 dark:text-white">
-                کالری روزانه
+                {text(blocks, "nutrition_card_label", "ثبت نشده")}
               </b>
               <span className="text-[9px] text-slate-400">
-                میزان مصرف امروز
+                {text(blocks, "nutrition_eyebrow", "ثبت نشده")}
               </span>
             </div>
           </div>
           <span className="rounded-full bg-emerald-50 px-2 py-1 text-[9px] font-bold text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
             <Ico n="activity" s={11} className="me-1 inline" />
-            ۷۷٪ تکمیل
+            {waterPercentLabel}
           </span>
         </div>
         <div className="flex items-center gap-5">
           <div className="shrink-0">
-            <Ring v={77} size={88}>
+            <Ring v={nutritionRing} size={88}>
               <div className="text-center">
                 <b
                   dir="ltr"
                   className="block text-sm font-black text-slate-800 dark:text-white"
                 >
-                  {athleteLive?.kcalLabel ||
-                    text(blocks, "nutrition_card_value", "1,850")}
+                  {nutritionValue}
                 </b>
-                <span className="text-[8px] text-slate-400">kcal</span>
               </div>
             </Ring>
           </div>
@@ -758,7 +752,7 @@ function Features({ blocks, sections, athleteLive, coachLive }) {
                       {m.label}
                     </span>
                     <b className={`text-[10px] ${colors.text}`}>
-                      {m.percent}%
+                      {String(m.percent ?? "").includes("%") ? m.percent : `${m.percent ?? "ثبت نشده"}`}
                     </b>
                   </div>
                   <Bar w={m.percent} c={barColors[i % 3]} />
@@ -771,17 +765,18 @@ function Features({ blocks, sections, athleteLive, coachLive }) {
       <div className="mt-3 flex items-center gap-2 rounded-xl bg-emerald-50/70 px-3 py-2.5 dark:bg-emerald-950/20">
         <Ico n="check-circle" s={15} className="shrink-0 text-emerald-500" />
         <span className="text-[10px] leading-5 text-emerald-700 dark:text-emerald-400">
-          برنامه غذایی متناسب با اهداف شاگرد تنظیم شده است.
+          {athleteLive?.waterDetail || `${text(blocks, "nutrition_water_title", "ثبت نشده")} · ${text(blocks, "nutrition_water_detail", "ثبت نشده")}`}
         </span>
       </div>
     </div>
+    )}
 
     {/* 4. آنالیز بدن - ۱ ستون */}
     <div className={`${CARD} dark:border dark:border-slate-800 dark:bg-[--surface]`}>
       <FHead
         icon="scan"
-        title="آنالیز بدن"
-        text="اندازه‌های ترکیب بدنی و پیشرفت ظاهری را با عکس‌های دوره‌ای ثبت و مقایسه کنید."
+        title={bodyCard.title}
+        text={bodyCard.text}
       />
       <div className="relative grid h-40 place-items-center overflow-hidden rounded-2xl border border-blue-100/70 bg-gradient-to-br from-blue-50 via-white to-sky-50 dark:border-blue-900/40 dark:from-blue-950/40 dark:via-slate-900 dark:to-slate-950">
         <div className="absolute h-32 w-32 rounded-full bg-blue-200/30 blur-2xl dark:bg-blue-500/10" />
@@ -795,11 +790,11 @@ function Features({ blocks, sections, athleteLive, coachLive }) {
         ))}
         <span className="absolute right-3 top-3 z-20 flex items-center gap-1.5 rounded-xl border border-slate-100 bg-white/95 px-2.5 py-1.5 text-[10px] font-bold text-[#0b1530] shadow-sm backdrop-blur dark:border-slate-700 dark:bg-slate-800/95 dark:text-white">
           <Activity size={13} className="text-[#007BFF]" />
-          18.6٪ چربی
+          {text(blocks, "preview_body_label", "ثبت نشده")}
         </span>
         <span className="absolute bottom-3 left-3 z-20 flex items-center gap-1.5 rounded-xl border border-slate-100 bg-white/95 px-2.5 py-1.5 text-[10px] font-bold text-[#0b1530] shadow-sm backdrop-blur dark:border-slate-700 dark:bg-slate-800/95 dark:text-white">
           <Weight size={13} className="text-emerald-500" />
-          78.4 kg
+          {bodyFigure}
         </span>
         <span className="absolute bottom-3 right-3 z-20 rounded-lg bg-blue-100/80 px-2 py-1 text-[9px] font-bold text-blue-700 dark:bg-blue-950/80 dark:text-blue-300">
           Body Scan
@@ -811,8 +806,8 @@ function Features({ blocks, sections, athleteLive, coachLive }) {
     <div className={`${CARD} dark:border dark:border-slate-800 dark:bg-[--surface]`}>
       <FHead
         icon="trend"
-        title="گزارش پیشرفت"
-        text="نمودارها و آمار تصویری برای پایش دقیق روند رشد هر شاگرد در طول زمان."
+        title={progressCard.title}
+        text={progressCard.text}
       />
       <div className="relative overflow-hidden rounded-2xl border border-blue-100/70 bg-gradient-to-br from-blue-50 via-white to-sky-50 p-4 dark:border-blue-900/40 dark:from-blue-950/40 dark:via-slate-900 dark:to-slate-950">
         <div className="mb-3 flex items-center justify-between">
@@ -821,23 +816,25 @@ function Features({ blocks, sections, athleteLive, coachLive }) {
               <TrendingUp size={16} />
             </div>
             <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400">
-              روند تغییرات وزن
+              {text(blocks, "preview_body_label", "ثبت نشده")}
             </span>
           </div>
-          <span className="rounded-full bg-emerald-50 px-2 py-1 text-[9px] font-bold text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
-            <TrendingUp size={11} className="me-1 inline" />
-            روند صعودی
-          </span>
+          {bodyDelta ? (
+            <span className="rounded-full bg-emerald-50 px-2 py-1 text-[9px] font-bold text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
+              <TrendingUp size={11} className="me-1 inline" />
+              {bodyDelta}
+            </span>
+          ) : null}
         </div>
         <div className="mb-2 flex items-end justify-between">
           <div>
             <b dir="ltr" className="block text-2xl font-black text-slate-900 dark:text-white">
-              {athleteLive?.bodyValue || "125 kg"}
+              {bodyFigure}
             </b>
-            <span className="text-[9px] text-slate-400">آخرین اندازه‌گیری</span>
+            <span className="text-[9px] text-slate-400">{text(blocks, "preview_body_label", "ثبت نشده")}</span>
           </div>
-          <span className="text-[10px] font-semibold text-[#007BFF]">گزارش هفتگی</span>
         </div>
+        {progressLine ? (
         <svg viewBox="0 0 200 80" className="w-full overflow-visible">
           <defs>
             <linearGradient id="progressGradient" x1="0" y1="0" x2="0" y2="1">
@@ -848,16 +845,11 @@ function Features({ blocks, sections, athleteLive, coachLive }) {
           {[20, 40, 60].map((y) => (
             <line key={y} x1="0" y1={y} x2="200" y2={y} stroke="currentColor" strokeOpacity=".08" strokeDasharray="3 4" />
           ))}
-          <polygon points="0,70 0,60 30,52 60,56 90,40 120,32 150,22 200,6 200,70" fill="url(#progressGradient)" />
-          <polyline points="0,60 30,52 60,56 90,40 120,32 150,22 200,6" fill="none" stroke="#007BFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-          <circle cx="200" cy="6" r="4" fill="#007BFF" stroke="white" strokeWidth="2" />
+          <polyline points={progressLine} fill="none" stroke="#007BFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
-        <div className="mt-2 flex justify-between text-[9px] font-medium text-slate-400">
-          <span>شروع</span>
-          <span>هفته دوم</span>
-          <span>هفته چهارم</span>
-          <span>اکنون</span>
-        </div>
+        ) : (
+          <p className="py-6 text-center text-[11px] text-slate-400">ثبت نشده</p>
+        )}
       </div>
     </div>
 
@@ -865,16 +857,12 @@ function Features({ blocks, sections, athleteLive, coachLive }) {
     <div className={`${CARD} dark:border dark:border-slate-800 dark:bg-[--surface]`}>
       <FHead
         icon="chat"
-        title="ارتباط مستقیم"
-        text="گفتگوی داخلی بین مربی و شاگرد، بدون نیاز به پیام‌رسان‌های بیرونی."
+        title={chatCard.title}
+        text={chatCard.text}
       />
       <div className="space-y-3">
-        {[
-          { sender: "coach", name: "مربی", message: "امروز تمرین سینه چطور پیش رفت؟", time: "۱۰:۳۰" },
-          { sender: "athlete", name: "شاگرد", message: "عالی بود، فقط ست آخر دمبل کمی سنگین بود.", time: "۱۰:۳۲" },
-          { sender: "coach", name: "مربی", message: "دفعه بعد ۲ کیلو کمتر بزن و روی تکنیک تمرکز کن.", time: "۱۰:۳۳" },
-          { sender: "athlete", name: "شاگرد", message: "حتماً مربی، ممنون از راهنماییت 🙌", time: "۱۰:۳۴" },
-        ].map((item, index) => {
+        {chatMessages.length === 0 ? <p className="text-[11px] text-slate-400">پیامی ثبت نشده</p> : null}
+        {chatMessages.map((item, index) => {
           const isCoach = item.sender === "coach";
           return (
             <div key={index} className={`flex ${isCoach ? "justify-start" : "justify-end"}`}>
@@ -889,9 +877,6 @@ function Features({ blocks, sections, athleteLive, coachLive }) {
                   <span className={`text-[9px] font-bold ${isCoach ? "text-[#007BFF] dark:text-blue-400" : "text-blue-100"}`}>
                     {item.name}
                   </span>
-                  <span className={`text-[8px] ${isCoach ? "text-slate-400 dark:text-slate-500" : "text-blue-100"}`}>
-                    {item.time}
-                  </span>
                 </div>
                 <p className="text-[11px] leading-6">{item.message}</p>
               </div>
@@ -899,13 +884,13 @@ function Features({ blocks, sections, athleteLive, coachLive }) {
           );
         })}
         <div className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5 dark:border-slate-700 dark:bg-slate-900">
-          <span className="text-[10px] text-slate-400">پیام خود را بنویسید...</span>
+          <span className="text-[10px] text-slate-400">{text(blocks, "ai_placeholder", "ثبت نشده")}</span>
           <Ico n="send" s={15} className="text-[#007BFF]" />
         </div>
       </div>
     </div>
 
-    {/* 7. دستیار هوشمند AI - ۲ ستون */}
+    {concealed(sections, "ai") ? null : (
     <div
       className="relative isolate overflow-hidden rounded-3xl border border-blue-900/40 bg-gradient-to-br from-[#0b1530] via-[#10234b] to-[#0b2a6b] p-6 text-white shadow-xl shadow-blue-950/10 md:col-span-2"
     >
@@ -918,7 +903,7 @@ function Features({ blocks, sections, athleteLive, coachLive }) {
           <FHead
             dark
             icon="bolt"
-            title={text(blocks, "ai_name", "دستیار هوشمند AI")}
+            title={aiTitle || text(blocks, "ai_name", "ثبت نشده")}
             text={text(
               blocks,
               "ai_lead",
@@ -932,7 +917,7 @@ function Features({ blocks, sections, athleteLive, coachLive }) {
               </span>
               <div className="min-w-0 flex-1 rounded-2xl rounded-tr-sm border border-white/10 bg-white/[0.06] p-3">
                 <div className="mb-1.5 flex items-center gap-2">
-                  <span className="text-[10px] font-bold text-blue-300">مربی</span>
+                  <span className="text-[10px] font-bold text-blue-300">{text(blocks, "preview_role", "ورزشکار")}</span>
                   <span className="text-[9px] text-slate-500">پیام جدید</span>
                 </div>
                 <p className="text-xs leading-6 text-slate-200">
@@ -946,7 +931,7 @@ function Features({ blocks, sections, athleteLive, coachLive }) {
               </span>
               <div className="min-w-0 flex-1 rounded-2xl rounded-tl-sm border border-blue-400/20 bg-blue-500/10 p-3">
                 <div className="mb-1.5 flex items-center gap-2">
-                  <span className="text-[10px] font-bold text-blue-300">فیتو AI</span>
+                  <span className="text-[10px] font-bold text-blue-300">{text(blocks, "ai_name", "ثبت نشده")}</span>
                   <Ico n="sparkles" s={11} className="text-cyan-300" />
                 </div>
                 <p className="text-xs leading-6 text-slate-200">
@@ -965,14 +950,9 @@ function Features({ blocks, sections, athleteLive, coachLive }) {
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
-            {[
-              { icon: "activity", label: "تحلیل عملکرد" },
-              { icon: "utensils", label: "تحلیل تغذیه" },
-              { icon: "brain", label: "پیشنهاد هوشمند" },
-            ].map((item) => (
-              <span key={item.label} className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-2 text-[9px] font-semibold text-slate-300">
-                <Ico n={item.icon} s={12} className="text-blue-300" />
-                {item.label}
+            {aiChips.map((label) => (
+              <span key={label} className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-2 text-[9px] font-semibold text-slate-300">
+                {label}
               </span>
             ))}
           </div>
@@ -988,11 +968,12 @@ function Features({ blocks, sections, athleteLive, coachLive }) {
           />
           <span className="absolute bottom-2 left-1/2 flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 text-[9px] font-bold text-emerald-300 backdrop-blur-md">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
-            Fito AI Online
+            {text(blocks, "ai_subtitle", "ثبت نشده")}
           </span>
         </div>
       </div>
     </div>
+    )}
   </div>
 </section>
   );
@@ -1002,7 +983,7 @@ function Features({ blocks, sections, athleteLive, coachLive }) {
    Steps / Showcase / Why / Pricing
 ========================= */
 
-function Steps({ blocks, sections }) {
+function Steps({ blocks, sections, profileName }) {
   const steps = items(blocks, "steps", [
     { title: "پروفایل مربیگری بسازید", text: "اهداف، تخصص‌ها و سوابق‌تان را ثبت کنید تا شاگردان شما را بهتر بشناسند." },
     { title: "شاگردان را اضافه کنید", text: "شاگردانتان را دعوت کنید یا از طریق فیتو شاگرد جدید پیدا کنید." },
@@ -1037,9 +1018,9 @@ function Steps({ blocks, sections }) {
                       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-100 text-[#007BFF]">
                         <img className="w-full" src={ProfileImg} alt="" />
                       </div>
-                      <span className="flex-1 text-xs font-bold text-slate-700">محمد رضایی</span>
+                      <span className="flex-1 text-xs font-bold text-slate-700">{profileName || text(blocks, "preview_name", "ثبت نشده")}</span>
                     </div>
-                    <span className="rounded-lg bg-green-50 px-2.5 py-1.5 text-[9px] font-bold text-green-600 ">حساب ایجاد شده</span>
+                    <span className="rounded-lg bg-green-50 px-2.5 py-1.5 text-[9px] font-bold text-green-600 ">{text(blocks, "steps_account_status", "ثبت نشده")}</span>
                   </div>
                 )}
                 {i === 1 && (
@@ -1062,22 +1043,27 @@ function Steps({ blocks, sections }) {
                   </div>
                 )}
                 {i === 2 && (
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className="rounded-xl border border-blue-100 bg-blue-50/80 p-2.5 dark:border-blue-900/50 dark:bg-blue-950/30">
-                      <div className="mb-2 flex h-7 w-7 items-center justify-center rounded-lg bg-blue-100 text-[#007BFF] dark:bg-blue-900/50 dark:text-blue-400"><Target size={15} /></div>
-                      <p className="text-lg font-black text-slate-800 dark:text-white">92%</p>
-                      <p className="mt-0.5 text-[9px] font-medium text-slate-500 dark:text-slate-400">پایبندی به برنامه</p>
-                    </div>
-                    <div className="rounded-xl border border-emerald-100 bg-emerald-50/80 p-2.5 dark:border-emerald-900/50 dark:bg-emerald-950/30">
-                      <div className="mb-2 flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600 dark:bg-emerald-900/50 dark:text-emerald-400"><Dumbbell size={15} /></div>
-                      <p className="text-lg font-black text-slate-800 dark:text-white">78%</p>
-                      <p className="mt-0.5 text-[9px] font-medium text-slate-500 dark:text-slate-400">تکمیل تمرین‌ها</p>
-                    </div>
-                    <div className="rounded-xl border border-violet-100 bg-violet-50/80 p-2.5 dark:border-violet-900/50 dark:bg-violet-950/30">
-                      <div className="mb-2 flex h-7 w-7 items-center justify-center rounded-lg bg-violet-100 text-violet-600 dark:bg-violet-900/50 dark:text-violet-400"><UserPlus size={15} /></div>
-                      <p className="text-lg font-black text-slate-800 dark:text-white">+۳</p>
-                      <p className="mt-0.5 text-[9px] font-medium text-slate-500 dark:text-slate-400">شاگرد جدید</p>
-                    </div>
+                  <div className="grid items-center justify-center m-auto grid-cols-3 gap-2">
+                    {items(blocks, "step_stats", [
+                      { label: "پایبندی به برنامه", value: "92%" },
+                      { label: "تکمیل تمرین‌ها", value: "78%" },
+                      { label: "شاگرد جدید", value: "+۳" },
+                    ]).map((stat, index) => {
+                      const Icon = [Target, Dumbbell, UserPlus][index % 3];
+                      const tone = [
+                        ["border-blue-100 bg-blue-50/80 text-[#007BFF]", "bg-blue-100"],
+                        ["border-emerald-100 bg-emerald-50/80 text-emerald-600", "bg-emerald-100"],
+                        ["border-violet-100 bg-violet-50/80 text-violet-600", "bg-violet-100"],
+                      ][index % 3];
+
+                      return (
+                        <div key={`${stat.label}-${index}`} className={`rounded-xl border flex flex-col items-center justify-center dark:border-slate-700 bg-amber-200 dark:bg-slate-800 p-2.5 ${tone[0]}`}>
+                          <div className={`mb-2 flex h-7 w-7 items-center justify-center rounded-lg ${tone[1]}`}><Icon size={15} /></div>
+                          <p className="text-lg font-black text-slate-800 dark:text-white">{stat.value || "ثبت نشده"}</p>
+                          <p className="mt-0.5 text-[9px] font-medium text-slate-500 dark:text-slate-400">{stat.label}</p>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -1101,7 +1087,7 @@ function Showcase({ blocks, sections }) {
 
   return (
     <section
-      id="product"
+      id="showcase"
       style={regionStyle(sections, "showcase")}
       className="px-5 py-24 lg:px-8"
     >
@@ -1156,11 +1142,11 @@ function Showcase({ blocks, sections }) {
 
 function Why({ blocks, sections }) {
   const list = items(blocks, "why_items", [
-    { icon: "activity", title: "صرفه‌جویی در زمان", text: "کارهای تکراری مثل ساخت برنامه و پیگیری پیشرفت را خودکار کنید." },
-    { icon: "grid", title: "همه‌چیز در یک‌جا", text: "برنامه، تغذیه، پیام‌ها و گزارش‌ها بدون جابه‌جایی بین ابزارها." },
-    { icon: "trend", title: "تصمیم‌گیری مبتنی بر داده", text: "با نمودارها و تحلیل AI بدانید هر شاگرد کجاست و چه چیزی باید تغییر کند." },
-    { icon: "star", title: "تجربه‌ای حرفه‌ای‌تر", text: "شاگردانتان اپلیکیشنی مرتب و یکپارچه از مربی‌شان دریافت می‌کنند." },
-    { icon: "users", title: "رشد کسب‌وکار مربیگری", text: "شاگردان بیشتری را با همان کیفیت مدیریت کنید." },
+    { mark: "activity", title: "صرفه‌جویی در زمان", text: "کارهای تکراری مثل ساخت برنامه و پیگیری پیشرفت را خودکار کنید." },
+    { mark: "grid", title: "همه‌چیز در یک‌جا", text: "برنامه، تغذیه، پیام‌ها و گزارش‌ها بدون جابه‌جایی بین ابزارها." },
+    { mark: "trend", title: "تصمیم‌گیری مبتنی بر داده", text: "با نمودارها و تحلیل AI بدانید هر شاگرد کجاست و چه چیزی باید تغییر کند." },
+    { mark: "star", title: "تجربه‌ای حرفه‌ای‌تر", text: "شاگردانتان اپلیکیشنی مرتب و یکپارچه از مربی‌شان دریافت می‌کنند." },
+    { mark: "users", title: "رشد کسب‌وکار مربیگری", text: "شاگردان بیشتری را با همان کیفیت مدیریت کنید." },
   ]);
 
   return (
@@ -1192,7 +1178,7 @@ function Why({ blocks, sections }) {
             {list.map((w) => (
               <li key={w.title} className="flex gap-4">
                 <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#007BFF]/10 text-[#007BFF]">
-                  <Ico n={w.icon} s={20} />
+                  <Ico n={w.mark || w.icon} s={20} />
                 </span>
                 <span>
                   <b className={`block ${INK}`}>{w.title}</b>
@@ -1238,7 +1224,11 @@ function Pricing({ blocks, sections, onSelect }) {
       cta: "ارتباط با فروش",
       features: ["همه امکانات حرفه‌ای", "چند مربی در یک حساب", "برند اختصاصی", "پشتیبانی اولویت‌دار"],
     },
-  ]);
+  ]).map((plan) => ({
+    ...plan,
+    hot: plan.hot === true || plan.hot === "1",
+    features: splitLines(plan.features),
+  }));
 
   return (
     <section
@@ -1485,7 +1475,7 @@ export default function Home() {
         کلاس flex flex-col را حذف کردم تا ترتیب سکشن‌ها دقیقاً طبق کد HTML باشد
         و ویژگی order که از دیتابیس (regionStyle) می‌آید نتواند چینش را به هم بزند.
       */}
-      <main id="home" className="w-full">
+      <main id="home" className="flex w-full flex-col">
         
         {/* 1. HERO */}
         <section style={regionStyle(sections, "hero")} className="relative overflow-hidden bg-gradient-to-b from-[#dbe9ff] via-[#eef4ff] to-[#f4f8ff] px-5 pb-28 pt-36 lg:px-8 lg:pt-40">
@@ -1495,13 +1485,12 @@ export default function Home() {
               <FadeInUp className="order-2 text-center lg:order-1 lg:text-right">
                 <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-slate-500 ring-1 ring-slate-200">
                   <b className="rounded-full bg-[#007BFF] px-2 py-0.5 text-white">{text(blocks, "hero_badge_tag", "جدید")}</b>
-                  {text(blocks, "hero_badge", "دستیار هوشمند AI به فیتو اضافه شد")}
+                  {text(blocks, "hero_badge", "آینده فیتنس از اینجا شروع می‌شود")}
                 </div>
                 <h1 className="max-w-2xl text-5xl font-black leading-[1.45] tracking-tight sm:text-6xl lg:text-[64px]">
-                  {text(blocks, "hero_title", "مدیریت هوشمند مربیگری،")}
+                  {text(blocks, "hero_title", "بدنت رو بساز.")}
                   <br />
-                  <span className="text-[#007BFF]">{text(blocks, "hero_accent", "یک قدم جلوتر")}</span>{" "}
-                  {text(blocks, "hero_title_tail", "از همیشه")}
+                  <span className="text-[#007BFF]">{text(blocks, "hero_accent", "پیشرفتت رو هوشمند کن.")}</span>
                 </h1>
                 <p className="mt-7 max-w-xl text-base leading-8 text-slate-500">
                   {text(blocks, "hero_lead", "فیتو همه‌ی ابزارهای یک مربی حرفه‌ای را در یک‌جا جمع کرده است؛ از مدیریت شاگردان و طراحی برنامه تمرینی تا برنامه تغذیه، آنالیز بدن و گزارش پیشرفت. کمتر درگیر کارهای تکراری شوید و بیشتر روی نتیجه‌ی شاگردانتان تمرکز کنید.")}
@@ -1518,18 +1507,17 @@ export default function Home() {
                     {text(blocks, "hero_secondary", "مشاهده امکانات")}
                   </button>
                 </div>
-                <div className="mt-9 flex items-center justify-center gap-3 lg:justify-start">
-                  <span className="grid h-9 w-9 place-items-center rounded-full bg-[#007BFF] text-[11px] font-bold text-white">1k+</span>
-                  <div className="text-start text-xs text-slate-500">
-                    <div className="flex items-center gap-1 font-bold text-[#0b1530]">
-                      4.9 {[0, 1, 2, 3, 4].map((i) => <Ico key={i} n="star" s={12} className="fill-amber-400 text-amber-400" />)}
-                    </div>
-                    {text(blocks, "hero_note_1", "مورد اعتماد مربیان و باشگاه‌های حرفه‌ای")}
-                  </div>
+                <div className="mt-9 flex flex-wrap items-center justify-center gap-4 text-xs text-slate-500 lg:justify-start">
+                  {[text(blocks, "hero_note_1", ""), text(blocks, "hero_note_2", "")].filter(Boolean).map((note) => (
+                    <span key={note} className="flex items-center gap-2">
+                      <Ico n="check" s={14} className="text-[#007BFF]" />
+                      {note}
+                    </span>
+                  ))}
                 </div>
               </FadeInUp>
               <FadeInUp delay={250} className="order-1 lg:order-2">
-                <HeroVisual blocks={blocks} overrides={previewOverrides} />
+                <HeroVisual blocks={blocks} overrides={previewOverrides} coachLive={coachLive} />
               </FadeInUp>
             </div>
           </div>
@@ -1556,7 +1544,7 @@ export default function Home() {
         <Features blocks={blocks} sections={sections} athleteLive={athleteLive} coachLive={coachLive} />
 
         {/* 4. STEPS */}
-        <Steps blocks={blocks} sections={sections} />
+        <Steps blocks={blocks} sections={sections} profileName={athleteLive?.name || ""} />
 
         {/* 5. SHOWCASE */}
         <Showcase blocks={blocks} sections={sections} />
@@ -1578,7 +1566,13 @@ export default function Home() {
                   {text(blocks, "cta_eyebrow", "راه‌اندازی در کمتر از ۱۰ دقیقه")}
                 </span>
                 <h2 className="mx-auto mt-5 max-w-2xl text-3xl font-black leading-[1.5] sm:text-5xl">
-                  {text(blocks, "cta_title", "مربیگری حرفه‌ای، با ابزارهای حرفه‌ای شروع می‌شود.")}
+                  {text(blocks, "cta_title", "آماده‌ای نسخه بهتری")}
+                  {text(blocks, "cta_title_muted", "") ? (
+                    <>
+                      <br />
+                      {text(blocks, "cta_title_muted", "")}
+                    </>
+                  ) : null}
                 </h2>
                 <p className="mx-auto mt-5 max-w-xl text-sm leading-8 text-blue-100">
                   {text(blocks, "cta_lead", "همین امروز به جمع مربیانی بپیوندید که با فیتو هوشمندتر کار می‌کنند و نتایج بهتری می‌گیرند.")}
@@ -1587,7 +1581,7 @@ export default function Home() {
                   <button type="button" onClick={mainAction} className={`${BTN} bg-white text-[#007BFF] hover:bg-blue-50`}>
                     {mainLabel(text(blocks, "cta_button", "همین حالا به فیتو بپیوند"))}
                   </button>
-                  <button type="button" onClick={() => scrollTo("product")} className={`${BTN} text-white ring-1 ring-white/30 hover:bg-white/10`}>
+                  <button type="button" onClick={() => scrollTo("showcase")} className={`${BTN} text-white ring-1 ring-white/30 hover:bg-white/10`}>
                     {text(blocks, "cta_secondary", "مشاهده دمو")}
                   </button>
                 </div>
@@ -1635,7 +1629,7 @@ export default function Home() {
             <div key={col.title}>
               <b className="mb-4 block text-white">{col.title}</b>
               <ul className="space-y-2.5 text-sm">
-                {(col.links || []).map((l) => (
+                {splitLines(col.links).map((l) => (
                   <li key={l}>
                     <button type="button" className="transition hover:text-white">{l}</button>
                   </li>

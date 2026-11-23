@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import WorkoutAIReport from "./WorkoutAIReport";
+
 const DEFAULT_STATS = [
   { label: "نقطه قوت:", value: "بالا تنه +21%" },
   { label: "نیاز به توجه:", value: "بالا تنه +21%" },
@@ -21,7 +22,7 @@ export default function SmartAnalysisCard({
   return (
     <div
       dir="rtl"
-      className="flex w-full flex-col gap-6 rounded-3xl bg-linear-to-b from-blue-500 to-blue-600 p-5 text-right shadow-lg sm:p-8"
+      className="flex w-full flex-col gap-6 rounded-3xl bg-linear-to-b from-blue-600 to-blue-600 p-5 text-right shadow-lg sm:p-8"
     >
       <h3 className="text-2xl text-white sm:text-3xl">{title}</h3>
 
@@ -43,13 +44,10 @@ export default function SmartAnalysisCard({
 
       <button
         onClick={() => {
-          if (reportTo) {
-            navigate(reportTo);
-            return;
-          }
+        
           setIsReportVisible(true);
         }}
-        className="bg-white text-blue-600 cursor-pointer text-base rounded-2xl py-4 hover:bg-blue-50 transition-colors"
+        className=" bg-blue-700 cursor-pointer text-base rounded-2xl py-4  transition-colors text-white hover:bg-blue-800 sm:text-lg"
       >
         مشاهده گزارش کامل
       </button>

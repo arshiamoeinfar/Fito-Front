@@ -22,6 +22,13 @@ const FIELD_LABELS = {
   value: "مقدار",
   percent: "درصد",
   text: "توضیح",
+  price: "قیمت",
+  desc: "شرح",
+  cta: "دکمه",
+  hot: "پیشنهاد ویژه",
+  features: "امکانات",
+  links: "پیوندها",
+  mark: "نماد",
 };
 
 const ICONS = [
@@ -48,7 +55,7 @@ function blankRow(fields) {
   const row = {};
   fields.forEach((field) => {
     const key = typeof field === "string" ? field : field.key;
-    row[key] = key === "done" ? "0" : (key === "icon" ? "spark" : "");
+    row[key] = key === "done" || key === "hot" ? "0" : (key === "icon" ? "spark" : "");
   });
   return row;
 }
@@ -395,7 +402,7 @@ function SectionEditor({ section, template, pending, onSave, onCopy, onDelete, o
 
       {section.key === "nav" ? (
         <p className="mt-4 rounded-2xl bg-[#F5F7FB] px-4 py-3 text-xs leading-6 text-[#6B6F77]">
-          مقصد هر پیوند منو همان شناسه بخش در صفحه است: features، workout، nutrition، coaches. برای بخش سفارشی، کلید همان بخش را بنویسید.
+          مقصد هر پیوند منو همان شناسه بخش در صفحه است: features، workout، nutrition، coaches، how، showcase، why، pricing. برای بخش سفارشی، کلید همان بخش را بنویسید.
         </p>
       ) : null}
 
@@ -639,7 +646,7 @@ function CustomEditor({ template, content, onChange }) {
 }
 
 function FieldControl({ field, value, onChange }) {
-  if (field.key === "done" || field.type === "done") {
+  if (field.key === "done" || field.key === "hot" || field.type === "done") {
     return (
       <label className="flex items-center gap-2 text-xs text-[#6B6F77]">
         <input
@@ -672,7 +679,7 @@ function FieldControl({ field, value, onChange }) {
     );
   }
 
-  const long = field.type === "textarea" || String(value || "").length > 80;
+  const long = field.type === "textarea" || field.key === "features" || field.key === "links" || field.key === "text" || String(value || "").length > 80;
 
   return (
     <label className="text-xs text-[#6B6F77]">

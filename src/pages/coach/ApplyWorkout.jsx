@@ -1,12 +1,12 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../../Components/shared/Navbar/Navbar";
 import HeaderDashBoard from "../../Components/DashBoardAuth/HeaderDashBoard/HeaderDashBoard";
 import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
 import FastfoodIcon from "@mui/icons-material/Fastfood";
 import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
-import WorkoutProgramBuilder from "./WorkoutProgramBuilder";
-import { Navigate, useNavigate } from "react-router-dom";
+
 const students = [
   {
     id: 1,
@@ -95,32 +95,83 @@ const students = [
   },
 ];
 
+// ================= STATUS CONFIG =================
+
 const statusConfig = {
   active: {
     label: "فعال",
     className: "bg-emerald-50 text-emerald-600",
+    action: "مشاهده کامل",
   },
   inactive: {
     label: "غیرفعال",
     className: "bg-gray-100 text-gray-500",
+    action: "فعال کردن",
   },
   expired: {
     label: "منقضی شده",
     className: "bg-red-50 text-red-500",
+    action: "حذف",
   },
   inProgress: {
     label: "درحال انجام",
     className: "bg-blue-50 text-blue-600",
+    action: "ادامه فرایند",
   },
 };
 
+// ================= SHARED COMPONENTS =================
+
+function Avatar({ emoji }) {
+  return (
+    <div
+      aria-hidden="true"
+      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#F1F5F9] text-xl sm:h-11 sm:w-11"
+    >
+      {emoji}
+    </div>
+  );
+}
+
+function StatusChip({ status }) {
+  return (
+    <span
+      className={`inline-flex w-fit shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1.5 font-primary text-[10px] sm:px-3 sm:text-xs ${status.className}`}
+    >
+      <span
+        className="h-1.5 w-1.5 rounded-full bg-current"
+        aria-hidden="true"
+      />
+      {status.label}
+    </span>
+  );
+}
+
+function ActionButton({ status, studentName, className = "" }) {
+  return (
+    <button
+      type="button"
+      aria-label={`${status.action} برای ${studentName}`}
+      className={`flex min-h-10 cursor-pointer items-center justify-center whitespace-nowrap rounded-xl px-4 py-2 text-xs font-bold transition duration-300 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#007BFF] focus-visible:ring-offset-2 ${status.className} ${className}`}
+    >
+      {status.action}
+    </button>
+  );
+}
+
+// ================= MAIN COMPONENT =================
+
 export default function ApplyWorkout() {
-  const [isOpen, setIsOpen] = useState(false);
   const [programType, setProgramType] = useState("workout");
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
 
-  const currentProgramKey = programType === "workout" ? "workout" : "nutrition";
+  const navigate = useNavigate();
+
+  const currentProgramKey =
+    programType === "workout" ? "workout" : "nutrition";
+
+  // ================= FILTER STUDENTS =================
 
   const filteredStudents = useMemo(() => {
     return students.filter((student) => {
@@ -128,7 +179,7 @@ export default function ApplyWorkout() {
 
       const matchesSearch = student.name
         .toLowerCase()
-        .includes(search.toLowerCase());
+        .includes(search.trim().toLowerCase());
 
       if (!matchesSearch) return false;
 
@@ -137,6 +188,8 @@ export default function ApplyWorkout() {
       return program.status === activeFilter;
     });
   }, [search, activeFilter, currentProgramKey]);
+
+  // ================= COUNTS =================
 
   const getCount = (filter) => {
     return students.filter((student) => {
@@ -147,6 +200,8 @@ export default function ApplyWorkout() {
       return program.status === filter;
     }).length;
   };
+
+  // ================= FILTERS =================
 
   const filters = [
     {
@@ -174,23 +229,222 @@ export default function ApplyWorkout() {
     },
   ];
 
-  const navigate = useNavigate();
+  // ================= ACTIONS =================
 
   const createProgram = () => {
-    navigate(`/coach/builder`);
+    navigate("/coach/builder");
   };
+
+  const hasActiveFilters =
+    search.trim() !== "" || activeFilter !== "all";
+
+  function resetFilters() {
+    setSearch("");
+    setActiveFilter("all");
+  }
+
+  function switchType(type) {
+    setProgramType(type);
+    setActiveFilter("all");
+  }
+
+  // ================= PROGRAM TYPE BUTTON =================
+
+  const typeButton = (type, label, Icon) => {
+    const active = programType === type;
+
+    return (
+      <button
+        type="button"
+        onClick={() => switchType(type)}
+        aria-pressed={active}
+        className={`flex h-11 min-w-0 flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl px-3 font-primary text-xs transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#007BFF] sm:flex-none sm:px-5 sm:text-sm ${
+          active
+            ? "bg-[#007BFF] text-white shadow-[0_5px_14px_rgba(0,123,255,0.18)]"
+            : "text-[#7A8494] hover:bg-[#F8FAFC] hover:text-[#007BFF]"
+        }`}
+      >
+        <Icon fontSize="small" />
+        <span>{label}</span>
+      </button>
+    );
+  };
+
+  // ================= STUDENT CARD =================
+
+  const renderStudentCard = (student) => {
+    const program = student[currentProgramKey];
+    const status = statusConfig[program.status];
+
+    return (
+      <li
+        key={student.id}
+        className="flex min-w-0 flex-col rounded-2xl border border-[#EEF1F6] bg-white p-3.5 transition duration-200 hover:border-[#D7E6FF] hover:shadow-sm sm:p-4"
+      >
+        {/* Student Info */}
+
+        <div className="flex min-w-0 items-center justify-between gap-2">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <Avatar emoji={student.avatar} />
+
+            <div className="min-w-0">
+              <p className="truncate font-primary text-sm font-medium text-[#374151]">
+                {student.name}
+              </p>
+
+              <p className="mt-1 text-[11px] text-gray-400">
+                شاگرد {student.id}
+              </p>
+            </div>
+          </div>
+
+          <StatusChip status={status} />
+        </div>
+
+        {/* Program Name */}
+
+        <div className="mt-4 min-w-0">
+          <p className="mb-1 text-[11px] text-gray-400">
+            نام برنامه
+          </p>
+
+          <p className="break-words font-primary text-sm font-medium text-[#4B5563]">
+            {program.name}
+          </p>
+        </div>
+
+        {/* Dates */}
+
+        <dl className="mt-4 grid grid-cols-2 gap-2 rounded-xl bg-[#F8FAFC] p-3">
+          <div className="min-w-0">
+            <dt className="text-[10px] text-gray-400">
+              تاریخ ایجاد
+            </dt>
+
+            <dd className="mt-1 truncate text-xs font-medium text-gray-600">
+              {program.createdAt}
+            </dd>
+          </div>
+
+          <div className="min-w-0">
+            <dt className="text-[10px] text-gray-400">
+              تاریخ انقضا
+            </dt>
+
+            <dd className="mt-1 truncate text-xs font-medium text-gray-600">
+              {program.expireAt}
+            </dd>
+          </div>
+        </dl>
+
+        {/* Action */}
+
+        <div className="mt-4">
+          <ActionButton
+            status={status}
+            studentName={student.name}
+            className="w-full"
+          />
+        </div>
+      </li>
+    );
+  };
+
+  // ================= TABLE ROW =================
+
+  const renderTableRow = (student) => {
+    const program = student[currentProgramKey];
+    const status = statusConfig[program.status];
+
+    return (
+      <div
+        key={student.id}
+        role="row"
+        className="grid min-h-[76px] grid-cols-[minmax(0,1.2fr)_minmax(0,1.4fr)_minmax(100px,0.8fr)_110px] items-center gap-2 border-t border-gray-100 px-4 transition hover:bg-[#FAFCFF] xl:grid-cols-[1.4fr_1.5fr_0.9fr_1fr_1fr_120px] xl:gap-0 xl:px-5 2xl:px-6"
+      >
+        {/* Student */}
+
+        <div
+          role="cell"
+          className="flex min-w-0 items-center gap-2 xl:gap-3"
+        >
+          <Avatar emoji={student.avatar} />
+
+          <div className="min-w-0">
+            <p className="truncate font-primary text-xs text-[#6B6F77] xl:text-sm">
+              {student.name}
+            </p>
+
+            <p className="mt-1 text-[10px] text-gray-400">
+              شاگرد {student.id}
+            </p>
+          </div>
+        </div>
+
+        {/* Program */}
+
+        <div role="cell" className="min-w-0">
+          <p className="truncate font-primary text-xs text-[#6B6F77] xl:text-sm">
+            {program.name}
+          </p>
+        </div>
+
+        {/* Status */}
+
+        <div role="cell" className="min-w-0">
+          <StatusChip status={status} />
+        </div>
+
+        {/* Created Date */}
+
+        <div
+          role="cell"
+          className="hidden text-xs text-gray-500 xl:block"
+        >
+          {program.createdAt}
+        </div>
+
+        {/* Expire Date */}
+
+        <div
+          role="cell"
+          className="hidden text-xs text-gray-500 xl:block"
+        >
+          {program.expireAt}
+        </div>
+
+        {/* Action */}
+
+        <div role="cell" className="flex min-w-0 justify-center">
+          <ActionButton
+            status={status}
+            studentName={student.name}
+            className="max-w-full px-2 text-[10px] xl:px-3 xl:text-xs"
+          />
+        </div>
+      </div>
+    );
+  };
+
+  // ================= RENDER =================
+
   return (
-    <div className="min-h-screen bg-[#F5F7FB] flex justify-center">
-      <div className="w-full max-w-[1600px] grid grid-cols-[90px_1fr] gap-6 px-8 py-6 bg-[#F5F7FB]">
+    <div className="flex min-h-screen w-full justify-center overflow-x-hidden bg-[#F5F7FB]">
+      <div className="grid w-full max-w-[1600px] min-w-0 grid-cols-1 gap-3 px-3 py-3 sm:gap-4 sm:px-5 sm:py-4 lg:grid-cols-[90px_minmax(0,1fr)] lg:gap-5 lg:px-6 lg:py-5 xl:gap-6 xl:px-8 xl:py-6">
+
         {/* Navbar */}
-        <div>
+
+        <div className="min-w-0">
           <Navbar />
         </div>
 
         {/* Main Content */}
-        <div className="py-3">
+
+        <main className="min-w-0 w-full py-1 lg:py-3">
+
           {/* Header */}
-          <div className="grid grid-cols-12 gap-6">
+
+          <div className="grid grid-cols-12 gap-4 lg:gap-6">
             <HeaderDashBoard
               title="برنامه ها"
               description="برای شاگردانت برنامه رو بساز"
@@ -198,160 +452,95 @@ export default function ApplyWorkout() {
           </div>
 
           {/* Program Management */}
-          <section className="mt-7">
+
+          <section className="mt-5 min-w-0 lg:mt-7">
+
             {/* ================= TOP CONTROLS ================= */}
-            <div className="flex items-center justify-between gap-6 mb-6">
+
+            <div className="mb-4 flex min-w-0 flex-col gap-3 xl:mb-6 xl:flex-row xl:items-center xl:justify-between xl:gap-5">
+
               {/* Program Type */}
-              <div className="flex items-center gap-2">
-                <div className="inline-flex items-center p-1 bg-white border border-[#E8EDF5] rounded-2xl gap-2">
-                  {/* Workout */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setProgramType("workout");
-                      setActiveFilter("all");
-                    }}
-                    className={`
-                      relative
-                      flex
-                      items-center
-                      gap-2
-                      h-11
-                      px-5
-                      rounded-xl
-                      text-sm
-                      font-primary
-                      transition-all
-                      duration-200
-                      cursor-pointer
-                      
-                      ${
-                        programType === "workout"
-                          ? "bg-[#007BFF] text-white shadow-[0_5px_14px_rgba(0,123,255,0.18)]"
-                          : "text-[#7A8494] hover:text-[#007BFF] hover:bg-[#F8FAFC]"
-                      }
-                    `}
-                  >
-                    <span className="text-base text-center flex items-center justify-center">
-                      <FitnessCenterIcon />
-                    </span>
 
-                    <span>تمرین</span>
-                  </button>
+              <div
+                role="group"
+                aria-label="نوع برنامه"
+                className="flex w-full items-center gap-2 rounded-2xl border border-[#E8EDF5] bg-white p-1 sm:w-fit"
+              >
+                {typeButton(
+                  "workout",
+                  "تمرین",
+                  FitnessCenterIcon
+                )}
 
-                  {/* Nutrition */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setProgramType("nutrition");
-                      setActiveFilter("all");
-                    }}
-                    className={`
-                      relative
-                      flex
-                      items-center
-                      gap-2
-                      h-11
-                      px-5
-                      rounded-xl
-                      text-sm
-                      font-primary
-                      transition-all
-                      duration-200
-                      cursor-pointer
-                      ${
-                        programType === "nutrition"
-                          ? "bg-[#007BFF] text-white shadow-[0_5px_14px_rgba(0,123,255,0.18)]"
-                          : "text-[#7A8494] hover:text-[#007BFF] hover:bg-[#F8FAFC]"
-                      }
-                    `}
-                  >
-                    <span className="text-base text-center flex items-center justify-center">
-                      <FastfoodIcon />
-                    </span>
-
-                    <span>تغذیه</span>
-                  </button>
-                </div>
+                {typeButton(
+                  "nutrition",
+                  "تغذیه",
+                  FastfoodIcon
+                )}
               </div>
 
-              {/* ================= RIGHT ACTIONS ================= */}
-              <div className="flex items-center gap-3">
+              {/* Actions */}
+
+              <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center">
+
                 {/* Search */}
-                <div className="relative w-[280px]">
+
+                <div className="relative min-w-0 w-full sm:flex-1 xl:w-[260px] xl:flex-none">
+                  <label
+                    htmlFor="student-search"
+                    className="sr-only"
+                  >
+                    جستجوی شاگرد
+                  </label>
+
                   <input
-                    type="text"
+                    id="student-search"
+                    type="search"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     placeholder="جستجوی شاگرد..."
-                    className="
-                      w-full
-                      h-12
-                      pr-11
-                      pl-4
-                      rounded-2xl
-                      bg-white
-                      border
-                      border-[#E8EDF5]
-                      outline-none
-                      text-sm
-                      text-[#1F2937]
-                      placeholder:text-[#A5ADBA]
-                      shadow-[0_4px_20px_rgba(15,23,42,0.03)]
-                      focus:border-[#007BFF]
-                      focus:ring-4
-                      focus:ring-[#007BFF]/5
-                      transition-all
-                    "
+                    className="h-12 w-full rounded-2xl border border-[#E8EDF5] bg-white pl-4 pr-11 text-sm text-[#1F2937] shadow-[0_4px_20px_rgba(15,23,42,0.03)] outline-none transition placeholder:text-[#A5ADBA] focus:border-[#007BFF] focus:ring-4 focus:ring-[#007BFF]/10"
                   />
 
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#9AA3B2] text-sm">
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#9AA3B2]"
+                  >
                     <SearchIcon />
                   </span>
                 </div>
 
                 {/* Create Program */}
-                <button
-                  onClick={() => createProgram()}
-                  type="button"
-                  className="
-                    h-12
-                    px-6
-                    rounded-2xl
-                    bg-[#007BFF]
-                    text-white
-                    text-sm
-                    font-bold
-                    flex
-                    items-center
-                    justify-center
-                    gap-2
-                    shadow-[0_8px_20px_rgba(0,123,255,0.18)]
-                    hover:bg-[#006FE6]
-                    hover:shadow-[0_10px_24px_rgba(0,123,255,0.24)]
-                    active:scale-[0.98]
-                    transition-all
-                  "
-                >
-                  <span className="text-lg leading-none">
-                    <AddIcon />
-                  </span>
 
-                  <span onClick={()=> createProgram()}  className="text-white font-medium">
+                <button
+                  onClick={createProgram}
+                  type="button"
+                  className="flex h-12 w-full shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-[#007BFF] px-5 text-sm font-bold text-white shadow-[0_8px_20px_rgba(0,123,255,0.18)] transition-all hover:bg-[#006FE6] hover:shadow-[0_10px_24px_rgba(0,123,255,0.24)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#007BFF] focus-visible:ring-offset-2 active:scale-[0.98] sm:w-auto"
+                >
+                  <AddIcon />
+
+                  <span>
                     {programType === "workout"
                       ? "ساخت برنامه تمرینی"
                       : "ساخت برنامه تغذیه"}
                   </span>
                 </button>
+
               </div>
             </div>
-            {/* {isOpen && <WorkoutProgramBuilder />} */}
 
-            {/* ================= TABLE CARD ================= */}
-            <div className="bg-white rounded-[24px] border border-gray-100  overflow-hidden">
+            {/* ================= LIST CARD ================= */}
+
+            <div className="min-w-0 overflow-hidden rounded-[20px] border border-[#E8EDF5] bg-white sm:rounded-[24px]">
+
               {/* ================= FILTERS ================= */}
-              <div className="px-6 pt-5 border-b border-gray-100">
-                <div className="flex items-center gap-8">
+
+              <div className="border-b border-gray-100">
+                <div
+                  role="group"
+                  aria-label="فیلتر وضعیت"
+                  className="flex min-w-0 items-center gap-5 overflow-x-auto px-4 pt-4 sm:gap-8 sm:px-6 sm:pt-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                >
                   {filters.map((filter) => {
                     const active = activeFilter === filter.id;
                     const count = getCount(filter.id);
@@ -361,55 +550,32 @@ export default function ApplyWorkout() {
                         key={filter.id}
                         type="button"
                         onClick={() => setActiveFilter(filter.id)}
-                        className={`
-                          relative
-                          pb-4
-                          text-sm
-                          font-bold
-                          transition
-                          ${
-                            active
-                              ? "text-[#007BFF]"
-                              : "text-gray-400 hover:text-gray-700"
-                          }
-                        `}
+                        aria-pressed={active}
+                        className={`relative flex shrink-0 cursor-pointer items-center gap-2 whitespace-nowrap pb-3.5 text-xs font-medium transition sm:text-sm focus:outline-none focus-visible:rounded-lg focus-visible:ring-2 focus-visible:ring-[#007BFF] ${
+                          active
+                            ? "text-[#007BFF]"
+                            : "text-[#6B6F77] hover:text-gray-800"
+                        }`}
                       >
-                        {/* Title + Notification Badge */}
-                        <span className="relative inline-flex text-[#6B6F77] font-medium cursor-pointer">
-                          {filter.title}
+                        {filter.title}
 
-                          {count > 0 && (
-                            <span
-                              className={`
-                                absolute
-                                -top-3.5
-                                -left-4
-                                p-0
-                                m-0
-                                flex
-                                h-5.5
-                                w-5.5 
-                                
-                                items-center
-                                justify-center
-                                rounded-full
-                                text-[12px]
-                                
-                                ${
-                                  active
-                                    ? "bg-[#007BFF] text-white"
-                                    : "bg-[#EEF5FF] text-[#007BFF]"
-                                }
-                              `}
-                            >
-                              {count}
-                            </span>
-                          )}
-                        </span>
+                        {count > 0 && (
+                          <span
+                            className={`flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-bold ${
+                              active
+                                ? "bg-[#007BFF] text-white"
+                                : "bg-[#EEF5FF] text-[#007BFF]"
+                            }`}
+                          >
+                            {count}
+                          </span>
+                        )}
 
-                        {/* Active Line */}
                         {active && (
-                          <span className="absolute bottom-0 right-0 left-0 h-[2px] rounded-full bg-[#007BFF]" />
+                          <span
+                            aria-hidden="true"
+                            className="absolute bottom-0 left-0 right-0 h-[2px] rounded-full bg-[#007BFF]"
+                          />
                         )}
                       </button>
                     );
@@ -417,162 +583,96 @@ export default function ApplyWorkout() {
                 </div>
               </div>
 
-              {/* ================= TABLE HEADER ================= */}
+              {/* ================= DESKTOP / TABLET TABLE ================= */}
+
               <div
-                className="
-                  grid
-                  grid-cols-[1.5fr_1.7fr_1fr_1fr_1fr_120px]
-                  items-center
-                  px-6
-                  h-14
-                  bg-[#FAFBFD]
-                  font-primary 
-                  text-sm
-                  text-gray-400
-                "
+                role="table"
+                aria-label="فهرست برنامه شاگردان"
+                className="hidden lg:block"
               >
-                <div>شاگرد</div>
 
-                <div>اسم برنامه</div>
+                {/* Full Header - XL */}
 
-                <div>وضعیت</div>
+                <div
+                  role="row"
+                  className="hidden h-14 grid-cols-[1.4fr_1.5fr_0.9fr_1fr_1fr_120px] items-center bg-[#FAFBFD] px-5 font-primary text-xs text-gray-400 xl:grid 2xl:px-6 2xl:text-sm"
+                >
+                  <div role="columnheader">شاگرد</div>
+                  <div role="columnheader">اسم برنامه</div>
+                  <div role="columnheader">وضعیت</div>
+                  <div role="columnheader">تاریخ ایجاد</div>
+                  <div role="columnheader">تاریخ انقضا</div>
+                  <div role="columnheader" className="text-center">
+                    عملیات
+                  </div>
+                </div>
 
-                <div>تاریخ ایجاد</div>
+                {/* Compact Header - LG */}
 
-                <div>تاریخ انقضا</div>
+                <div
+                  role="row"
+                  className="grid h-14 grid-cols-[minmax(0,1.2fr)_minmax(0,1.4fr)_minmax(100px,0.8fr)_110px] items-center bg-[#FAFBFD] px-4 font-primary text-xs text-gray-400 xl:hidden"
+                >
+                  <div role="columnheader">شاگرد</div>
+                  <div role="columnheader">اسم برنامه</div>
+                  <div role="columnheader">وضعیت</div>
+                  <div role="columnheader" className="text-center">
+                    عملیات
+                  </div>
+                </div>
 
-                <div className="text-center">مشاهده کامل</div>
+                {/* Table Rows */}
+
+                <div role="rowgroup">
+                  {filteredStudents.map(renderTableRow)}
+                </div>
               </div>
 
-              {/* ================= TABLE BODY ================= */}
-              <div>
-                {filteredStudents.map((student) => {
-                  const program = student[currentProgramKey];
-                  const status = statusConfig[program.status];
+              {/* ================= MOBILE / TABLET CARDS ================= */}
 
-                  return (
-                    <div
-                      key={student.id}
-                      className="
-                        grid
-                        grid-cols-[1.5fr_1.7fr_1fr_1fr_1fr_120px]
-                        items-center
-                        px-6
-                        min-h-[82px]
-                        border-t
-                        border-gray-50
-                        hover:bg-[#FAFCFF]
-                        transition
-                      "
-                    >
-                      {/* Student */}
-                      <div className="flex items-center gap-3">
-                        <div className="w-11 h-11 rounded-full bg-[#F1F5F9] flex items-center justify-center text-xl">
-                          {student.avatar}
-                        </div>
-
-                        <div>
-                          <p className="text-sm text-[#6B6F77] font-primary">
-                            {student.name}
-                          </p>
-
-                          <p className="text-[10px] text-gray-400 mt-1">
-                            شاگرد {student.id}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Program */}
-                      <div>
-                        <p className="text-sm text-[#6B6F77] font-primary">
-                          {program.name}
-                        </p>
-                      </div>
-
-                      {/* Status */}
-                      <div>
-                        <span
-                          className={`
-                            inline-flex
-                            items-center
-                            gap-1.5
-                            px-3
-                            py-1.5
-                            rounded-full
-                            text-xs
-                            font-primary
-                            ${status.className}
-                          `}
-                        >
-                          <span className="w-1.5 h-1.5 rounded-full bg-current " />
-
-                          {status.label}
-                        </span>
-                      </div>
-
-                      {/* Created */}
-                      <div className="text-sm text-gray-500">
-                        {program.createdAt}
-                      </div>
-
-                      {/* Expire */}
-                      <div className="text-sm text-gray-500">
-                        {program.expireAt}
-                      </div>
-
-                      {/* View */}
-                      <div className="flex justify-center">
-                        <button
-                          type="button"
-                          className={`
-                            px-4
-                            py-2
-                            rounded-xl
-                            
-                            ${status.label === "فعال" ? "bg-emerald-50 text-emerald-600" : status.label === "منقضی شده" ? "bg-red-50 text-red-500" : status.label === "درحال انجام" ? "bg-blue-50 text-blue-600" : status.label === "غیرفعال" ? "bg-gray-100 text-gray-500" : ""}
-                            text-xs
-                            font-bold
-                            hover:scale-102
-                            hover:shadow-md
-                            transition
-                            duration-300
-                            ease-in-out
-                            cursor-pointer
-                          `}
-                        >
-                          {status.label === "فعال"
-                            ? "مشاهده کامل"
-                            : status.label === "درحال انجام"
-                              ? "ادامه فرایند"
-                              : status.label === "منقضی شده"
-                                ? "حذف"
-                                : status.label === "غیرفعال"
-                                  ? "فعال کردن"
-                                  : status.label}
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+              {filteredStudents.length > 0 && (
+                <ul className="grid grid-cols-1 gap-3 p-3 sm:grid-cols-2 sm:gap-4 sm:p-4 lg:hidden">
+                  {filteredStudents.map(renderStudentCard)}
+                </ul>
+              )}
 
               {/* ================= EMPTY STATE ================= */}
+
               {filteredStudents.length === 0 && (
-                <div className="py-20 text-center">
-                  <div className="text-4xl mb-4">🔍</div>
+                <div
+                  className="px-4 py-14 text-center sm:py-20"
+                  role="status"
+                >
+                  <div
+                    className="mb-4 text-4xl"
+                    aria-hidden="true"
+                  >
+                    🔍
+                  </div>
 
                   <p className="text-sm font-bold text-gray-700">
                     شاگردی پیدا نشد
                   </p>
 
-                  <p className="text-xs text-gray-400 mt-2">
+                  <p className="mt-2 text-xs text-gray-400">
                     جستجو یا فیلتر انتخاب‌شده را تغییر دهید
                   </p>
+
+                  {hasActiveFilters && (
+                    <button
+                      type="button"
+                      onClick={resetFilters}
+                      className="mt-5 min-h-10 rounded-xl bg-[#EEF5FF] px-5 text-sm font-medium text-[#007BFF] transition hover:bg-[#DCEBFF] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#007BFF]"
+                    >
+                      پاک کردن جستجو و فیلتر
+                    </button>
+                  )}
                 </div>
               )}
+
             </div>
           </section>
-        </div>
+        </main>
       </div>
     </div>
   );

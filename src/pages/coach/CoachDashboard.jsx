@@ -8,7 +8,6 @@ import TodayActions from "../../Components/CoachDashboard/TodayActions";
 import BodyChangeChart from "../../Components/shared/BodyChangeChart/BodyChangeChart";
 import { api, ApiError } from "../../api/client";
 import { useSession } from "../../api/session";
-import imgWalk from "../../assets/imges/walk.png";
 
 const CHART_RANGES = { "7 روز": 7, "1 ماه": 30, "3 ماه": 90, "1 سال": 365 };
 
@@ -20,13 +19,10 @@ function when(value) {
   if (!value) {
     return "—";
   }
-
   const date = new Date(value);
-
   if (Number.isNaN(date.getTime())) {
     return String(value);
   }
-
   return new Intl.DateTimeFormat("fa-IR", { dateStyle: "medium" }).format(date);
 }
 
@@ -34,7 +30,6 @@ function daysUntil(value) {
   if (!value) {
     return null;
   }
-
   const end = new Date(`${value}T00:00:00`);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -42,7 +37,6 @@ function daysUntil(value) {
   if (Number.isNaN(end.getTime())) {
     return null;
   }
-
   return Math.round((end.getTime() - today.getTime()) / 86400000);
 }
 
@@ -81,8 +75,38 @@ export default function CoachDashboard() {
       const series = [];
 
       for (const row of relationships.filter((item) => item.status === "active")) {
-        const body = await optional(`/api/v1/coach/relationships/${row.id}/body-series?metric=weight_kg`);
-        const points = Array.isArray(body?.points) ? body.points : [];
+        // دریافت هم‌زمان وزن، درصد چربی و توده عضلانی برای هر شاگرد
+        const [weightRes, fatRes, muscleRes] = await Promise.all([
+          optional(`/api/v1/coach/relationships/${row.id}/body-series?metric=weight_kg`),
+          optional(`/api/v1/coach/relationships/${row.id}/body-series?metric=body_fat_percentage`),
+          optional(`/api/v1/coach/relationships/${row.id}/body-series?metric=muscle_mass_kg`),
+        ]);
+
+        const weightPoints = Array.isArray(weightRes?.points) ? weightRes.points : [];
+        const fatPoints = Array.isArray(fatRes?.points) ? fatRes.points : [];
+        const musclePoints = Array.isArray(muscleRes?.points) ? muscleRes.points : [];
+
+        // ترکیب نقاط بر اساس تاریخ اندازه گیری (measured_at)
+        const pointsMap = new Map();
+
+        const addPoints = (pts, key) => {
+          pts.forEach((p) => {
+            const dateKey = p.measured_at?.split("T")[0]; // یکپارچه‌سازی تاریخ
+            if (!dateKey) return;
+            if (!pointsMap.has(dateKey)) {
+              pointsMap.set(dateKey, { measured_at: p.measured_at, weight: null, fat: null, muscle: null });
+            }
+            pointsMap.get(dateKey)[key] = p.value;
+          });
+        };
+
+        addPoints(weightPoints, "weight");
+        addPoints(fatPoints, "fat");
+        addPoints(musclePoints, "muscle");
+
+        const points = Array.from(pointsMap.values()).sort(
+          (a, b) => new Date(a.measured_at) - new Date(b.measured_at)
+        );
 
         if (points.length > 0) {
           series.push({
@@ -110,7 +134,6 @@ export default function CoachDashboard() {
       if (!active) {
         return;
       }
-
       setError(caught instanceof ApiError ? caught.message : "ارتباط با سرور برقرار نشد.");
       setReady(true);
     });
@@ -135,25 +158,19 @@ export default function CoachDashboard() {
 
   const attention = activeRows.flatMap((row) => {
     const reasons = [];
-
     if (hasWorkout && !workoutIds.has(row.id)) {
       reasons.push("برنامه تمرین فعال ندارد");
     }
-
     if (hasNutrition && !mealIds.has(row.id)) {
       reasons.push("برنامه تغذیه فعال ندارد");
     }
-
     if (threadIds.has(row.id)) {
       reasons.push("بازخورد باز دارد");
     }
-
     if (reasons.length === 0) {
       return [];
     }
-
     const assignment = workouts.find((item) => item.coaching_relationship_id === row.id);
-
     return [{
       id: row.id,
       name: row.athlete?.display_name || "—",
@@ -242,11 +259,11 @@ export default function CoachDashboard() {
     : 0;
   const series = snapshot?.series ?? [];
   const selectedSeries = series.find((row) => String(row.id) === String(chartAthlete)) || series[0];
+  
   const chartPoints = useMemo(() => {
     if (!selectedSeries) {
       return [];
     }
-
     const days = CHART_RANGES[chartRange] || 30;
     const cutoff = Date.now() - days * 86400000;
     const recent = selectedSeries.points.filter((point) => {
@@ -257,9 +274,9 @@ export default function CoachDashboard() {
 
     return rows.map((point) => ({
       day: when(point.measured_at),
-      weight: Number(point.value),
-      fat: null,
-      muscle: null,
+      weight: point.weight !== null ? Number(point.weight) : null,
+      fat: point.fat !== null ? Number(point.fat) : null,
+      muscle: point.muscle !== null ? Number(point.muscle) : null,
     }));
   }, [chartRange, selectedSeries]);
 
@@ -280,12 +297,7 @@ export default function CoachDashboard() {
                 {error}
               </p>
             )}
-            <div className="col-span-12 grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-5">
-              <StatCard title="قدم امروز" value="7234" img={imgWalk} />
-              <StatCard title="قدم امروز" value="7234" img={imgWalk} />
-              <StatCard title="قدم امروز" value="7234" img={imgWalk} />
-              <StatCard title="قدم امروز" value="7234" img={imgWalk} />
-            </div>
+
             <div className="col-span-12 grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-5">
               <StatCard title="شاگرد فعال" value={ready ? countFa(activeRows.length) : "…"} type="circle" progress={capacityProgress} color="#007BFF" colorBg="#EAF4FF" />
               <StatCard title="ظرفیت دوره" value={ready ? capacity : "…"} type="circle" progress={period ? 100 : 0} color="#6BAF41" colorBg="#E9FFDB" />

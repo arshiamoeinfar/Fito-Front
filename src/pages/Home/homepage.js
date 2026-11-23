@@ -125,7 +125,7 @@ function liters(value) {
   const number = Number(value) / 1000;
 
   if (!Number.isFinite(number)) {
-    return "—";
+    return "ثبت نشده";
   }
 
   return faDigits(number.toFixed(number >= 10 ? 0 : 1).replace(/\.0$/, ""));
@@ -143,7 +143,7 @@ function setsLabel(item) {
     return `${faDigits(sets)} ست`;
   }
 
-  return "—";
+  return "ثبت نشده";
 }
 
 function chartBars(values) {
@@ -209,17 +209,17 @@ function athleteView(account, workouts, sessionsBody, meals, hydration, seriesBo
     percentText: `${faDigits(percent)}%`,
     moves: `${faDigits(done)} از ${faDigits(exercises.length)} حرکت`,
     remain: exercises.length ? `${faDigits(Math.max(exercises.length - done, 0))} حرکت مانده` : "حرکتی برای امروز نیست",
-    kcal: totals?.energy_kcal == null ? "—" : faDigits(Math.round(Number(totals.energy_kcal))),
-    kcalLabel: totals?.energy_kcal == null ? "— kcal" : `${faDigits(Math.round(Number(totals.energy_kcal)))} kcal`,
+    kcal: totals?.energy_kcal == null ? "ثبت نشده" : faDigits(Math.round(Number(totals.energy_kcal))),
+    kcalLabel: totals?.energy_kcal == null ? "ثبت نشده" : `${faDigits(Math.round(Number(totals.energy_kcal)))} kcal`,
     macros: totals ? [
       { label: "پروتئین", value: `${faDigits(protein)}g`, percent: `${Math.round((protein * 4 / macroBase) * 100)}%` },
       { label: "کربوهیدرات", value: `${faDigits(carbs)}g`, percent: `${Math.round((carbs * 4 / macroBase) * 100)}%` },
       { label: "چربی", value: `${faDigits(fat)}g`, percent: `${Math.round((fat * 9 / macroBase) * 100)}%` },
     ] : null,
-    waterLiters: hydration ? liters(waterMl) : "—",
-    waterDetail: hydration ? `${liters(waterMl)} از ${liters(goalMl)} لیتر` : "—",
-    waterPercent: hydration ? `${Math.min(100, Math.round((waterMl / goalMl) * 100))}%` : "—",
-    bodyValue: points.length >= 2 ? signedPercent(points[0], points[points.length - 1]) : (points.length === 1 ? `${faDigits(points[points.length - 1])} کیلو` : "—"),
+    waterLiters: hydration ? liters(waterMl) : "ثبت نشده",
+    waterDetail: hydration ? `${liters(waterMl)} از ${liters(goalMl)} لیتر` : "ثبت نشده",
+    waterPercent: hydration ? `${Math.min(100, Math.round((waterMl / goalMl) * 100))}%` : "ثبت نشده",
+    bodyValue: points.length >= 2 ? signedPercent(points[0], points[points.length - 1]) : (points.length === 1 ? `${faDigits(points[points.length - 1])} کیلو` : "ثبت نشده"),
     bodyDelta: points.length >= 2 ? signedPercent(points[points.length - 2], points[points.length - 1]) : "",
     chart: chartBars(points),
   };

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
@@ -36,17 +37,25 @@ export default function Mytrain({
   const navigate = useNavigate();
 
   return (
-    <div className="h-fit rounded-3xl bg-white p-4 sm:p-6">
-      <div className="flex flex-wrap items-center justify-between gap-3 px-1 sm:px-2">
-        <h2 className="text-xl font-medium text-[#6B6F77]">تمرینات امروز</h2>
-        <div className="flex items-end gap-2 px-4 py-2">
-          <img src={ElementLeg} alt="" className="h-4 w-4" />
-          <span className="text-sm text-[#6B6F77]">{dayTitle}</span>
+    <div
+      dir="rtl"
+      className="h-fit w-full min-w-0 overflow-hidden rounded-2xl bg-white p-3.5 shadow-sm sm:rounded-3xl sm:p-5 lg:p-6"
+    >
+      {/* Header */}
+      <div className="flex min-w-0 flex-wrap items-center justify-between gap-3 px-1 sm:px-2">
+        <h2 className="font-primary min-w-0 text-base font-medium text-[#6B6F77] sm:text-lg lg:text-xl">
+          تمرینات امروز
+        </h2>
+
+        <div className="flex shrink-0 items-center gap-2 rounded-xl dark:bg-[#0B1220] px-3 py-2">
+          <img src={ElementLeg} alt="" className="h-4 w-4 object-contain" />
+          <span className="text-xs text-[#6B6F77] sm:text-sm">{dayTitle}</span>
         </div>
+
         {startTraining ? (
           <button
             type="button"
-            className="cursor-pointer rounded-full bg-[#007BFF] px-4 py-2 text-white transition hover:bg-[#0056A3]"
+            className="w-full cursor-pointer rounded-full bg-[#007BFF] px-4 py-2.5 text-sm text-white transition hover:bg-[#0056A3] sm:w-auto"
             onClick={() => navigate(startTo)}
           >
             شروع تمرین
@@ -55,52 +64,78 @@ export default function Mytrain({
           <button
             type="button"
             onClick={() => navigate("/trainingpage")}
-            className="flex shrink-0 cursor-pointer items-center gap-2 whitespace-nowrap text-sm text-[#6B6F77] transition hover:text-gray-700"
+            className="flex shrink-0 cursor-pointer items-center gap-2 whitespace-nowrap text-xs text-[#6B6F77] transition hover:text-gray-700 sm:text-sm"
           >
             جزئیات تمرین
-            <img src={Flesh} alt="" />
+            <img src={Flesh} alt="" className="h-4 w-4" />
           </button>
         )}
       </div>
 
-      <div className="mt-8 space-y-4">
-        <hr className="text-gray-200" />
-        {rows.length === 0 ? <p className="py-6 text-sm text-[#A0A4AA]">{emptyLabel}</p> : null}
+      {/* Exercises */}
+      <div className="mt-5 min-w-0 space-y-3 sm:mt-7 sm:space-y-4">
+        <hr className="border-0 border-t border-gray-200" />
+
+        {rows.length === 0 ? (
+          <p className="py-6 text-center text-xs text-[#A0A4AA] sm:text-sm">
+            {emptyLabel}
+          </p>
+        ) : null}
+
         {rows.map((exercise, index) => (
-          <div key={exercise.id} className="flex flex-col gap-3">
-            <div className={`flex w-full flex-col gap-4 lg:flex-row lg:items-center ${hrTrue ? "py-4" : "mt-2"}`}>
+          <div key={exercise.id} className="flex min-w-0 flex-col gap-3">
+            <div
+              className={`flex min-w-0 w-full flex-col gap-3 sm:gap-4 lg:flex-row lg:items-center ${
+                hrTrue ? "py-3 sm:py-4" : "pt-1 sm:mt-2"
+              }`}
+            >
+              {/* Exercise info */}
               <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
-              <img
-                onClick={() => navigate(exercise.to || startTo)}
-                src={exercise.image || ImgSquat}
-                className="h-14 w-24 shrink-0 cursor-pointer rounded-xl object-cover sm:h-16 sm:w-28"
-                alt=""
-              />
-              <div className="min-w-0">
-                <h3
+                <img
                   onClick={() => navigate(exercise.to || startTo)}
-                  className="font-primary mb-2 cursor-pointer font-medium text-[#6B6F77]"
-                >
-                  {exercise.name}
-                </h3>
-                <div className="flex flex-wrap gap-2 sm:gap-3">
-                  <Stat icon={Dumbel} label={`${exercise.sets} ست`} />
-                  <Stat icon={Refresh} label={`${exercise.reps} تکرار`} />
-                  {exercise.rest != null && exercise.rest !== "—" ? <Stat icon={ClockCircle} label={`${exercise.rest} ثانیه استراحت`} /> : null}
+                  src={exercise.image || ImgSquat}
+                  className="h-14 w-20 shrink-0 cursor-pointer rounded-xl object-cover sm:h-16 sm:w-24 lg:w-28"
+                  alt=""
+                />
+
+                <div className="min-w-0 flex-1">
+                  <h3
+                    onClick={() => navigate(exercise.to || startTo)}
+                    className="font-primary mb-2 cursor-pointer break-words text-sm font-medium text-[#6B6F77] sm:text-base"
+                  >
+                    {exercise.name}
+                  </h3>
+
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-2 sm:gap-x-4">
+                    <Stat icon={Dumbel} label={`${exercise.sets} ست`} />
+                    <Stat icon={Refresh} label={`${exercise.reps} تکرار`} />
+                    {exercise.rest != null && exercise.rest !== "—" ? (
+                      <Stat
+                        icon={ClockCircle}
+                        label={`${exercise.rest} ثانیه استراحت`}
+                      />
+                    ) : null}
+                  </div>
                 </div>
               </div>
-              </div>
+
+              {/* Records */}
               {showRecord ? (
-                <div className="flex w-full shrink-0 items-center justify-around gap-3 rounded-3xl bg-[#F2F8FD] p-4 sm:gap-8 lg:w-auto lg:justify-center">
+                <div className="grid w-full shrink-0 grid-cols-3 gap-2 rounded-2xl bg-[#F2F8FD] p-3 sm:gap-4 sm:rounded-3xl sm:p-4 lg:w-auto lg:min-w-[310px] lg:gap-6">
                   <Record label="رکورد قبلی" value={exercise.previous ?? "—"} />
                   <Record label="رکورد فعلی" value={exercise.current ?? "—"} />
                   <Record label="پیشرفت" value={exercise.progress ?? "—"} />
                 </div>
               ) : null}
             </div>
-            {hrTrue && index !== rows.length - 1 ? <hr className="w-full text-gray-200" /> : null}
+
+            {hrTrue && index !== rows.length - 1 ? (
+              <hr className="border-0 border-t border-gray-200" />
+            ) : null}
           </div>
         ))}
+
+        {/* Show all */}
         {showDetail ? (
           <div
             role="button"
@@ -112,12 +147,13 @@ export default function Mytrain({
                 setIsProgramModalOpen(true);
               }
             }}
-            className="flex cursor-pointer items-center justify-center gap-1.5 pt-1 text-sm text-[#9AA0A8] hover:text-[#6B6F77]"
+            className="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl py-2 pt-3 text-xs text-[#9AA0A8] transition hover:text-[#6B6F77] sm:text-sm"
           >
             <span>مشاهده همه تمرینات</span>
             <KeyboardArrowDownIcon sx={{ fontSize: 18 }} />
           </div>
         ) : null}
+
         <WorkoutProgramModal
           showModal={isProgramModalOpen}
           setShowModal={setIsProgramModalOpen}
@@ -134,18 +170,22 @@ export default function Mytrain({
 
 function Stat({ icon, label }) {
   return (
-    <div className="flex items-center gap-0.5">
-      <img className="size-3.5" src={icon} alt="" />
-      <p className="font-primary-ExtraLight text-[12px] font-medium text-[#6B6F77]">{label}</p>
+    <div className="flex min-w-0 items-center gap-1">
+      <img className="h-3.5 w-3.5 shrink-0 object-contain" src={icon} alt="" />
+      <p className="font-primary-ExtraLight whitespace-nowrap text-[10px] font-medium text-[#6B6F77] sm:text-xs">
+        {label}
+      </p>
     </div>
   );
 }
 
 function Record({ label, value }) {
   return (
-    <div className="flex-col items-center justify-center">
-      <h1 className="text-[#007BFF]">{label}</h1>
-      <p className="text-sm text-[#6B6F77]">{value}</p>
+    <div className="flex min-w-0 flex-col items-center justify-center gap-1 text-center">
+      <h3 className="whitespace-nowrap text-[10px] font-medium text-[#007BFF] sm:text-xs">
+        {label}
+      </h3>
+      <p className="break-words text-xs text-[#6B6F77] sm:text-sm">{value}</p>
     </div>
   );
 }
