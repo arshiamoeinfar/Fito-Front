@@ -46,7 +46,7 @@ function today() {
 }
 
 function blankMove() {
-  return { name: "", sets: "3", reps: "10", rest: "", weight: "", note: "", muscle: "" };
+  return { name: "", sets: "3", reps: "10", rest: "", weight: "", note: "", muscle: "", system: "normal", tempo: "", rpe: "", rir: "", setType: "", setDetails: [] };
 }
 
 function blankWeek() {
@@ -92,6 +92,18 @@ function movesFrom(day) {
       weight: item.target_weight_g ? String(item.target_weight_g / 1000) : "",
       note: item.coach_note || "",
       muscle: "",
+      system: item.system || "normal",
+      tempo: item.tempo || "",
+      rpe: item.rpe != null ? String(item.rpe) : "",
+      rir: item.rir != null ? String(item.rir) : "",
+      setType: item.set_type || "",
+      setDetails: Array.isArray(item.set_details)
+        ? item.set_details.map((detail) => ({
+            reps: detail?.reps ?? "",
+            weight: detail?.weight ?? "",
+            rest: detail?.rest ?? "",
+          }))
+        : [],
     };
   });
 
@@ -468,13 +480,39 @@ export default function CoachProgram() {
           row.coach_note = move.note.trim();
         }
 
+        row.system = move.system || "normal";
+
+        if (String(move.tempo || "").trim()) {
+          row.tempo = String(move.tempo).trim();
+        }
+
+        if (move.rpe !== "" && move.rpe != null) {
+          row.rpe = Number(move.rpe);
+        }
+
+        if (move.rir !== "" && move.rir != null) {
+          row.rir = Number(move.rir);
+        }
+
+        if (String(move.setType || "").trim()) {
+          row.set_type = String(move.setType).trim();
+        }
+
+        if (Array.isArray(move.setDetails) && move.setDetails.length) {
+          row.set_details = move.setDetails.map((detail) => ({
+            reps: String(detail?.reps ?? "").trim(),
+            weight: String(detail?.weight ?? "").trim(),
+            rest: detail?.rest === "" || detail?.rest == null ? null : Number(detail.rest),
+          }));
+        }
+
         const rest = Number(move.rest);
         if (move.rest !== "" && move.rest != null && Number.isInteger(rest) && rest >= 0) {
           row.rest_seconds = rest;
         }
 
         const kilos = Number(String(move.weight ?? "").replace(",", "."));
-        if (move.weight !== "" && move.weight != null && Number.isFinite(kilos) && kilos > 0) {
+        if ((tracking === "weight_reps" || tracking === "reps") && move.weight !== "" && move.weight != null && Number.isFinite(kilos) && kilos > 0) {
           row.target_weight_g = Math.round(kilos * 1000);
         }
 
@@ -669,7 +707,12 @@ export default function CoachProgram() {
         rest: move.rest,
         weight: move.weight || "",
         note: move.note || "",
-        system: "",
+        system: move.system || "normal",
+        tempo: move.tempo || "",
+        rpe: move.rpe || "",
+        rir: move.rir || "",
+        setType: move.setType || "",
+        setDetails: move.setDetails || [],
       };
     });
   const moveCount = days.reduce((sum, day) => sum + day.moves.filter((move) => move.name.trim()).length, 0);
@@ -682,7 +725,8 @@ export default function CoachProgram() {
 
   function updatePlanItem(id, fieldName, value) {
     const index = Number(String(id).split("-")[1]);
-    updateMove(bankDay, index, { [fieldName]: value === "" || value == null ? "" : String(value) });
+    const stored = fieldName === "setDetails" ? value : value === "" || value == null ? "" : String(value);
+    updateMove(bankDay, index, { [fieldName]: stored });
   }
 
   function removePlanItem(id) {

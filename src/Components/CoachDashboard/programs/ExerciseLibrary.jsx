@@ -38,6 +38,9 @@ export default function ExerciseLibrary({
   const selectedMuscle = activeMuscle ?? localMuscle;
   const [selectedExercise, setSelectedExercise] = useState(null);
   const [busyId, setBusyId] = useState(null);
+  const [manualName, setManualName] = useState("");
+  const [manualMuscle, setManualMuscle] = useState("عمومی");
+  const [manualDescription, setManualDescription] = useState("");
 
   const setQuery = (value) => {
     setShown(PAGE_SIZE);
@@ -116,6 +119,22 @@ export default function ExerciseLibrary({
   function handleAddExercise(exercise) {
     onAddExercise(exercise);
     setSelectedExercise(null);
+  }
+
+  function addManual() {
+    const name = manualName.trim() || query.trim();
+    if (!name) return;
+    onAddExercise({
+      id: `custom-${Date.now()}`,
+      name,
+      muscle: manualMuscle,
+      target: `عضله هدف: ${manualMuscle}`,
+      description: manualDescription.trim(),
+      image: imgExercise,
+    });
+    setManualName("");
+    setManualDescription("");
+    setQuery("");
   }
   return (
     <section dir="rtl" className="w-full rounded-[22px] bg-white px-4 py-5 sm:px-6 sm:py-6">
@@ -219,8 +238,52 @@ export default function ExerciseLibrary({
       </div>
 
       {filteredExercises.length === 0 && (
-        <div className="rounded-2xl bg-slate-50 px-4 py-12 text-center text-sm text-slate-500">
-          حرکتی با این جست‌وجو یا دسته‌بندی پیدا نشد.
+        <div className="rounded-2xl border border-blue-100 bg-blue-50/50 px-4 py-6 text-right sm:px-6">
+          <p className="text-sm font-bold text-slate-600">
+            حرکتی با این جست‌وجو یا دسته‌بندی پیدا نشد.
+          </p>
+          <p className="mt-1 text-xs leading-6 text-slate-400">
+            می‌توانی همین حرکت را دستی وارد کنی تا به لیست اضافه شود.
+          </p>
+          <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_180px]">
+            <input
+              value={manualName}
+              onChange={(event) => setManualName(event.target.value)}
+              placeholder={query.trim() ? `نام حرکت: ${query.trim()}` : "نام حرکت"}
+              aria-label="نام حرکت جدید"
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-blue-400"
+            />
+            <select
+              value={manualMuscle}
+              onChange={(event) => setManualMuscle(event.target.value)}
+              aria-label="گروه عضلانی حرکت جدید"
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-blue-400"
+            >
+              {muscleGroups
+                .filter((muscle) => muscle !== "همه")
+                .map((muscle) => (
+                  <option key={muscle} value={muscle}>
+                    {muscle}
+                  </option>
+                ))}
+            </select>
+          </div>
+          <input
+            value={manualDescription}
+            onChange={(event) => setManualDescription(event.target.value)}
+            placeholder="توضیح کوتاه (اختیاری)"
+            aria-label="توضیح حرکت جدید"
+            className="mt-3 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-blue-400"
+          />
+          <button
+            type="button"
+            onClick={addManual}
+            disabled={!manualName.trim() && !query.trim()}
+            className="mt-4 flex items-center justify-center gap-2 rounded-full bg-[#087FF5] px-6 py-2.5 text-sm font-primary text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            افزودن دستی به لیست
+            <PlusCircle size={19} strokeWidth={2} />
+          </button>
         </div>
       )}
       <p className="mt-6 text-center text-xs text-slate-400">
