@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import Navbar from "../../Components/shared/Navbar/Navbar";
 import HeaderDashBoard from "../../Components/DashBoardAuth/HeaderDashBoard/HeaderDashBoard";
+import CreditUsage from "../../Components/commerce/CreditUsage";
 import { api, ApiError } from "../../api/client";
 
 /* ───────────────────────── داده‌ها ───────────────────────── */
@@ -24,40 +25,6 @@ const STATUS_LABELS = {
   canceled: "لغو شده",
 };
 
-const TEST_PLANS = [
-  {
-    id: 4,
-    name: "شروع",
-    description: "برای مربی که تازه شاگرد می‌گیرد و فقط برنامه تمرین می‌سازد.",
-    price_irr: 1500000,
-    athlete_capacity: 15,
-    features: ["workout_programs"],
-  },
-  {
-    id: 5,
-    name: "رشد",
-    description: "تمرین، تغذیه و گزارش پیشرفت برای یک گروه متوسط.",
-    price_irr: 3900000,
-    athlete_capacity: 40,
-    features: ["workout_programs", "nutrition_programs", "progress_reports"],
-    recommended: true,
-  },
-  {
-    id: 6,
-    name: "استودیو",
-    description: "همه قابلیت‌ها، همراه سهمیه دستیار، برای مجموعه بزرگ‌تر.",
-    price_irr: 8900000,
-    athlete_capacity: 120,
-    features: [
-      "workout_programs",
-      "nutrition_programs",
-      "body_analysis",
-      "ai_coach_assistant",
-      "ai_athlete_access",
-      "progress_reports",
-    ],
-  },
-];
 
 /* ───────────────────────── کمکی‌ها ───────────────────────── */
 
@@ -189,6 +156,7 @@ export default function CoachPlans() {
   const [error, setError] = useState(null);
   const [saved, setSaved] = useState(false);
   const [requestedId, setRequestedId] = useState(null);
+  const [catalog, setCatalog] = useState([]);
 
   const statusRef = useRef(null);
   const checkoutRef = useRef(null);
@@ -226,6 +194,10 @@ export default function CoachPlans() {
 
   useEffect(() => {
     let active = true;
+
+    api("/api/v1/coach/plans").then((body) => {
+      if (active) setCatalog(body.plans ?? []);
+    }, () => {});
 
     api("/api/v1/coach/access").then(
       (body) => {
@@ -282,7 +254,7 @@ export default function CoachPlans() {
   const programLocked = !features.includes("workout_programs");
 
   const chosen =
-    TEST_PLANS.find((plan) => plan.id === order?.plan_id) ?? null;
+    catalog.find((plan) => plan.id === order?.plan_id) ?? null;
 
   const currentPlanId = access?.access?.plan_id ?? null;
 
@@ -383,8 +355,9 @@ export default function CoachPlans() {
           <div className="grid min-w-0 grid-cols-12 gap-3 sm:gap-4 lg:gap-6">
             <HeaderDashBoard
               title="پلن‌ها"
-              description="سه پلن آزمایشی برای خرید. مبلغ‌ها به ریال است."
+              description="پلن فعلی، جای شاگرد و خرید کردیت. تغییر پلن، تاریخ پایان را از همین لحظه تازه می‌کند."
             />
+            <CreditUsage role="coach" />
 
             {/* ───────── وضعیت دوره ───────── */}
 
@@ -503,8 +476,13 @@ export default function CoachPlans() {
 
                       <Fact
                         icon="users"
-                        label="ظرفیت ورزشکار"
-                        value={`${rial(access.access.athlete_capacity)} نفر`}
+                        label="شاگرد مجاز مانده"
+                        value={`${rial(access.access.athletes_remaining ?? 0)} از ${rial(access.access.athlete_capacity)}`}
+                      />
+                      <Fact
+                        icon="check"
+                        label="پلن فعلی"
+                        value={access.access.plan_name || "—"}
                       />
                     </div>
 
@@ -601,14 +579,19 @@ export default function CoachPlans() {
 
             {/* ───────── کارت پلن‌ها ───────── */}
 
-            {TEST_PLANS.map((plan) => {
-              const featured = Boolean(plan.recommended);
+            {catalog.length === 0 ? (
+              <p className="col-span-12 rounded-3xl bg-white px-6 py-8 text-right text-sm leading-8 text-[#6B7280]">
+                پلن قابل فروشی برای مربی تعریف نشده. مدیر باید پلن را بسازد.
+              </p>
+            ) : null}
+            {catalog.map((plan) => {
+              const featured = false;
               const selected = order?.plan_id === plan.id;
               const isCurrent = currentPlanId === plan.id;
               const loadingThis = busy === `choose:${plan.id}`;
-              const perAthlete = Math.round(
-                plan.price_irr / plan.athlete_capacity
-              );
+              const perAthlete = plan.athlete_capacity > 0
+                ? Math.round(plan.price_irr / plan.athlete_capacity)
+                : null;
 
               return (
                 <article
@@ -643,24 +626,25 @@ export default function CoachPlans() {
                         پلن فعلی شما
                       </span>
                     )}
-
-                    <span
-                      className={`rounded-full px-3 py-1 text-[11px] ${
-                        featured
-                          ? "bg-white/15 text-white/90"
-                          : "bg-[#EEF6FF] text-[#007BFF] dark:bg-blue-500/10 dark:text-blue-400"
-                      }`}
-                    >
-                      آزمایشی
-                    </span>
                   </div>
 
-                  <h2
-                    id={`plan-${plan.id}`}
-                    className="mt-4 text-2xl font-primary"
-                  >
-                    {plan.name}
-                  </h2>
+                  <div className="mt-4 flex items-center justify-between gap-3">
+                    <h2
+                      id={`plan-${plan.id}`}
+                      className="text-2xl font-primary"
+                    >
+                      {plan.name}
+                    </h2>
+                    <span className="relative h-14 w-14 shrink-0" aria-label={`${plan.features.length} قابلیت از ${FEATURE_ORDER.length}`}>
+                      <svg viewBox="0 0 36 36" className="h-14 w-14 -rotate-90">
+                        <circle cx="18" cy="18" r="15" fill="none" stroke={featured ? "rgba(255,255,255,0.25)" : "#E6EEF8"} strokeWidth="3" />
+                        <circle cx="18" cy="18" r="15" fill="none" stroke={featured ? "#ffffff" : "#007BFF"} strokeWidth="3" strokeLinecap="round" strokeDasharray={`${(plan.features.length / FEATURE_ORDER.length) * 94} 94`} />
+                      </svg>
+                      <span className={`absolute inset-0 flex items-center justify-center text-[11px] font-semibold ${featured ? "" : "text-[#0B5FD0]"}`}>
+                        {plan.features.length}/{FEATURE_ORDER.length}
+                      </span>
+                    </span>
+                  </div>
 
                   <p
                     className={`mt-2 text-sm leading-7 sm:min-h-14 ${
@@ -694,7 +678,7 @@ export default function CoachPlans() {
                           : "text-[#A0A4AA] dark:text-slate-400"
                       }`}
                     >
-                      حدود {rial(perAthlete)} ریال برای هر ورزشکار
+                      {perAthlete == null ? "بدون ظرفیت شاگرد" : `حدود ${rial(perAthlete)} ریال برای هر ورزشکار`}
                     </p>
                   </div>
 
@@ -766,7 +750,7 @@ export default function CoachPlans() {
 
                   <button
                     type="button"
-                    disabled={pending}
+                    disabled={pending || isCurrent}
                     onClick={() => choose(plan)}
                     aria-busy={loadingThis}
                     className={`mt-7 inline-flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 sm:mt-auto ${
@@ -783,7 +767,9 @@ export default function CoachPlans() {
                     ) : selected ? (
                       "ادامه پرداخت این پلن"
                     ) : isCurrent ? (
-                      "تمدید این پلن"
+                      "تا پایان دوره همین پلن بسته است"
+                    ) : access?.access ? (
+                      "تغییر پلن و تازه‌کردن تاریخ"
                     ) : (
                       "انتخاب این پلن"
                     )}

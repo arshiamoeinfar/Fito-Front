@@ -22,6 +22,8 @@ import CoachNutrition from "../pages/coach/CoachNutrition";
 import CoachMeal from "../pages/coach/CoachMeal";
 import CoachAssistant from "../pages/coach/CoachAssistant";
 import AdminPlans from "../pages/admin/AdminPlans";
+import AdminCredit from "../pages/admin/AdminCredit";
+import AdminBlog from "../pages/admin/AdminBlog";
 import AdminUsers from "../pages/admin/AdminUsers";
 import AdminSettings from "../pages/admin/AdminSettings";
 import AdminHomepage from "../pages/admin/AdminHomepage";
@@ -71,6 +73,8 @@ export default function AppRoutes() {
       <Route path="/coach/assistant" element={guarded("coach", <CoachAssistant />)} />
       <Route path="/coach/settings" element={guarded("coach", <CoachSetting />)} />
       <Route path="/admin/plans" element={<AdminPlans />} />
+      <Route path="/admin/credits" element={<AdminCredit />} />
+      <Route path="/admin/blog" element={<AdminBlog />} />
       <Route path="/admin/users" element={<AdminUsers />} />
       <Route path="/admin/settings" element={<AdminSettings />} />
       <Route path="/admin/homepage" element={<AdminHomepage />} />

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import Navbar from "../../Components/shared/Navbar/Navbar";
 import HeaderDashBoard from "../../Components/DashBoardAuth/HeaderDashBoard/HeaderDashBoard";
 import { api, ApiError } from "../../api/client";
+import CreditUsage from "../../Components/commerce/CreditUsage";
 
 const FEATURE_LABELS = {
   workout_programs: "برنامه تمرین",
@@ -95,37 +96,49 @@ export default function AthletePlan() {
             {error ? <p className="col-span-12 rounded-3xl bg-red-50 px-6 py-4 text-right text-sm text-red-700">{error}</p> : null}
             {notice ? <p className="col-span-12 rounded-3xl bg-green-50 px-6 py-4 text-right text-sm text-green-700">{notice}</p> : null}
             {active ? (
-              <p className="col-span-12 rounded-3xl bg-white px-6 py-5 text-right text-sm leading-7 text-[#16845A]">
+              <p className="col-span-12 rounded-[28px] bg-[#EAF8F1] px-6 py-5 text-right text-sm leading-7 text-[#16845A]">
                 پلن تو فعال است. برنامه را از بخش ورزش یا تغذیه بساز.
-                <Link to="/trainingpage" className="mr-3 text-[#007BFF]">رفتن به ورزش</Link>
+                <Link to="/trainingpage" className="mr-3 font-medium text-[#0B5FD0]">رفتن به ورزش</Link>
               </p>
             ) : null}
+            <CreditUsage role="athlete" />
             <div className="col-span-12 grid gap-4 md:grid-cols-2" dir="rtl">
               {plans.length === 0 ? (
-                <p className="rounded-3xl bg-white px-6 py-8 text-sm leading-8 text-[#6B6F77]">
+                <p className="rounded-[28px] bg-white px-6 py-8 text-sm leading-8 text-[#6B6F77]">
                   هنوز پلن ورزشکاری برای فروش تعریف نشده. مدیر پلتفرم باید یک پلن با مخاطب «ورزشکار» بسازد.
                 </p>
-              ) : plans.map((plan) => (
-                <article key={plan.id} className="rounded-3xl bg-white px-6 py-6 text-right">
-                  <h2 className="text-xl text-[#243142]">{plan.name}</h2>
-                  <p className="mt-2 text-sm text-[#6B6F77]">{plan.description || "برنامه و دستیار برای خود ورزشکار."}</p>
-                  <p className="mt-4 text-lg text-[#16845A]">{rial(plan.price_irr)}</p>
-                  <p className="mt-1 text-sm text-[#6B6F77]">مدت {period(plan)} · سهمیه دستیار {Number(plan.ai_request_quota || 0).toLocaleString("fa-IR")}</p>
-                  <ul className="mt-4 grid gap-1 text-sm text-[#4B5563]">
-                    {(plan.features ?? []).map((key) => (
-                      <li key={key}>{FEATURE_LABELS[key] || key}</li>
-                    ))}
-                  </ul>
-                  <button
-                    type="button"
-                    onClick={() => buy(plan)}
-                    disabled={busyId === plan.id}
-                    className="mt-5 rounded-full bg-[#007BFF] px-5 py-3 text-sm text-white disabled:opacity-60"
-                  >
-                    {busyId === plan.id ? "در حال پرداخت" : "پرداخت آزمایشی و فعال‌سازی"}
-                  </button>
-                </article>
-              ))}
+              ) : plans.map((plan, index) => {
+                const featured = index === 0;
+                return (
+                  <article key={plan.id} className={`relative overflow-hidden rounded-[28px] px-6 py-6 text-right ${featured ? "bg-[#0B5FD0] text-white shadow-[0_18px_40px_-22px_rgba(11,95,208,0.7)]" : "border border-[#E8ECF4] bg-white text-[#16324F]"}`}>
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className={`text-xs ${featured ? "text-white/70" : "text-[#6B7280]"}`}>{period(plan)}</p>
+                        <h2 className="mt-2 text-2xl">{plan.name}</h2>
+                      </div>
+                      <div className={`flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-full ${featured ? "bg-white/15" : "bg-[#EAF3FF]"}`}>
+                        <span className="text-sm font-semibold">{Number(plan.ai_request_quota || 0).toLocaleString("fa-IR")}</span>
+                        <span className={`text-[10px] ${featured ? "text-white/70" : "text-[#0B5FD0]"}`}>کردیت</span>
+                      </div>
+                    </div>
+                    <p className={`mt-3 min-h-12 text-sm leading-7 ${featured ? "text-white/80" : "text-[#6B7280]"}`}>{plan.description || "برنامه و دستیار برای خود ورزشکار."}</p>
+                    <p className="mt-4 text-2xl font-semibold">{rial(plan.price_irr)}</p>
+                    <ul className="mt-4 flex flex-wrap gap-2">
+                      {(plan.features ?? []).map((key) => (
+                        <li key={key} className={`rounded-full px-3 py-1 text-xs ${featured ? "bg-white/15" : "bg-[#F5F7FB] text-[#374151]"}`}>{FEATURE_LABELS[key] || key}</li>
+                      ))}
+                    </ul>
+                    <button
+                      type="button"
+                      onClick={() => buy(plan)}
+                      disabled={busyId === plan.id}
+                      className={`mt-6 rounded-2xl px-5 py-3 text-sm font-semibold disabled:opacity-60 ${featured ? "bg-white text-[#0B5FD0]" : "bg-[#007BFF] text-white"}`}
+                    >
+                      {busyId === plan.id ? "در حال پرداخت" : "پرداخت آزمایشی و فعال‌سازی"}
+                    </button>
+                  </article>
+                );
+              })}
             </div>
           </div>
         </div>

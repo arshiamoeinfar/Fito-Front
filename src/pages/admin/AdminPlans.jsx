@@ -215,6 +215,8 @@ function AdminDesk() {
               <Link to="/admin/users" className="text-sm text-[#007BFF]">حساب کاربران</Link>
               <Link to="/admin/settings" className="text-sm text-[#007BFF]">تنظیمات دستیار</Link>
               <Link to="/admin/homepage" className="text-sm text-[#007BFF]">صفحه اصلی</Link>
+              <Link to="/admin/credits" className="text-sm text-[#007BFF]">کردیت و مصرف</Link>
+              <Link to="/admin/blog" className="text-sm text-[#007BFF]">بلاگ</Link>
             </div>
 
             {error && (
@@ -237,7 +239,25 @@ function AdminDesk() {
                     <Field label="نام" value={draft.name} onChange={(value) => updateDraft("name", value)} />
                     <Field label="مبلغ به ریال" value={draft.price_irr} onChange={(value) => updateDraft("price_irr", value)} numeric />
                     <Field label="ظرفیت ورزشکار" value={draft.athlete_capacity} onChange={(value) => updateDraft("athlete_capacity", value)} numeric />
-                    <Field label="طول دوره" value={draft.billing_interval_count} onChange={(value) => updateDraft("billing_interval_count", value)} numeric />
+                    <div className="grid gap-2 text-xs text-[#6B6F77]">
+                      طول دوره
+                      <div className="flex flex-wrap gap-2">
+                        {[1, 3, 6, 12].map((months) => (
+                          <button
+                            key={months}
+                            type="button"
+                            onClick={() => {
+                              updateDraft("billing_interval_unit", "month");
+                              updateDraft("billing_interval_count", String(months));
+                            }}
+                            className="rounded-full border border-[#D7DDE8] px-3 py-2 text-sm text-[#243142]"
+                          >
+                            {months} ماه
+                          </button>
+                        ))}
+                      </div>
+                      <Field label="تعداد ماه یا روز" value={draft.billing_interval_count} onChange={(value) => updateDraft("billing_interval_count", value)} numeric />
+                    </div>
                     <label className="grid gap-2 text-xs text-[#6B6F77]">
                       واحد دوره
                       <select
@@ -249,7 +269,7 @@ function AdminDesk() {
                         <option value="day">روز</option>
                       </select>
                     </label>
-                    <Field label="سهمیه دستیار" value={draft.ai_request_quota} onChange={(value) => updateDraft("ai_request_quota", value)} numeric />
+                    <Field label="کردیت کل دوره" value={draft.ai_request_quota} onChange={(value) => updateDraft("ai_request_quota", value)} numeric />
                     <Field label="توضیح" value={draft.description} onChange={(value) => updateDraft("description", value)} />
                     <label className="grid gap-2 text-xs text-[#6B6F77]">
                       مخاطب

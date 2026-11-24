@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { api, ApiError } from "../../../../api/client";
 import { useSession } from "../../../../api/session";
 import AIImage from "../../../../assets/imges/image 12.png";
@@ -91,46 +92,55 @@ export default function AIChat() {
 
         const rows = Array.isArray(body?.relationships) ? body.relationships : [];
         const activeRow = rows.find((row) => row.status === "active") ?? null;
-        const aiRow = rows.find(
-          (row) => row.status === "active" && Array.isArray(row.features) && row.features.includes("ai_athlete_access"),
-        ) ?? null;
 
         setCoachRelationshipId(activeRow ? activeRow.id : null);
         setCoachAllowed(Boolean(activeRow));
         setCoachReady(true);
-        setAiRelationshipId(aiRow ? aiRow.id : null);
-        setAiAllowed(Boolean(aiRow));
-        setAiReady(true);
 
         if (!activeRow) {
           setCoachError("دوره یا پکیج تمام شده است.");
         }
 
-        if (!aiRow) {
-          try {
-            const access = await api("/api/v1/athlete/access");
-            const features = Array.isArray(access?.features) ? access.features : [];
+        let ownChat = false;
 
-            if (active && features.includes("ai_athlete_access")) {
-              const history = await api("/api/v1/athlete/assistant/messages");
-
-              if (!active) {
-                return;
-              }
-
-              setSelfAi(true);
-              setAiAllowed(true);
-              setAiError(null);
-              setAiMessages(history.messages ?? []);
-            } else if (active) {
-              setAiError(activeRow ? "این دوره قابلیت دستیار ندارد." : "برای چت با هوش مصنوعی باید پلن ورزشکار را بخری.");
-            }
-          } catch (caught) {
-            if (active) {
-              setAiError(errorText(caught));
-            }
+        try {
+          const access = await api("/api/v1/athlete/access");
+          const features = Array.isArray(access?.features) ? access.features : [];
+          ownChat = features.includes("ai_athlete_access");
+        } catch (caught) {
+          if (active) {
+            setAiError(errorText(caught));
           }
         }
+
+        if (!active) {
+          return;
+        }
+
+        if (!activeRow && ownChat) {
+          const history = await api("/api/v1/athlete/assistant/messages");
+
+          if (!active) {
+            return;
+          }
+
+          setSelfAi(true);
+          setAiAllowed(true);
+          setAiError(null);
+          setAiMessages(history.messages ?? []);
+        } else if (activeRow && ownChat) {
+          setSelfAi(false);
+          setAiRelationshipId(activeRow.id);
+          setAiAllowed(true);
+          setAiError(null);
+        } else {
+          setAiAllowed(false);
+          setAiError(activeRow
+            ? "برای چت با دستیار هوش مصنوعی باید کردیت بخری."
+            : "برای چت با هوش مصنوعی باید پلن ورزشکار را بخری.");
+        }
+
+        setAiReady(true);
 
         if (activeRow) {
           try {
@@ -155,14 +165,14 @@ export default function AIChat() {
           }
         }
 
-        if (aiRow) {
+        if (activeRow && ownChat) {
           api("/api/v1/athlete/ai/conversations").then((history) => {
             if (!active) {
               return;
             }
 
             const threads = (history?.conversations ?? []).filter(
-              (row) => String(row.coaching_relationship_id) === String(aiRow.id),
+              (row) => String(row.coaching_relationship_id) === String(activeRow.id),
             );
             const latest = threads.at(-1);
             setAiThreadId(latest?.id ?? null);
@@ -483,6 +493,9 @@ export default function AIChat() {
       </div>
 
       {error ? <p className="bg-red-50 px-5 py-3 text-sm text-red-700">{error}</p> : null}
+      {!coachMode && ready && !allowed ? (
+        <Link to="/athlete-plan" className="px-5 py-2 text-sm text-[#007BFF]">خرید کردیت دستیار</Link>
+      ) : null}
 
       <div ref={scrollerRef} className="flex min-h-0 flex-1 flex-col overflow-y-auto px-5 py-4">
         {showCoachWelcome ? (

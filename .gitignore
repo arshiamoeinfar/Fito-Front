@@ -6,7 +6,7 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-
+Front-end.zip
 node_modules
 dist
 dist-ssr
@@ -34,3 +34,9 @@ coverage/
 
 # OS files
 Thumbs.db
+
+# Local-only working files
+.cursor/
+graphify-out/
+docs/
+audit-out/
