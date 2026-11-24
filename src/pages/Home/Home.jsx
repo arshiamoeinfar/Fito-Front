@@ -289,10 +289,10 @@ function DashboardPreview({ blocks, overrides = null, coachLive = null }) {
   const chart = Array.isArray(overrides?.preview_chart)
     ? overrides.preview_chart
     : items(
-        blocks,
-        "preview_chart",
-        [35, 42, 39, 50, 47, 63, 58, 72, 67, 82, 78, 92],
-      );
+      blocks,
+      "preview_chart",
+      [35, 42, 39, 50, 47, 63, 58, 72, 67, 82, 78, 92],
+    );
   const bodyDelta = line("preview_body_delta", "+2.4%");
 
   return (
@@ -445,9 +445,9 @@ function Features({ blocks, sections, athleteLive, coachLive }) {
     athleteLive?.exercises?.length
       ? athleteLive.exercises
       : items(blocks, "workout_exercises", [
-          { name: "اسکوات با هالتر", sets: "۳ ست × ۸ تکرار", done: "1" },
-          { name: "ددلیفت رومانیایی", sets: "۳ ست × ۱۰ تکرار", done: "0" },
-        ])
+        { name: "اسکوات با هالتر", sets: "۳ ست × ۸ تکرار", done: "1" },
+        { name: "ددلیفت رومانیایی", sets: "۳ ست × ۱۰ تکرار", done: "0" },
+      ])
   ).slice(0, 2);
   const macros =
     athleteLive?.macros ||
@@ -459,523 +459,518 @@ function Features({ blocks, sections, athleteLive, coachLive }) {
   const barColors = ["bg-[#007BFF]", "bg-sky-400", "bg-amber-400"];
 
   return (
-  <section
-  id="features"
-  style={regionStyle(sections, "features")}
-  className="mx-auto max-w-[1200px] px-5 py-24 lg:px-8"
->
-  <FadeInUp className="mb-12">
-    <SecHead
-      eyebrow={text(blocks, "features_eyebrow", "امکانات فیتو")}
-      title={`${text(blocks, "features_title", "یک اکوسیستم کامل،")} ${text(blocks, "features_title_muted", "نه فقط یک برنامه‌ساز تمرین")}`}
-      lead={text(
-        blocks,
-        "features_lead",
-        "هر چیزی که برای مربیگری حرفه‌ای لازم دارید، به‌صورت یکپارچه و متصل به هم در اختیار شماست.",
-      )}
-    />
-  </FadeInUp>
-
-  <div className="grid gap-5 md:grid-cols-3">
-    {concealed(sections, "coaches") ? null : (
-    <div
-      id="coaches"
-      className={`${CARD} md:col-span-2 dark:border dark:border-slate-800 dark:bg-[--surface]`}
+    <section
+      id="features"
+      style={regionStyle(sections, "features")}
+      className="mx-auto max-w-[1200px] px-5 py-24 lg:px-8"
     >
-      <div className="grid items-center gap-7 md:grid-cols-2">
-        <div className="space-y-5">
-          <FHead
-            icon="users"
-            title={coachTitle || "ثبت نشده"}
-            text={text(
-              blocks,
-              "coaches_lead",
-              "همه‌ی شاگردان در یک داشبورد متمرکز؛ وضعیت، اهداف، پرداخت‌ها و میزان پایبندی هر نفر در یک نگاه.",
-            )}
-          />
-          <ul className="space-y-3 text-xs font-semibold text-slate-600 dark:text-slate-300">
-            {coachPoints.map((t) => (
-              <li key={t} className="flex items-center gap-2.5">
-                <span className="grid h-5 w-5 shrink-0 place-items-center rounded-lg bg-blue-50 text-[#007BFF] dark:bg-blue-500/15 dark:text-blue-400">
-                  <Ico n="check" s={11} />
-                </span>
-                {t}
-              </li>
-            ))}
-          </ul>
-          <div className="flex items-center gap-3 rounded-xl border border-blue-100 bg-blue-50/70 p-3 dark:border-blue-900/50 dark:bg-blue-500/5">
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-blue-100 text-[#007BFF] dark:bg-blue-500/15 dark:text-blue-400">
-              <Ico n="users" s={17} />
-            </span>
-            <div>
-              <p className="text-[11px] font-extrabold text-slate-800 dark:text-slate-100">
-                {text(blocks, "coaches_highlight_title", "ثبت نشده")}
-              </p>
-              <p className="mt-1 text-[10px] text-slate-500 dark:text-slate-400">
-                {text(blocks, "coaches_highlight_text", "ثبت نشده")}
-              </p>
-            </div>
-          </div>
-        </div>
+      <FadeInUp className="mb-12">
+        <SecHead
+          eyebrow={text(blocks, "features_eyebrow", "امکانات فیتو")}
+          title={`${text(blocks, "features_title", "یک اکوسیستم کامل،")} ${text(blocks, "features_title_muted", "نه فقط یک برنامه‌ساز تمرین")}`}
+          lead={text(
+            blocks,
+            "features_lead",
+            "هر چیزی که برای مربیگری حرفه‌ای لازم دارید، به‌صورت یکپارچه و متصل به هم در اختیار شماست.",
+          )}
+        />
+      </FadeInUp>
 
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900/70">
-          <div className="mb-4 flex items-center justify-between">
-            <div>
-              <p className="text-xs font-extrabold text-slate-800 dark:text-white">
-                {text(blocks, "coaches_panel_title", "شاگردان من")}
-              </p>
-              <p className="mt-1 text-[10px] text-slate-400">
-                {coachLive?.count || text(blocks, "coaches_panel_count", "ثبت نشده")}
-              </p>
-            </div>
-            <span className="flex items-center gap-1.5 rounded-xl bg-[#007BFF] px-3 py-2 text-[10px] font-bold text-white shadow-lg shadow-blue-500/20">
-              <Ico n="plus" s={12} />
-              {text(blocks, "coaches_add_label", "شاگرد جدید")}
-            </span>
-          </div>
-
-          <div className="mb-3 flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-[10px] text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-500">
-            <Ico n="search" s={13} />
-            جستجوی شاگرد...
-            <span className="mr-auto rounded-md bg-slate-100 px-1.5 py-0.5 text-[9px] dark:bg-slate-700">
-              <Ico n="sliders-horizontal" s={11} />
-            </span>
-          </div>
-
-          <ul className="space-y-2">
-            {students.length === 0 ? <li className="px-2 py-3 text-[11px] text-slate-400">شاگردی ثبت نشده</li> : null}
-            {students.map((s, index) => {
-              const ok = s.status !== "نیاز به بررسی";
-              const progress = percentNumber(s.percent);
-              return (
-                <li
-                  key={`${s.name}-${index}`}
-                  className="rounded-xl border border-slate-100 bg-white p-3 transition-colors hover:border-blue-200 dark:border-slate-700/80 dark:bg-slate-800/80 dark:hover:border-blue-500/40"
-                >
-                  <div className="mb-2.5 flex items-center gap-2.5">
-                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-blue-50 text-[10px] font-extrabold text-[#007BFF] dark:bg-blue-500/15 dark:text-blue-400">
-                      <img src={imgBody} alt="" />
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-[11px] font-extrabold text-slate-800 dark:text-slate-100">
-                        {s.name}
-                      </p>
-                      <p className="mt-1 text-[9px] text-slate-400">
-                        میزان پیشرفت
-                      </p>
-                    </div>
-                    <span
-                      className={`shrink-0 rounded-lg px-2 py-1 text-[9px] font-bold ${
-                        ok
-                          ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400"
-                          : "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
-                      }`}
-                    >
-                      {s.status}
-                    </span>
-                  </div>
-                  {progress === null ? null : (
-                  <div className="flex items-center gap-2">
-                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
-                      <div
-                        className={`h-full rounded-full ${
-                          ok ? "bg-[#007BFF]" : "bg-amber-400"
-                        }`}
-                        style={{ width: `${progress}%` }}
-                      />
-                    </div>
-                    <span className="w-8 text-left text-[9px] font-bold text-slate-500 dark:text-slate-400">
-                      {s.percent}
-                    </span>
-                  </div>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      </div>
-    </div>
-    )}
-
-    {concealed(sections, "workout") ? null : (
-    <div
-      id="workout"
-      className={`${CARD} dark:border dark:border-slate-800 dark:bg-[--surface]`}
-    >
-      <FHead
-        icon="dumbbell"
-        title={workoutTitle || "ثبت نشده"}
-        text={text(
-          blocks,
-          "workout_lead",
-          "برنامه‌های حرفه‌ای را بسازید، شخصی‌سازی کنید و با یک کلیک برای شاگرد ارسال کنید.",
-        )}
-      />
-      <div className="mb-4 flex gap-2">
-        {[
-          text(blocks, "workout_card_label", "ثبت نشده"),
-          text(blocks, "workout_card_title", "ثبت نشده"),
-          text(blocks, "workout_card_percent", "ثبت نشده"),
-        ].map((d, i) => (
-          <span
-            key={`${d}-${i}`}
-            className={`flex-1 rounded-xl px-2 py-2.5 text-center text-[10px] font-bold transition-colors ${
-              i === 0
-                ? "bg-[#007BFF] text-white shadow-md shadow-blue-500/20"
-                : "border border-slate-100 bg-slate-50 text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400"
-            }`}
-          >
-            {d}
-          </span>
-        ))}
-      </div>
-      <div className="mb-3 flex items-center justify-between">
-        <div>
-          <b className="text-xs text-slate-800 dark:text-white">
-            {text(blocks, "workout_card_label", "ثبت نشده")}
-          </b>
-          <p className="mt-1 text-[9px] text-slate-400">{text(blocks, "workout_card_title", "ثبت نشده")}</p>
-        </div>
-        <span className="rounded-lg bg-blue-50 px-2 py-1 text-[9px] font-bold text-[#007BFF] dark:bg-blue-950/40 dark:text-blue-400">
-          {exercises.length} حرکت
-        </span>
-      </div>
-      <div className="space-y-2">
-        {exercises.map((e, i) => (
+      <div className="grid gap-5 md:grid-cols-3">
+        {concealed(sections, "coaches") ? null : (
           <div
-            key={e.name}
-            className="group flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 p-3 transition-all hover:border-blue-200 hover:bg-blue-50/50 dark:border-slate-800 dark:bg-slate-900/70 dark:hover:border-blue-900 dark:hover:bg-blue-950/20"
+            id="coaches"
+            className={`${CARD} md:col-span-2 dark:border dark:border-slate-800 dark:bg-[--surface]`}
           >
-            <div className="flex min-w-0 items-center gap-3">
-              <div
-                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
-                  i === 0
-                    ? "bg-blue-100 text-[#007BFF] dark:bg-blue-950/60 dark:text-blue-400"
-                    : "bg-slate-200/70 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
-                }`}
-              >
-                <img src={imgBody} alt="" />
-              </div>
-              <div className="min-w-0">
-                <b className="block truncate text-xs text-slate-800 dark:text-white">
-                  {e.name}
-                </b>
-                <span className="mt-1 block text-[10px] text-slate-400">
-                  {e.sets}
-                </span>
-              </div>
-            </div>
-            <Ico
-              n="chevron-left"
-              s={15}
-              className="shrink-0 text-slate-300 transition-colors group-hover:text-[#007BFF]"
-            />
-          </div>
-        ))}
-      </div>
-      <div className="mt-3 flex items-center justify-center gap-2 rounded-xl border border-dashed border-blue-300 bg-blue-50/40 py-3 text-[10px] font-bold text-[#007BFF] transition-colors hover:bg-blue-50 dark:border-blue-900/60 dark:bg-blue-950/20 dark:text-blue-400 dark:hover:bg-blue-950/40">
-        <Ico n="plus" s={15} />
-        {text(blocks, "workout_link", "ثبت نشده")}
-      </div>
-      <div className="mt-4 flex items-center justify-between rounded-xl bg-[#0b1530] px-3 py-3 dark:bg-slate-900 dark:ring-1 dark:ring-slate-700">
-        <div className="flex items-center gap-2">
-          <Ico n="check-circle" s={16} className="text-emerald-400" />
-          <span className="text-[10px] font-medium text-slate-200">
-            {text(blocks, "workout_done", "ثبت نشده")}
-          </span>
-        </div>
-        <span className="text-[10px] font-bold text-blue-400">{text(blocks, "logo_name", "Fito")}</span>
-      </div>
-    </div>
-    )}
-
-    {concealed(sections, "nutrition") ? null : (
-    <div
-      id="nutrition"
-      className={`${CARD} dark:border dark:border-slate-800 dark:bg-[--surface]`}
-    >
-      <FHead
-        icon="apple"
-        title={nutritionTitle || "ثبت نشده"}
-        text={text(
-          blocks,
-          "nutrition_lead",
-          "برنامه غذایی شخصی‌سازی‌شده بسازید و کالری و درشت‌مغذی‌های روزانه را دنبال کنید.",
-        )}
-      />
-      <div className="rounded-2xl border border-slate-100 bg-gradient-to-br from-blue-50/70 via-white to-sky-50/50 p-4 dark:border-slate-800 dark:from-blue-950/30 dark:via-slate-900 dark:to-slate-950">
-        <div className="mb-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-100 text-[#007BFF] dark:bg-blue-950/60 dark:text-blue-400">
-              <Ico n="utensils" s={16} />
-            </div>
-            <div>
-              <b className="block text-xs text-slate-800 dark:text-white">
-                {text(blocks, "nutrition_card_label", "ثبت نشده")}
-              </b>
-              <span className="text-[9px] text-slate-400">
-                {text(blocks, "nutrition_eyebrow", "ثبت نشده")}
-              </span>
-            </div>
-          </div>
-          <span className="rounded-full bg-emerald-50 px-2 py-1 text-[9px] font-bold text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
-            <Ico n="activity" s={11} className="me-1 inline" />
-            {waterPercentLabel}
-          </span>
-        </div>
-        <div className="flex items-center gap-5">
-          <div className="shrink-0">
-            <Ring v={nutritionRing} size={88}>
-              <div className="text-center">
-                <b
-                  dir="ltr"
-                  className="block text-sm font-black text-slate-800 dark:text-white"
-                >
-                  {nutritionValue}
-                </b>
-              </div>
-            </Ring>
-          </div>
-          <div className="min-w-0 flex-1 space-y-3">
-            {macros.map((m, i) => {
-              const colors = [
-                { dot: "bg-blue-500", text: "text-blue-600 dark:text-blue-400" },
-                { dot: "bg-emerald-500", text: "text-emerald-600 dark:text-emerald-400" },
-                { dot: "bg-amber-500", text: "text-amber-600 dark:text-amber-400" },
-              ][i % 3];
-              return (
-                <div key={m.label}>
-                  <div className="mb-1 flex items-center justify-between gap-2">
-                    <span className="flex items-center gap-1.5 text-[10px] text-slate-500 dark:text-slate-400">
-                      <span className={`h-2 w-2 rounded-full ${colors.dot}`} />
-                      {m.label}
-                    </span>
-                    <b className={`text-[10px] ${colors.text}`}>
-                      {String(m.percent ?? "").includes("%") ? m.percent : `${m.percent ?? "ثبت نشده"}`}
-                    </b>
+            <div className="grid items-center gap-7 md:grid-cols-2">
+              <div className="space-y-5">
+                <FHead
+                  icon="users"
+                  title={coachTitle || "ثبت نشده"}
+                  text={text(
+                    blocks,
+                    "coaches_lead",
+                    "همه‌ی شاگردان در یک داشبورد متمرکز؛ وضعیت، اهداف، پرداخت‌ها و میزان پایبندی هر نفر در یک نگاه.",
+                  )}
+                />
+                <ul className="space-y-3 text-xs font-semibold text-slate-600 dark:text-slate-300">
+                  {coachPoints.map((t) => (
+                    <li key={t} className="flex items-center gap-2.5">
+                      <span className="grid h-5 w-5 shrink-0 place-items-center rounded-lg bg-blue-50 text-[#007BFF] dark:bg-blue-500/15 dark:text-blue-400">
+                        <Ico n="check" s={11} />
+                      </span>
+                      {t}
+                    </li>
+                  ))}
+                </ul>
+                <div className="flex items-center gap-3 rounded-xl border border-blue-100 bg-blue-50/70 p-3 dark:border-blue-900/50 dark:bg-blue-500/5">
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-blue-100 text-[#007BFF] dark:bg-blue-500/15 dark:text-blue-400">
+                    <Ico n="users" s={17} />
+                  </span>
+                  <div>
+                    <p className="text-[11px] font-extrabold text-slate-800 dark:text-slate-100">
+                      {text(blocks, "coaches_highlight_title", "ثبت نشده")}
+                    </p>
+                    <p className="mt-1 text-[10px] text-slate-500 dark:text-slate-400">
+                      {text(blocks, "coaches_highlight_text", "ثبت نشده")}
+                    </p>
                   </div>
-                  <Bar w={m.percent} c={barColors[i % 3]} />
                 </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-      <div className="mt-3 flex items-center gap-2 rounded-xl bg-emerald-50/70 px-3 py-2.5 dark:bg-emerald-950/20">
-        <Ico n="check-circle" s={15} className="shrink-0 text-emerald-500" />
-        <span className="text-[10px] leading-5 text-emerald-700 dark:text-emerald-400">
-          {athleteLive?.waterDetail || `${text(blocks, "nutrition_water_title", "ثبت نشده")} · ${text(blocks, "nutrition_water_detail", "ثبت نشده")}`}
-        </span>
-      </div>
-    </div>
-    )}
+              </div>
 
-    {/* 4. آنالیز بدن - ۱ ستون */}
-    <div className={`${CARD} dark:border dark:border-slate-800 dark:bg-[--surface]`}>
-      <FHead
-        icon="scan"
-        title={bodyCard.title}
-        text={bodyCard.text}
-      />
-      <div className="relative grid h-40 place-items-center overflow-hidden rounded-2xl border border-blue-100/70 bg-gradient-to-br from-blue-50 via-white to-sky-50 dark:border-blue-900/40 dark:from-blue-950/40 dark:via-slate-900 dark:to-slate-950">
-        <div className="absolute h-32 w-32 rounded-full bg-blue-200/30 blur-2xl dark:bg-blue-500/10" />
-        <img src={ImgAnatomi} alt="آنالیز بدن" className="relative z-10 h-36 drop-shadow-lg" />
-        {[[-20, 40], [20, 40], [-10, 112], [10, 112]].map(([dx, dy]) => (
-          <i
-            key={`${dx}${dy}`}
-            className="absolute z-20 h-2.5 w-2.5 rounded-full border-2 border-white bg-[#007BFF] shadow-[0_0_12px_#007BFF] dark:border-slate-900"
-            style={{ left: `calc(50% + ${dx}px)`, top: dy }}
-          />
-        ))}
-        <span className="absolute right-3 top-3 z-20 flex items-center gap-1.5 rounded-xl border border-slate-100 bg-white/95 px-2.5 py-1.5 text-[10px] font-bold text-[#0b1530] shadow-sm backdrop-blur dark:border-slate-700 dark:bg-slate-800/95 dark:text-white">
-          <Activity size={13} className="text-[#007BFF]" />
-          {text(blocks, "preview_body_label", "ثبت نشده")}
-        </span>
-        <span className="absolute bottom-3 left-3 z-20 flex items-center gap-1.5 rounded-xl border border-slate-100 bg-white/95 px-2.5 py-1.5 text-[10px] font-bold text-[#0b1530] shadow-sm backdrop-blur dark:border-slate-700 dark:bg-slate-800/95 dark:text-white">
-          <Weight size={13} className="text-emerald-500" />
-          {bodyFigure}
-        </span>
-        <span className="absolute bottom-3 right-3 z-20 rounded-lg bg-blue-100/80 px-2 py-1 text-[9px] font-bold text-blue-700 dark:bg-blue-950/80 dark:text-blue-300">
-          Body Scan
-        </span>
-      </div>
-    </div>
-
-    {/* 5. گزارش پیشرفت - ۱ ستون */}
-    <div className={`${CARD} dark:border dark:border-slate-800 dark:bg-[--surface]`}>
-      <FHead
-        icon="trend"
-        title={progressCard.title}
-        text={progressCard.text}
-      />
-      <div className="relative overflow-hidden rounded-2xl border border-blue-100/70 bg-gradient-to-br from-blue-50 via-white to-sky-50 p-4 dark:border-blue-900/40 dark:from-blue-950/40 dark:via-slate-900 dark:to-slate-950">
-        <div className="mb-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-100 text-[#007BFF] dark:bg-blue-900/50 dark:text-blue-400">
-              <TrendingUp size={16} />
-            </div>
-            <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400">
-              {text(blocks, "preview_body_label", "ثبت نشده")}
-            </span>
-          </div>
-          {bodyDelta ? (
-            <span className="rounded-full bg-emerald-50 px-2 py-1 text-[9px] font-bold text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
-              <TrendingUp size={11} className="me-1 inline" />
-              {bodyDelta}
-            </span>
-          ) : null}
-        </div>
-        <div className="mb-2 flex items-end justify-between">
-          <div>
-            <b dir="ltr" className="block text-2xl font-black text-slate-900 dark:text-white">
-              {bodyFigure}
-            </b>
-            <span className="text-[9px] text-slate-400">{text(blocks, "preview_body_label", "ثبت نشده")}</span>
-          </div>
-        </div>
-        {progressLine ? (
-        <svg viewBox="0 0 200 80" className="w-full overflow-visible">
-          <defs>
-            <linearGradient id="progressGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#007BFF" stopOpacity=".3" />
-              <stop offset="100%" stopColor="#007BFF" stopOpacity="0" />
-            </linearGradient>
-          </defs>
-          {[20, 40, 60].map((y) => (
-            <line key={y} x1="0" y1={y} x2="200" y2={y} stroke="currentColor" strokeOpacity=".08" strokeDasharray="3 4" />
-          ))}
-          <polyline points={progressLine} fill="none" stroke="#007BFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-        ) : (
-          <p className="py-6 text-center text-[11px] text-slate-400">ثبت نشده</p>
-        )}
-      </div>
-    </div>
-
-    {/* 6. ارتباط مستقیم - ۱ ستون */}
-    <div className={`${CARD} dark:border dark:border-slate-800 dark:bg-[--surface]`}>
-      <FHead
-        icon="chat"
-        title={chatCard.title}
-        text={chatCard.text}
-      />
-      <div className="space-y-3">
-        {chatMessages.length === 0 ? <p className="text-[11px] text-slate-400">پیامی ثبت نشده</p> : null}
-        {chatMessages.map((item, index) => {
-          const isCoach = item.sender === "coach";
-          return (
-            <div key={index} className={`flex ${isCoach ? "justify-start" : "justify-end"}`}>
-              <div
-                className={`max-w-[88%] rounded-2xl px-3 py-2.5 ${
-                  isCoach
-                    ? "rounded-se-sm bg-blue-50 text-slate-700 dark:bg-blue-950/40 dark:text-slate-200"
-                    : "rounded-ss-sm bg-[#007BFF] text-white"
-                }`}
-              >
-                <div className="mb-1 flex items-center justify-between gap-5">
-                  <span className={`text-[9px] font-bold ${isCoach ? "text-[#007BFF] dark:text-blue-400" : "text-blue-100"}`}>
-                    {item.name}
+              <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900/70">
+                <div className="mb-4 flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-extrabold text-slate-800 dark:text-white">
+                      {text(blocks, "coaches_panel_title", "شاگردان من")}
+                    </p>
+                    <p className="mt-1 text-[10px] text-slate-400">
+                      {coachLive?.count || text(blocks, "coaches_panel_count", "ثبت نشده")}
+                    </p>
+                  </div>
+                  <span className="flex items-center gap-1.5 rounded-xl bg-[#007BFF] px-3 py-2 text-[10px] font-bold text-white shadow-lg shadow-blue-500/20">
+                    <Ico n="plus" s={12} />
+                    {text(blocks, "coaches_add_label", "شاگرد جدید")}
                   </span>
                 </div>
-                <p className="text-[11px] leading-6">{item.message}</p>
+
+                <div className="mb-3 flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-[10px] text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-500">
+                  <Ico n="search" s={13} />
+                  جستجوی شاگرد...
+                  <span className="mr-auto rounded-md bg-slate-100 px-1.5 py-0.5 text-[9px] dark:bg-slate-700">
+                    <Ico n="sliders-horizontal" s={11} />
+                  </span>
+                </div>
+
+                <ul className="space-y-2">
+                  {students.length === 0 ? <li className="px-2 py-3 text-[11px] text-slate-400">شاگردی ثبت نشده</li> : null}
+                  {students.map((s, index) => {
+                    const ok = s.status !== "نیاز به بررسی";
+                    const progress = percentNumber(s.percent);
+                    return (
+                      <li
+                        key={`${s.name}-${index}`}
+                        className="rounded-xl border border-slate-100 bg-white p-3 transition-colors hover:border-blue-200 dark:border-slate-700/80 dark:bg-slate-800/80 dark:hover:border-blue-500/40"
+                      >
+                        <div className="mb-2.5 flex items-center gap-2.5">
+                          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-blue-50 text-[10px] font-extrabold text-[#007BFF] dark:bg-blue-500/15 dark:text-blue-400">
+                            <img src={imgBody} alt="" />
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-[11px] font-extrabold text-slate-800 dark:text-slate-100">
+                              {s.name}
+                            </p>
+                            <p className="mt-1 text-[9px] text-slate-400">
+                              میزان پیشرفت
+                            </p>
+                          </div>
+                          <span
+                            className={`shrink-0 rounded-lg px-2 py-1 text-[9px] font-bold ${ok
+                              ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400"
+                              : "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
+                              }`}
+                          >
+                            {s.status}
+                          </span>
+                        </div>
+                        {progress === null ? null : (
+                          <div className="flex items-center gap-2">
+                            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
+                              <div
+                                className={`h-full rounded-full ${ok ? "bg-[#007BFF]" : "bg-amber-400"
+                                  }`}
+                                style={{ width: `${progress}%` }}
+                              />
+                            </div>
+                            <span className="w-8 text-left text-[9px] font-bold text-slate-500 dark:text-slate-400">
+                              {s.percent}
+                            </span>
+                          </div>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
               </div>
             </div>
-          );
-        })}
-        <div className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5 dark:border-slate-700 dark:bg-slate-900">
-          <span className="text-[10px] text-slate-400">{text(blocks, "ai_placeholder", "ثبت نشده")}</span>
-          <Ico n="send" s={15} className="text-[#007BFF]" />
-        </div>
-      </div>
-    </div>
+          </div>
+        )}
 
-    {concealed(sections, "ai") ? null : (
-    <div
-      className="relative isolate overflow-hidden rounded-3xl border border-blue-900/40 bg-gradient-to-br from-[#0b1530] via-[#10234b] to-[#0b2a6b] p-6 text-white shadow-xl shadow-blue-950/10 md:col-span-2"
-    >
-      <div className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-blue-500/20 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-24 -left-20 h-64 w-64 rounded-full bg-cyan-400/10 blur-3xl" />
+        {concealed(sections, "workout") ? null : (
+          <div
+            id="workout"
+            className={`${CARD} dark:border dark:border-slate-800 dark:bg-[--surface]`}
+          >
+            <FHead
+              icon="dumbbell"
+              title={workoutTitle || "ثبت نشده"}
+              text={text(
+                blocks,
+                "workout_lead",
+                "برنامه‌های حرفه‌ای را بسازید، شخصی‌سازی کنید و با یک کلیک برای شاگرد ارسال کنید.",
+              )}
+            />
+            <div className="mb-4 flex gap-2">
+              {[
+                text(blocks, "workout_card_label", "ثبت نشده"),
+                text(blocks, "workout_card_title", "ثبت نشده"),
+                text(blocks, "workout_card_percent", "ثبت نشده"),
+              ].map((d, i) => (
+                <span
+                  key={`${d}-${i}`}
+                  className={`flex-1 rounded-xl px-2 py-2.5 text-center text-[10px] font-bold transition-colors ${i === 0
+                    ? "bg-[#007BFF] text-white shadow-md shadow-blue-500/20"
+                    : "border border-slate-100 bg-slate-50 text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400"
+                    }`}
+                >
+                  {d}
+                </span>
+              ))}
+            </div>
+            <div className="mb-3 flex items-center justify-between">
+              <div>
+                <b className="text-xs text-slate-800 dark:text-white">
+                  {text(blocks, "workout_card_label", "ثبت نشده")}
+                </b>
+                <p className="mt-1 text-[9px] text-slate-400">{text(blocks, "workout_card_title", "ثبت نشده")}</p>
+              </div>
+              <span className="rounded-lg bg-blue-50 px-2 py-1 text-[9px] font-bold text-[#007BFF] dark:bg-blue-950/40 dark:text-blue-400">
+                {exercises.length} حرکت
+              </span>
+            </div>
+            <div className="space-y-2">
+              {exercises.map((e, i) => (
+                <div
+                  key={e.name}
+                  className="group flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 p-3 transition-all hover:border-blue-200 hover:bg-blue-50/50 dark:border-slate-800 dark:bg-slate-900/70 dark:hover:border-blue-900 dark:hover:bg-blue-950/20"
+                >
+                  <div className="flex min-w-0 items-center gap-3">
+                    <div
+                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${i === 0
+                        ? "bg-blue-100 text-[#007BFF] dark:bg-blue-950/60 dark:text-blue-400"
+                        : "bg-slate-200/70 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                        }`}
+                    >
+                      <img src={imgBody} alt="" />
+                    </div>
+                    <div className="min-w-0">
+                      <b className="block truncate text-xs text-slate-800 dark:text-white">
+                        {e.name}
+                      </b>
+                      <span className="mt-1 block text-[10px] text-slate-400">
+                        {e.sets}
+                      </span>
+                    </div>
+                  </div>
+                  <Ico
+                    n="chevron-left"
+                    s={15}
+                    className="shrink-0 text-slate-300 transition-colors group-hover:text-[#007BFF]"
+                  />
+                </div>
+              ))}
+            </div>
+            <div className="mt-3 flex items-center justify-center gap-2 rounded-xl border border-dashed border-blue-300 bg-blue-50/40 py-3 text-[10px] font-bold text-[#007BFF] transition-colors hover:bg-blue-50 dark:border-blue-900/60 dark:bg-blue-950/20 dark:text-blue-400 dark:hover:bg-blue-950/40">
+              <Ico n="plus" s={15} />
+              {text(blocks, "workout_link", "ثبت نشده")}
+            </div>
+            <div className="mt-4 flex items-center justify-between rounded-xl bg-[#0b1530] px-3 py-3 dark:bg-slate-900 dark:ring-1 dark:ring-slate-700">
+              <div className="flex items-center gap-2">
+                <Ico n="check-circle" s={16} className="text-emerald-400" />
+                <span className="text-[10px] font-medium text-slate-200">
+                  {text(blocks, "workout_done", "ثبت نشده")}
+                </span>
+              </div>
+              <span className="text-[10px] font-bold text-blue-400">{text(blocks, "logo_name", "Fito")}</span>
+            </div>
+          </div>
+        )}
 
-      {/* متن سمت راست (1.2fr) و ربات سمت چپ (0.8fr) */}
-      <div className="relative grid items-center gap-7 md:grid-cols-[1.2fr_0.8fr]">
-        <div className="space-y-5">
+        {concealed(sections, "nutrition") ? null : (
+          <div
+            id="nutrition"
+            className={`${CARD} dark:border dark:border-slate-800 dark:bg-[--surface]`}
+          >
+            <FHead
+              icon="apple"
+              title={nutritionTitle || "ثبت نشده"}
+              text={text(
+                blocks,
+                "nutrition_lead",
+                "برنامه غذایی شخصی‌سازی‌شده بسازید و کالری و درشت‌مغذی‌های روزانه را دنبال کنید.",
+              )}
+            />
+            <div className="rounded-2xl border border-slate-100 bg-gradient-to-br from-blue-50/70 via-white to-sky-50/50 p-4 dark:border-slate-800 dark:from-blue-950/30 dark:via-slate-900 dark:to-slate-950">
+              <div className="mb-4 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-100 text-[#007BFF] dark:bg-blue-950/60 dark:text-blue-400">
+                    <Ico n="utensils" s={16} />
+                  </div>
+                  <div>
+                    <b className="block text-xs text-slate-800 dark:text-white">
+                      {text(blocks, "nutrition_card_label", "ثبت نشده")}
+                    </b>
+                    <span className="text-[9px] text-slate-400">
+                      {text(blocks, "nutrition_eyebrow", "ثبت نشده")}
+                    </span>
+                  </div>
+                </div>
+                <span className="rounded-full bg-emerald-50 px-2 py-1 text-[9px] font-bold text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
+                  <Ico n="activity" s={11} className="me-1 inline" />
+                  {waterPercentLabel}
+                </span>
+              </div>
+              <div className="flex items-center gap-5">
+                <div className="shrink-0">
+                  <Ring v={nutritionRing} size={88}>
+                    <div className="text-center">
+                      <b
+                        dir="ltr"
+                        className="block text-sm font-black text-slate-800 dark:text-white"
+                      >
+                        {nutritionValue}
+                      </b>
+                    </div>
+                  </Ring>
+                </div>
+                <div className="min-w-0 flex-1 space-y-3">
+                  {macros.map((m, i) => {
+                    const colors = [
+                      { dot: "bg-blue-500", text: "text-blue-600 dark:text-blue-400" },
+                      { dot: "bg-emerald-500", text: "text-emerald-600 dark:text-emerald-400" },
+                      { dot: "bg-amber-500", text: "text-amber-600 dark:text-amber-400" },
+                    ][i % 3];
+                    return (
+                      <div key={m.label}>
+                        <div className="mb-1 flex items-center justify-between gap-2">
+                          <span className="flex items-center gap-1.5 text-[10px] text-slate-500 dark:text-slate-400">
+                            <span className={`h-2 w-2 rounded-full ${colors.dot}`} />
+                            {m.label}
+                          </span>
+                          <b className={`text-[10px] ${colors.text}`}>
+                            {String(m.percent ?? "").includes("%") ? m.percent : `${m.percent ?? "ثبت نشده"}`}
+                          </b>
+                        </div>
+                        <Bar w={m.percent} c={barColors[i % 3]} />
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+            <div className="mt-3 flex items-center gap-2 rounded-xl bg-emerald-50/70 px-3 py-2.5 dark:bg-emerald-950/20">
+              <Ico n="check-circle" s={15} className="shrink-0 text-emerald-500" />
+              <span className="text-[10px] leading-5 text-emerald-700 dark:text-emerald-400">
+                {athleteLive?.waterDetail || `${text(blocks, "nutrition_water_title", "ثبت نشده")} · ${text(blocks, "nutrition_water_detail", "ثبت نشده")}`}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* 4. آنالیز بدن - ۱ ستون */}
+        <div className={`${CARD} dark:border dark:border-slate-800 dark:bg-[--surface]`}>
           <FHead
-            dark
-            icon="bolt"
-            title={aiTitle || text(blocks, "ai_name", "ثبت نشده")}
-            text={text(
-              blocks,
-              "ai_lead",
-              "دستیار هوشمند فیتو داده‌های تمرین، تغذیه و آنالیز بدن را تحلیل می‌کند و پیشنهاد عملی برای هر شاگرد می‌دهد.",
+            icon="scan"
+            title={bodyCard.title}
+            text={bodyCard.text}
+          />
+          <div className="relative grid h-40 place-items-center overflow-hidden rounded-2xl border border-blue-100/70 bg-gradient-to-br from-blue-50 via-white to-sky-50 dark:border-blue-900/40 dark:from-blue-950/40 dark:via-slate-900 dark:to-slate-950">
+            <div className="absolute h-32 w-32 rounded-full bg-blue-200/30 blur-2xl dark:bg-blue-500/10" />
+            <img src={ImgAnatomi} alt="آنالیز بدن" className="relative z-10 h-36 drop-shadow-lg" />
+            {[[-20, 40], [20, 40], [-10, 112], [10, 112]].map(([dx, dy]) => (
+              <i
+                key={`${dx}${dy}`}
+                className="absolute z-20 h-2.5 w-2.5 rounded-full border-2 border-white bg-[#007BFF] shadow-[0_0_12px_#007BFF] dark:border-slate-900"
+                style={{ left: `calc(50% + ${dx}px)`, top: dy }}
+              />
+            ))}
+            <span className="absolute right-3 top-3 z-20 flex items-center gap-1.5 rounded-xl border border-slate-100 bg-white/95 px-2.5 py-1.5 text-[10px] font-bold text-[#0b1530] shadow-sm backdrop-blur dark:border-slate-700 dark:bg-slate-800/95 dark:text-white">
+              <Activity size={13} className="text-[#007BFF]" />
+              {text(blocks, "preview_body_label", "ثبت نشده")}
+            </span>
+            <span className="absolute bottom-3 left-3 z-20 flex items-center gap-1.5 rounded-xl border border-slate-100 bg-white/95 px-2.5 py-1.5 text-[10px] font-bold text-[#0b1530] shadow-sm backdrop-blur dark:border-slate-700 dark:bg-slate-800/95 dark:text-white">
+              <Weight size={13} className="text-emerald-500" />
+              {bodyFigure}
+            </span>
+            <span className="absolute bottom-3 right-3 z-20 rounded-lg bg-blue-100/80 px-2 py-1 text-[9px] font-bold text-blue-700 dark:bg-blue-950/80 dark:text-blue-300">
+              Body Scan
+            </span>
+          </div>
+        </div>
+
+        {/* 5. گزارش پیشرفت - ۱ ستون */}
+        <div className={`${CARD} dark:border dark:border-slate-800 dark:bg-[--surface]`}>
+          <FHead
+            icon="trend"
+            title={progressCard.title}
+            text={progressCard.text}
+          />
+          <div className="relative overflow-hidden rounded-2xl border border-blue-100/70 bg-gradient-to-br from-blue-50 via-white to-sky-50 p-4 dark:border-blue-900/40 dark:from-blue-950/40 dark:via-slate-900 dark:to-slate-950">
+            <div className="mb-3 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-100 text-[#007BFF] dark:bg-blue-900/50 dark:text-blue-400">
+                  <TrendingUp size={16} />
+                </div>
+                <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400">
+                  {text(blocks, "preview_body_label", "ثبت نشده")}
+                </span>
+              </div>
+              {bodyDelta ? (
+                <span className="rounded-full bg-emerald-50 px-2 py-1 text-[9px] font-bold text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
+                  <TrendingUp size={11} className="me-1 inline" />
+                  {bodyDelta}
+                </span>
+              ) : null}
+            </div>
+            <div className="mb-2 flex items-end justify-between">
+              <div>
+                <b dir="ltr" className="block text-2xl font-black text-slate-900 dark:text-white">
+                  {bodyFigure}
+                </b>
+                <span className="text-[9px] text-slate-400">{text(blocks, "preview_body_label", "ثبت نشده")}</span>
+              </div>
+            </div>
+            {progressLine ? (
+              <svg viewBox="0 0 200 80" className="w-full overflow-visible">
+                <defs>
+                  <linearGradient id="progressGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#007BFF" stopOpacity=".3" />
+                    <stop offset="100%" stopColor="#007BFF" stopOpacity="0" />
+                  </linearGradient>
+                </defs>
+                {[20, 40, 60].map((y) => (
+                  <line key={y} x1="0" y1={y} x2="200" y2={y} stroke="currentColor" strokeOpacity=".08" strokeDasharray="3 4" />
+                ))}
+                <polyline points={progressLine} fill="none" stroke="#007BFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            ) : (
+              <p className="py-6 text-center text-[11px] text-slate-400">ثبت نشده</p>
             )}
+          </div>
+        </div>
+
+        {/* 6. ارتباط مستقیم - ۱ ستون */}
+        <div className={`${CARD} dark:border dark:border-slate-800 dark:bg-[--surface]`}>
+          <FHead
+            icon="chat"
+            title={chatCard.title}
+            text={chatCard.text}
           />
           <div className="space-y-3">
-            <div className="flex items-start gap-2.5">
-              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/10 text-blue-300">
-                <Ico n="user-round" s={15} />
-              </span>
-              <div className="min-w-0 flex-1 rounded-2xl rounded-tr-sm border border-white/10 bg-white/[0.06] p-3">
-                <div className="mb-1.5 flex items-center gap-2">
-                  <span className="text-[10px] font-bold text-blue-300">{text(blocks, "preview_role", "ورزشکار")}</span>
-                  <span className="text-[9px] text-slate-500">پیام جدید</span>
+            {chatMessages.length === 0 ? <p className="text-[11px] text-slate-400">پیامی ثبت نشده</p> : null}
+            {chatMessages.map((item, index) => {
+              const isCoach = item.sender === "coach";
+              return (
+                <div key={index} className={`flex ${isCoach ? "justify-start" : "justify-end"}`}>
+                  <div
+                    className={`max-w-[88%] rounded-2xl px-3 py-2.5 ${isCoach
+                      ? "rounded-se-sm bg-blue-50 text-slate-700 dark:bg-blue-950/40 dark:text-slate-200"
+                      : "rounded-ss-sm bg-[#007BFF] text-white"
+                      }`}
+                  >
+                    <div className="mb-1 flex items-center justify-between gap-5">
+                      <span className={`text-[9px] font-bold ${isCoach ? "text-[#007BFF] dark:text-blue-400" : "text-blue-100"}`}>
+                        {item.name}
+                      </span>
+                    </div>
+                    <p className="text-[11px] leading-6">{item.message}</p>
+                  </div>
                 </div>
-                <p className="text-xs leading-6 text-slate-200">
-                  {text(blocks, "ai_user", "⚠ رضا ۳ روز است تمرین ثبت نکرده؛ پیام یادآوری بفرستم؟")}
-                </p>
-              </div>
+              );
+            })}
+            <div className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5 dark:border-slate-700 dark:bg-slate-900">
+              <span className="text-[10px] text-slate-400">{text(blocks, "ai_placeholder", "ثبت نشده")}</span>
+              <Ico n="send" s={15} className="text-[#007BFF]" />
             </div>
-            <div className="flex items-start gap-2.5">
-              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl border border-blue-400/20 bg-blue-500/20 text-blue-300">
-                <Ico n="bot" s={16} />
-              </span>
-              <div className="min-w-0 flex-1 rounded-2xl rounded-tl-sm border border-blue-400/20 bg-blue-500/10 p-3">
-                <div className="mb-1.5 flex items-center gap-2">
-                  <span className="text-[10px] font-bold text-blue-300">{text(blocks, "ai_name", "ثبت نشده")}</span>
-                  <Ico n="sparkles" s={11} className="text-cyan-300" />
-                </div>
-                <p className="text-xs leading-6 text-slate-200">
-                  {text(blocks, "ai_reply", "پیشرفت مریم برای این هفته ۱۵٪ بیشتر از هفته قبل است.")}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.07] p-3 transition hover:border-blue-400/40">
-              <Ico n="message-circle" s={16} className="text-slate-400" />
-              <span className="flex-1 text-xs text-slate-400">
-                {text(blocks, "ai_placeholder", "از من هر چیزی بپرس…")}
-              </span>
-              <span className="grid h-8 w-8 place-items-center rounded-xl bg-[#007BFF] text-white shadow-lg shadow-blue-500/20">
-                <Ico n="send" s={14} />
-              </span>
-            </div>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {aiChips.map((label) => (
-              <span key={label} className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-2 text-[9px] font-semibold text-slate-300">
-                {label}
-              </span>
-            ))}
           </div>
         </div>
 
-        <div className="relative flex items-center justify-center">
-          <div className="absolute h-44 w-44 rounded-full bg-blue-500/20 blur-3xl" />
-          <img
-            src={FitoImgCoach}
-            alt="دستیار هوشمند فیتو"
-            loading="lazy"
-            className="relative mx-auto max-w-[250px] drop-shadow-[0_0_20px_rgba(59,130,246,0.35)] [mask-image:radial-gradient(closest-side,#000_80%,transparent)]"
-          />
-          <span className="absolute bottom-2 left-1/2 flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 text-[9px] font-bold text-emerald-300 backdrop-blur-md">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
-            {text(blocks, "ai_subtitle", "ثبت نشده")}
-          </span>
-        </div>
+        {concealed(sections, "ai") ? null : (
+          <div
+            className="relative isolate overflow-hidden rounded-3xl border border-blue-900/40 bg-gradient-to-br from-[#0b1530] via-[#10234b] to-[#0b2a6b] p-6 text-white shadow-xl shadow-blue-950/10 md:col-span-2"
+          >
+            <div className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-blue-500/20 blur-3xl" />
+            <div className="pointer-events-none absolute -bottom-24 -left-20 h-64 w-64 rounded-full bg-cyan-400/10 blur-3xl" />
+
+            {/* متن سمت راست (1.2fr) و ربات سمت چپ (0.8fr) */}
+            <div className="relative grid items-center gap-7 md:grid-cols-[1.2fr_0.8fr]">
+              <div className="space-y-5">
+                <FHead
+                  dark
+                  icon="bolt"
+                  title={aiTitle || text(blocks, "ai_name", "ثبت نشده")}
+                  text={text(
+                    blocks,
+                    "ai_lead",
+                    "دستیار هوشمند فیتو داده‌های تمرین، تغذیه و آنالیز بدن را تحلیل می‌کند و پیشنهاد عملی برای هر شاگرد می‌دهد.",
+                  )}
+                />
+                <div className="space-y-3">
+                  <div className="flex items-start gap-2.5">
+                    <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/10 text-blue-300">
+                      <Ico n="user-round" s={15} />
+                    </span>
+                    <div className="min-w-0 flex-1 rounded-2xl rounded-tr-sm border border-white/10 bg-white/[0.06] p-3">
+                      <div className="mb-1.5 flex items-center gap-2">
+                        <span className="text-[10px] font-bold text-blue-300">{text(blocks, "preview_role", "ورزشکار")}</span>
+                        <span className="text-[9px] text-slate-500">پیام جدید</span>
+                      </div>
+                      <p className="text-xs leading-6 text-slate-200">
+                        {text(blocks, "ai_user", "⚠ رضا ۳ روز است تمرین ثبت نکرده؛ پیام یادآوری بفرستم؟")}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2.5">
+                    <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl border border-blue-400/20 bg-blue-500/20 text-blue-300">
+                      <Ico n="bot" s={16} />
+                    </span>
+                    <div className="min-w-0 flex-1 rounded-2xl rounded-tl-sm border border-blue-400/20 bg-blue-500/10 p-3">
+                      <div className="mb-1.5 flex items-center gap-2">
+                        <span className="text-[10px] font-bold text-blue-300">{text(blocks, "ai_name", "ثبت نشده")}</span>
+                        <Ico n="sparkles" s={11} className="text-cyan-300" />
+                      </div>
+                      <p className="text-xs leading-6 text-slate-200">
+                        {text(blocks, "ai_reply", "پیشرفت مریم برای این هفته ۱۵٪ بیشتر از هفته قبل است.")}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.07] p-3 transition hover:border-blue-400/40">
+                    <Ico n="message-circle" s={16} className="text-slate-400" />
+                    <span className="flex-1 text-xs text-slate-400">
+                      {text(blocks, "ai_placeholder", "از من هر چیزی بپرس…")}
+                    </span>
+                    <span className="grid h-8 w-8 place-items-center rounded-xl bg-[#007BFF] text-white shadow-lg shadow-blue-500/20">
+                      <Ico n="send" s={14} />
+                    </span>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {aiChips.map((label) => (
+                    <span key={label} className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-2 text-[9px] font-semibold text-slate-300">
+                      {label}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="relative flex items-center justify-center">
+                <div className="absolute h-44 w-44 rounded-full bg-blue-500/20 blur-3xl" />
+                <img
+                  src={FitoImgCoach}
+                  alt="دستیار هوشمند فیتو"
+                  loading="lazy"
+                  className="relative mx-auto max-w-[250px] drop-shadow-[0_0_20px_rgba(59,130,246,0.35)] [mask-image:radial-gradient(closest-side,#000_80%,transparent)]"
+                />
+                <span className="absolute bottom-2 left-1/2 flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 text-[9px] font-bold text-emerald-300 backdrop-blur-md">
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
+                  {text(blocks, "ai_subtitle", "ثبت نشده")}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
-    </div>
-    )}
-  </div>
-</section>
+    </section>
   );
 }
 
@@ -1150,7 +1145,7 @@ function Why({ blocks, sections }) {
   ]);
 
   return (
-  <section
+    <section
       id="why"
       style={regionStyle(sections, "why")}
       className="px-5 py-24 lg:px-8"
@@ -1311,31 +1306,33 @@ export default function Home() {
   const coachLive = live?.coach ?? null;
   const previewOverrides = athleteLive
     ? {
-        preview_initials: athleteLive.initials,
-        preview_name: athleteLive.name,
-        preview_role: "ورزشکار",
-        preview_status: "فعال",
-        preview_workout_title: athleteLive.workoutTitle,
-        preview_bar: String(athleteLive.percent),
-        preview_moves: athleteLive.moves,
-        preview_duration: "",
-        preview_calories_value: athleteLive.kcal,
-        preview_water_value: athleteLive.waterLiters,
-        preview_goal_percent: String(athleteLive.percent),
-        preview_goal_title: athleteLive.percent >= 100 ? "امروز کامل شد" : "تمرین امروز",
-        preview_goal_remain: athleteLive.remain,
-        preview_body_value: athleteLive.bodyValue,
-        preview_body_delta: athleteLive.bodyDelta,
-        preview_chart: athleteLive.chart,
-      }
+      preview_initials: athleteLive.initials,
+      preview_name: athleteLive.name,
+      preview_role: "ورزشکار",
+      preview_status: "فعال",
+      preview_workout_title: athleteLive.workoutTitle,
+      preview_bar: String(athleteLive.percent),
+      preview_moves: athleteLive.moves,
+      preview_duration: "",
+      preview_calories_value: athleteLive.kcal,
+      preview_water_value: athleteLive.waterLiters,
+      preview_goal_percent: String(athleteLive.percent),
+      preview_goal_title: athleteLive.percent >= 100 ? "امروز کامل شد" : "تمرین امروز",
+      preview_goal_remain: athleteLive.remain,
+      preview_body_value: athleteLive.bodyValue,
+      preview_body_delta: athleteLive.bodyDelta,
+      preview_chart: athleteLive.chart,
+    }
     : null;
-  const navigation = items(blocks, "nav_items", [
-    { label: "امکانات", target: "features" },
-    { label: "نحوه کار", target: "how" },
-    { label: "محصول", target: "product" },
-    { label: "چرا فیتو؟", target: "why" },
-    { label: "تعرفه‌ها", target: "pricing" },
-  ]);
+  const navigation = [
+  { label: "خانه", target: "home" },
+  { label: "امکانات", target: "features" },
+  { label: "نحوه کار", target: "how" },
+  { label: "دمو", target: "showcase" },
+  { label: "چرا فیتو؟", target: "why" },
+  { label: "تعرفه‌ها", target: "pricing" },
+  { label: "بلاگ", to: "/blog" },
+];
   const signedIn = status === "authenticated" && account;
   const panels = panelsFor(account);
 
@@ -1355,7 +1352,7 @@ export default function Home() {
     try {
       await api("/api/v1/auth/logout", { method: "POST" });
     } finally {
-      await refresh().catch(() => {});
+      await refresh().catch(() => { });
     }
   };
 
@@ -1365,10 +1362,14 @@ export default function Home() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const scrollTo = (id) => {
-    setMenuOpen(false);
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-  };
+const goNav = (item) => {
+  setMenuOpen(false);
+  if (item.to) {
+    navigate(item.to);
+    return;
+  }
+  document.getElementById(item.target)?.scrollIntoView({ behavior: "smooth" });
+};
 
   const mainAction = () => signedIn && panels[0] ? openPanel(panels[0].to) : openAuth("signup");
   const mainLabel = (fallback) => signedIn && panels[0] ? panels[0].label : fallback;
@@ -1392,11 +1393,17 @@ export default function Home() {
               <FitoLogo name={text(blocks, "logo_name", "FITO")} sub={text(blocks, "logo_sub", "پلتفرم مدیریت مربیگری")} />
             </button>
             <div className="hidden items-center gap-8 md:flex">
-              {navigation.map((item) => (
-                <button key={item.target} onClick={() => scrollTo(item.target)} className="text-sm font-semibold text-slate-500 transition hover:text-[#007BFF]">
-                  {item.label}
-                </button>
-              ))}
+              <div className="hidden items-center gap-8 md:flex">
+                {navigation.map((item) => (
+                  <button
+                    key={item.to || item.target}
+                    onClick={() => goNav(item)}
+                    className="text-sm font-semibold text-slate-500 transition hover:text-[#007BFF]"
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className="hidden items-center gap-3 md:flex">
@@ -1476,7 +1483,7 @@ export default function Home() {
         و ویژگی order که از دیتابیس (regionStyle) می‌آید نتواند چینش را به هم بزند.
       */}
       <main id="home" className="flex w-full flex-col">
-        
+
         {/* 1. HERO */}
         <section style={regionStyle(sections, "hero")} className="relative overflow-hidden bg-gradient-to-b from-[#dbe9ff] via-[#eef4ff] to-[#f4f8ff] px-5 pb-28 pt-36 lg:px-8 lg:pt-40">
           <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(0,123,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(0,123,255,0.05)_1px,transparent_1px)] bg-[size:48px_48px] [mask-image:linear-gradient(to_bottom,#000,transparent)]" />
@@ -1631,7 +1638,7 @@ export default function Home() {
               <ul className="space-y-2.5 text-sm">
                 {splitLines(col.links).map((l) => (
                   <li key={l}>
-                    <button type="button" className="transition hover:text-white">{l}</button>
+                    <button type="button" onClick={() => l === "وبلاگ" && navigate("/blog")} className="transition hover:text-white">{l}</button>
                   </li>
                 ))}
               </ul>
