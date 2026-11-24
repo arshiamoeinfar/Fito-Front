@@ -2,7 +2,7 @@
 import { useState } from "react";
 import BodyChangesModal from "./BodyChangesModal";
 import BodyImg from "../../../assets/imges/image 22 (1).svg"
-const BodyChanges = ({ stats: provided }) => {
+const BodyChanges = ({ stats: provided, photos = [], previewMap = {} }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const stats = provided ?? {
@@ -159,6 +159,8 @@ const BodyChanges = ({ stats: provided }) => {
       <BodyChangesModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        photos={photos}
+        previewMap={previewMap}
       />
     </>
   );

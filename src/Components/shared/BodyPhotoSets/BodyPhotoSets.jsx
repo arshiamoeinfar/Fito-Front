@@ -20,8 +20,6 @@ function countLabel(count) {
   return `${count.toLocaleString("fa-IR")} عکس`;
 }
 
-/* ───────── کلاس‌های مشترک (روشن + تیره) ───────── */
-
 const ring =
   "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#007BFF] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#121A2B]";
 
@@ -73,6 +71,7 @@ export default function BodyPhotoSets({
   const [items, setItems] = useState([]);
   const [drafts, setDrafts] = useState({});
   const [limitNote, setLimitNote] = useState("");
+  const [submitError, setSubmitError] = useState("");
   const [dragging, setDragging] = useState(false);
   const [zoom, setZoom] = useState(null);
 
@@ -112,9 +111,20 @@ export default function BodyPhotoSets({
     if (items.length === 0) {
       return;
     }
+    const views = new Set(items.map((item) => item.view));
+    const missingViews = [];
+    if (!views.has("front")) missingViews.push("جلو");
+    if (!views.has("back")) missingViews.push("پشت");
+    if (!views.has("left") && !views.has("right")) missingViews.push("بغل");
+    if (missingViews.length > 0) {
+      setSubmitError(`برای ثبت مجموعه، عکس ${missingViews.join(" و ")} لازم است.`);
+      return;
+    }
+    setSubmitError("");
     try {
       await onUpload({ takenAt, note, items });
-    } catch {
+    } catch (caught) {
+      setSubmitError(caught?.message || "ثبت عکس‌ها انجام نشد. دوباره تلاش کن.");
       return;
     }
     items.forEach((item) => URL.revokeObjectURL(item.url));
@@ -123,7 +133,6 @@ export default function BodyPhotoSets({
     setLimitNote("");
   }
 
-  // بزرگ‌نمایی عکس: Escape می‌بندد و اسکرول صفحه قفل می‌شود
   useEffect(() => {
     if (!zoom) return undefined;
     const onKey = (event) => {
@@ -142,7 +151,6 @@ export default function BodyPhotoSets({
 
   return (
     <div className="mt-5 flex flex-col gap-6">
-      {/* ───────── ثبت مجموعه‌ی جدید ───────── */}
       {canUpload ? (
         <form onSubmit={submit} aria-labelledby="photo-form-title" className={`${card} p-4 sm:p-5`}>
           <div className="flex items-start gap-3">
@@ -174,7 +182,6 @@ export default function BodyPhotoSets({
             </label>
           </div>
 
-          {/* ناحیه‌ی انتخاب عکس */}
           <div className="mt-5">
             <div className="flex items-center justify-between gap-3">
               <span className="text-sm font-medium text-[#6B6F77] dark:text-[#9AA3B2]">عکس‌ها</span>
@@ -266,10 +273,12 @@ export default function BodyPhotoSets({
             {pending ? <Spinner /> : null}
             {pending ? "در حال ثبت" : "ثبت مجموعه"}
           </button>
+          {submitError ? (
+            <p role="alert" className="mt-3 rounded-xl bg-red-50 px-4 py-2.5 text-xs text-red-700 dark:bg-[#3A1518] dark:text-[#FCA5A5]">{submitError}</p>
+          ) : null}
         </form>
       ) : null}
 
-      {/* ───────── مجموعه‌های ثبت‌شده ───────── */}
       {sets.length === 0 ? (
         <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-[#DDE3EE] bg-[#FAFBFD] px-4 py-10 text-center dark:border-[#2A3550] dark:bg-[#0F1626]">
           <span className="text-3xl" aria-hidden="true">📷</span>
@@ -359,7 +368,6 @@ export default function BodyPhotoSets({
         </ul>
       )}
 
-      {/* ───────── بزرگ‌نمایی ───────── */}
       {zoom ? (
         <div
           role="dialog"

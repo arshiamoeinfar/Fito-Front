@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import CloseIcon from "@mui/icons-material/Close";
 import AddAPhotoOutlinedIcon from "@mui/icons-material/AddAPhotoOutlined";
 import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
@@ -7,35 +8,32 @@ import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 import TrendingDownRoundedIcon from "@mui/icons-material/TrendingDownRounded";
 import CompareArrowsRoundedIcon from "@mui/icons-material/CompareArrowsRounded";
+import WarningAmberRoundedIcon from "@mui/icons-material/WarningAmberRounded";
 
 const INITIAL_VIEWS = [
   {
     id: "front",
     title: "نمای روبرو",
     shortTitle: "روبرو",
-    before: "/images/body-before-front.jpg",
-    after: "/images/body-after-front.jpg",
+
   },
   {
     id: "back",
     title: "نمای پشت",
     shortTitle: "پشت",
-    before: "/images/body-before-back.jpg",
-    after: "/images/body-after-back.jpg",
+
   },
   {
     id: "right",
     title: "نمای سمت راست",
     shortTitle: "سمت راست",
-    before: "/images/body-before-right.jpg",
-    after: "/images/body-after-right.jpg",
+
   },
   {
     id: "left",
     title: "نمای سمت چپ",
     shortTitle: "سمت چپ",
-    before: "/images/body-before-left.jpg",
-    after: "/images/body-after-left.jpg",
+
   },
 ];
 
@@ -44,7 +42,7 @@ const EMPTY_PHOTOS = {
   after: null,
 };
 
-const BodyChangesModal = ({ isOpen, onClose }) => {
+const BodyChangesModal = ({ isOpen, onClose, photos: realPhotos = [], previewMap = {} }) => {
   const [selectedView, setSelectedView] = useState("front");
   const [photos, setPhotos] = useState({});
   const [previewUrls, setPreviewUrls] = useState({});
@@ -54,6 +52,19 @@ const BodyChangesModal = ({ isOpen, onClose }) => {
   const currentView = INITIAL_VIEWS.find(
     (view) => view.id === selectedView
   );
+
+  const realPhoto = (viewId, type) => {
+    const ordered = (realPhotos || [])
+      .filter((photo) => photo?.view === viewId)
+      .slice()
+      .sort((a, b) => {
+        const time = String(a?.taken_at || "").localeCompare(String(b?.taken_at || ""));
+        return time !== 0 ? time : Number(a?.id || 0) - Number(b?.id || 0);
+      });
+    if (ordered.length === 0) return null;
+    if (type === "before") return ordered[0];
+    return ordered.length > 1 ? ordered[ordered.length - 1] : null;
+  };
 
   useEffect(() => {
     previewUrlsRef.current = previewUrls;
@@ -88,14 +99,14 @@ const BodyChangesModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   const getImage = (viewId, type) => {
-    return (
-      photos[viewId]?.[type] ||
-      INITIAL_VIEWS.find((view) => view.id === viewId)?.[type]
-    );
+    const uploaded = previewUrls[viewId]?.[type];
+    if (uploaded) return uploaded;
+    const photo = realPhoto(viewId, type);
+    return photo ? previewMap[photo.id] || null : null;
   };
 
   const hasPhoto = (viewId, type) => {
-    return Boolean(photos[viewId]?.[type]);
+    return Boolean(previewUrls[viewId]?.[type]);
   };
 
   const handlePhotoChange = (event, viewId, type) => {
@@ -463,6 +474,26 @@ const BodyChangesModal = ({ isOpen, onClose }) => {
             <span className="rounded-xl bg-blue-50 px-3 py-2 text-xs font-semibold text-[#007BFF] dark:bg-blue-500/15 dark:text-blue-400">
               {currentView.title}
             </span>
+          </div>
+
+          <div className="mb-4 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-3 dark:border-amber-500/30 dark:bg-amber-500/10 sm:p-4">
+            <WarningAmberRoundedIcon
+              sx={{ fontSize: 20, color: "#D97706", flexShrink: 0 }}
+            />
+            <p className="text-xs leading-6 text-amber-800 dark:text-amber-200">
+              «قبل» قدیمی‌ترین عکس این نما و «بعد» جدیدترین عکس آن است؛
+              از عکس‌های ثبت‌شده‌ات ساخته می‌شوند. عکسی که اینجا جایگزین
+              می‌کنی فقط پیش‌نمایش است و ذخیره نمی‌شود؛ برای ثبت عکس
+              جدید به{" "}
+              <Link
+                to="/AnalysisPage/tools?panel=photos"
+                onClick={onClose}
+                className="font-bold text-amber-800 underline dark:text-amber-200"
+              >
+                پنل تصاویر
+              </Link>{" "}
+              برو.
+            </p>
           </div>
 
           {/* Before / After */}
