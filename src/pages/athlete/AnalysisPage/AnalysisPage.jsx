@@ -672,8 +672,8 @@ export default function AnalysisPage() {
             </div>
             <div className="col-span-12 lg:col-span-4 lg:row-span-2">
               <BodyAnalysisModel
-                frontImage={frontPhoto ? previewMap[frontPhoto.id] || imgFront : imgFront}
-                backImage={backPhoto ? previewMap[backPhoto.id] || imgBack : imgBack}
+                frontImage={imgFront}
+                backImage={imgBack}
                 title="مدل تعاملی بدن"
               />
             </div>
@@ -696,6 +696,8 @@ export default function AnalysisPage() {
             <div className="col-span-12 lg:col-span-6">
               {latestObs ? (
                 <AppearanceChanges
+                  photos={photos}
+                  previewMap={previewMap}
                   stats={{
                     currentWeight: numberOf(currentBody?.metrics?.weight_kg) ?? 0,
                     previousWeight: numberOf(previousBody?.metrics?.weight_kg) ?? 0,

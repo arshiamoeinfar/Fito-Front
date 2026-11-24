@@ -34,6 +34,10 @@ import AthleteIntake from "../pages/athlete/AthleteIntake";
 import RequireAccount from "./RequireAccount";
 import Analysis from "../Components/DashBoardAuth/AnalysComponents/Analysis";
 import AnalysisToolspage from "../Components/DashBoardAuth/AnalysComponents/AnalysisToolsPage";
+
+import BlogListPage from '../pages/Blog/BlogListPage';
+import BlogCategoryPage from '../pages/Blog/BlogCategoryPage';
+import BlogPostPage from '../pages/Blog/BlogPostPage';
 function guarded(profile, page) {
   return <RequireAccount profile={profile}>{page}</RequireAccount>;
 }
@@ -78,6 +82,10 @@ export default function AppRoutes() {
       <Route path="/admin/users" element={<AdminUsers />} />
       <Route path="/admin/settings" element={<AdminSettings />} />
       <Route path="/admin/homepage" element={<AdminHomepage />} />
+
+        <Route path="/blog" element={<BlogListPage />} />
+    <Route path="/blog/category/:categorySlug" element={<BlogCategoryPage />} />
+    <Route path="/blog/:slug" element={<BlogPostPage />} />
     </Routes>
   );
 }
