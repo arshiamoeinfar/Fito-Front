@@ -1,5 +1,4 @@
-
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import CheckIcon from "@mui/icons-material/Check";
@@ -26,6 +25,40 @@ import ClockCircle3 from "../../../assets/Icons/Clock Circle.png";
 import { api } from "../../../api/client";
 
 const SET_LABELS = ["اول", "دوم", "سوم", "چهارم", "پنجم", "ششم"];
+
+const SYSTEM_META = {
+  normal: { label: "معمولی", hint: "", tone: "bg-white/15 text-white" },
+  dropset: {
+    label: "دراپ‌ست",
+    hint: "بعد از هر ست، وزنه را کم کن و بدون استراحت ادامه بده.",
+    tone: "bg-orange-500 text-white",
+  },
+  superset: {
+    label: "سوپرست",
+    hint: "هر راند یک ست از هر دو حرکت است؛ بین دو حرکت استراحت نیست.",
+    tone: "bg-[#007BFF] text-white",
+  },
+  giantset: {
+    label: "تری‌ست",
+    hint: "هر راند یک ست از هر سه حرکت است؛ بین حرکت‌ها استراحت نیست.",
+    tone: "bg-violet-600 text-white",
+  },
+  restpause: {
+    label: "رست‌پاز",
+    hint: "هر ست چند مینی‌ست است؛ بین مینی‌ست‌ها فقط همان استراحت کوتاهی که نوشته شده.",
+    tone: "bg-teal-600 text-white",
+  },
+  pyramid: {
+    label: "هرمی",
+    hint: "تکرارها هر ست کمتر و وزنه بیشتر می‌شود؛ به جدول ست‌ها نگاه کن.",
+    tone: "bg-amber-500 text-white",
+  },
+  failure: {
+    label: "تا ناتوانی",
+    hint: "هر ست را تا جایی ادامه بده که دیگر تکرار درست نمی‌توانی بزنی.",
+    tone: "bg-rose-600 text-white",
+  },
+};
 
 function pickDay(days, requestedId) {
   const requested = days.find(
@@ -56,6 +89,93 @@ function today() {
   const day = String(now.getDate()).padStart(2, "0");
 
   return `${now.getFullYear()}-${month}-${day}`;
+}
+
+function setRows(item) {
+  const details = Array.isArray(item.setDetails) ? item.setDetails : [];
+
+  return Array.from({ length: item.sets }, (_, index) => {
+    const row = details[index] ?? {};
+
+    return {
+      reps:
+        row.reps !== "" && row.reps != null
+          ? String(row.reps)
+          : item.reps != null
+            ? String(item.reps)
+            : "",
+      weight:
+        row.weight !== "" && row.weight != null
+          ? String(row.weight)
+          : item.weightLabel === "بدون وزن هدف"
+            ? ""
+            : item.weightKg ?? "",
+      rest:
+        row.rest != null && row.rest !== ""
+          ? Number(row.rest)
+          : item.rest ?? 0,
+    };
+  });
+}
+
+function groupQueue(items) {
+  const grouped = items.map((item) => ({ ...item, groupId: null, groupIndex: 0, groupSize: 1 }));
+  let groupCounter = 0;
+
+  for (let index = 0; index < grouped.length; index += 1) {
+    const item = grouped[index];
+    const size = item.system === "superset" ? 2 : item.system === "giantset" ? 3 : 0;
+
+    if (size === 0) continue;
+
+    const members = grouped.slice(index, index + size);
+
+    if (members.length < size || members.some((member) => member.system !== item.system)) continue;
+
+    groupCounter += 1;
+
+    members.forEach((member, memberIndex) => {
+      member.groupId = groupCounter;
+      member.groupIndex = memberIndex;
+      member.groupSize = members.length;
+    });
+
+    index += size - 1;
+  }
+
+  return grouped;
+}
+
+function buildTurns(items) {
+  const turns = [];
+  let index = 0;
+
+  while (index < items.length) {
+    const item = items[index];
+
+    if (item.groupId) {
+      const members = items.filter((member) => member.groupId === item.groupId);
+      const rounds = Math.max(...members.map((member) => member.sets));
+
+      for (let round = 1; round <= rounds; round += 1) {
+        members.forEach((member) => {
+          if (round <= member.sets) {
+            turns.push({ exercise: member, round, roundTotal: rounds });
+          }
+        });
+      }
+
+      index += members.length;
+    } else {
+      for (let set = 1; set <= item.sets; set += 1) {
+        turns.push({ exercise: item, round: set, roundTotal: item.sets });
+      }
+
+      index += 1;
+    }
+  }
+
+  return turns;
 }
 
 function ExerciseStat({ icon, label }) {
@@ -95,11 +215,11 @@ export default function StartTrain() {
 
   const [queue, setQueue] = useState([]);
   const [assignment, setAssignment] = useState(null);
-  const [currentStep, setCurrentStep] = useState(1);
+  const [pos, setPos] = useState(0);
 
   const [showCompleteModal, setShowCompleteModal] = useState(false);
 
-  const [reps, setReps] = useState("");
+  const [amount, setAmount] = useState("");
   const [weightKg, setWeightKg] = useState("");
 
   const [error, setError] = useState("");
@@ -107,6 +227,7 @@ export default function StartTrain() {
 
   const [pending, setPending] = useState(false);
   const [ready, setReady] = useState(false);
+  const [restLeft, setRestLeft] = useState(null);
 
   const sessionRef = useRef(null);
   const dayIdRef = useRef(null);
@@ -139,19 +260,36 @@ export default function StartTrain() {
         dayIdRef.current = day?.id ?? null;
 
         setQueue(
-          (day?.exercises ?? []).map((item) => ({
-            id: item.id,
-            exerciseId: item.exercise_id,
-            title: item.exercise?.name ?? "حرکت",
-            sets: item.prescribed_sets || 1,
-            reps: item.reps_min ?? item.reps_max,
-            rest: item.rest_seconds ?? 0,
-            weightLabel:
-              item.target_weight_g == null
-                ? "بدون وزن هدف"
-                : `${item.target_weight_g / 1000} کیلوگرم`,
-            image: imgMove,
-          }))
+          groupQueue(
+            (day?.exercises ?? []).map((item) => ({
+              id: item.id,
+              exerciseId: item.exercise_id,
+              title: item.exercise?.name ?? "حرکت",
+              tracking: item.tracking_type ?? "weight_reps",
+              sets: item.prescribed_sets || 1,
+              reps: item.reps_min ?? item.reps_max,
+              durationSeconds: item.duration_seconds ?? null,
+              distanceM: item.distance_m ?? null,
+              rest: item.rest_seconds ?? 0,
+              weightKg:
+                item.target_weight_g == null
+                  ? null
+                  : item.target_weight_g / 1000,
+              weightLabel:
+                item.target_weight_g == null
+                  ? "بدون وزن هدف"
+                  : `${item.target_weight_g / 1000} کیلوگرم`,
+              system: item.system ?? "normal",
+              tempo: item.tempo ?? "",
+              rpe: item.rpe ?? null,
+              rir: item.rir ?? null,
+              setType: item.set_type ?? "",
+              setDetails: Array.isArray(item.set_details)
+                ? item.set_details
+                : [],
+              image: imgMove,
+            }))
+          )
         );
       } catch (caught) {
         if (mounted) {
@@ -169,43 +307,128 @@ export default function StartTrain() {
     };
   }, [params]);
 
-  const current = queue[0];
-  const upcoming = queue.slice(1);
+  useEffect(() => {
+    if (restLeft == null) return;
 
+    if (restLeft <= 0) {
+      setRestLeft(null);
+      setNotice("استراحت تمام شد؛ ست بعد را شروع کن.");
+      return;
+    }
+
+    const timer = setTimeout(() => setRestLeft((left) => left - 1), 1000);
+
+    return () => clearTimeout(timer);
+  }, [restLeft]);
+
+  const turns = useMemo(() => buildTurns(queue), [queue]);
+  const turn = turns[pos] ?? null;
+  const current = turn?.exercise ?? null;
+  const nextTurn = turns[pos + 1] ?? null;
+
+  const currentStep = turn?.round ?? 1;
   const totalSets = current?.sets ?? 1;
   const isLastSet = currentStep === totalSets;
+  const isLastTurn = pos >= turns.length - 1;
+  const rows = current ? setRows(current) : [];
+  const currentRow = rows[currentStep - 1] ?? {};
+  const system = SYSTEM_META[current?.system] ?? SYSTEM_META.normal;
+  const isGrouped = current?.groupId != null;
+  const groupMembers = isGrouped
+    ? queue.filter((item) => item.groupId === current.groupId)
+    : [];
+  const groupPartners = groupMembers.filter((item) => item.id !== current?.id);
+  const isDuration = current?.tracking === "duration";
+  const isDistance = current?.tracking === "distance";
+  const amountLabel = isDuration
+    ? "زمان انجام‌شده"
+    : isDistance
+      ? "مسافت انجام‌شده"
+      : "تکرار انجام‌شده";
+  const amountUnit = isDuration ? "ثانیه" : isDistance ? "متر" : "تکرار";
+  const amountPlaceholder = isDuration
+    ? `مثلاً ${current?.durationSeconds ?? 60}`
+    : isDistance
+      ? `مثلاً ${current?.distanceM ?? 500}`
+      : `مثلاً ${currentRow.reps || 12}`;
+  const showWeight = current?.tracking === "weight_reps" || current?.weightKg != null;
+  const prescribedText = isDuration
+    ? `${current?.durationSeconds ?? "—"} ثانیه`
+    : isDistance
+      ? `${current?.distanceM ?? "—"} متر`
+      : `${currentRow.reps || "—"} تکرار`;
 
+  const completedSets = current
+    ? turns.slice(0, pos).filter((item) => item.exercise.id === current.id).length
+    : 0;
   const progressPercent =
-    totalSets <= 1
-      ? 0
-      : ((currentStep - 1) / (totalSets - 1)) * 100;
+    totalSets <= 0 ? 0 : (completedSets / totalSets) * 100;
 
-  const completedSets = currentStep - 1;
+  const upcoming = useMemo(() => {
+    const seen = new Set();
+    const list = [];
 
-  const goToExercise = (id) => {
-    setQueue((prev) => {
-      const index = prev.findIndex((item) => item.id === id);
+    for (let index = pos + 1; index < turns.length; index += 1) {
+      const exercise = turns[index].exercise;
 
-      if (index <= 0) return prev;
+      if (exercise.id !== current?.id && !seen.has(exercise.id)) {
+        seen.add(exercise.id);
+        list.push(exercise);
+      }
+    }
 
-      const selected = prev[index];
+    return list;
+  }, [turns, pos, current]);
 
-      return [
-        selected,
-        ...prev.filter((_, itemIndex) => itemIndex !== index),
-      ];
-    });
-
-    setCurrentStep(1);
-    setShowCompleteModal(false);
-    setReps("");
+  const resetTurn = () => {
+    setAmount("");
     setWeightKg("");
+    setRestLeft(null);
     setError("");
     setNotice("");
   };
 
-  async function handleFinishSet() {
-    if (!assignment || !current || reps === "") return;
+  const jumpToTurn = (target) => {
+    if (target < pos || target >= turns.length) return;
+
+    setPos(target);
+    setShowCompleteModal(false);
+    resetTurn();
+  };
+
+  const goToExercise = (id) => {
+    const target = turns.findIndex(
+      (item, index) => index >= pos && item.exercise.id === id
+    );
+
+    jumpToTurn(target);
+  };
+
+  const goToSet = (set) => {
+    const target = turns.findIndex(
+      (item, index) =>
+        index >= pos && item.exercise.id === current.id && item.round === set
+    );
+
+    jumpToTurn(target);
+  };
+
+  const goToRound = (round) => {
+    const target = turns.findIndex(
+      (item, index) =>
+        index >= pos &&
+        item.exercise.groupId === current.groupId &&
+        item.round === round
+    );
+
+    jumpToTurn(target);
+  };
+
+  async function handleFinishSet(quick) {
+    const value = quick?.amount ?? amount;
+    const kilos = quick?.weight ?? weightKg;
+
+    if (!assignment || !current || !turn || value === "" || Number(value) <= 0) return;
 
     setPending(true);
     setError("");
@@ -232,13 +455,16 @@ export default function StartTrain() {
       const payload = {
         workout_day_exercise_id: current.id,
         exercise_id: current.exerciseId,
-        set_index: currentStep - 1,
-        reps: Number(reps),
+        set_index: turn.round - 1,
         is_completed: true,
       };
 
-      if (weightKg !== "") {
-        payload.weight_g = Math.round(Number(weightKg) * 1000);
+      if (isDuration) payload.duration_seconds = Math.round(Number(value));
+      else if (isDistance) payload.distance_m = Math.round(Number(value));
+      else payload.reps = Math.round(Number(value));
+
+      if (kilos !== "" && kilos != null && Number(kilos) > 0) {
+        payload.weight_g = Math.round(Number(kilos) * 1000);
       }
 
       await api(
@@ -249,15 +475,36 @@ export default function StartTrain() {
         }
       );
 
-      setNotice("ست با موفقیت ثبت شد.");
-      setReps("");
+      setAmount("");
       setWeightKg("");
 
-      if (isLastSet) {
+      if (!nextTurn) {
         setShowCompleteModal(true);
-      } else {
-        setCurrentStep((step) => step + 1);
+        return;
       }
+
+      const sameRoundGroup =
+        nextTurn.exercise.groupId === current.groupId &&
+        nextTurn.round === turn.round;
+      const exerciseDone = !turns
+        .slice(pos + 1)
+        .some((item) => item.exercise.id === current.id);
+
+      if (!sameRoundGroup) {
+        const restSeconds = Number(currentRow.rest) || 0;
+
+        if (restSeconds > 0) setRestLeft(restSeconds);
+      }
+
+      if (exerciseDone) {
+        setNotice(`ست‌های ${current.title} کامل شد؛ حرکت بعدی: ${nextTurn.exercise.title}`);
+      } else if (sameRoundGroup) {
+        setNotice(`حالا مستقیم برو سراغ: ${nextTurn.exercise.title}`);
+      } else {
+        setNotice("ست با موفقیت ثبت شد.");
+      }
+
+      setPos(pos + 1);
     } catch (caught) {
       setError(caught.message || "ثبت ست انجام نشد.");
     } finally {
@@ -265,14 +512,24 @@ export default function StartTrain() {
     }
   }
 
+  const handleQuickLog = () => {
+    if (currentRow.reps === "" && !isDuration && !isDistance) return;
+
+    handleFinishSet({
+      amount: isDuration
+        ? String(current.durationSeconds ?? "")
+        : isDistance
+          ? String(current.distanceM ?? "")
+          : String(currentRow.reps ?? ""),
+      weight: currentRow.weight ?? "",
+    });
+  };
+
   const handleSkipSet = () => {
-    if (!isLastSet) {
-      setCurrentStep((step) => Math.min(step + 1, totalSets));
-      setReps("");
-      setWeightKg("");
-      setNotice("");
-      setError("");
-    }
+    if (isLastTurn) return;
+
+    setPos(pos + 1);
+    resetTurn();
   };
 
   if (!ready) {
@@ -394,8 +651,16 @@ export default function StartTrain() {
                 </span>
 
                 <span className="rounded-full bg-[#007BFF] px-3 py-1 text-[11px] font-medium text-white">
-                  ست {currentStep} از {totalSets}
+                  {isGrouped
+                    ? `راند ${turn.round} از ${turn.roundTotal}`
+                    : `ست ${currentStep} از ${totalSets}`}
                 </span>
+
+                {current.system !== "normal" ? (
+                  <span className={`rounded-full px-3 py-1 text-[11px] font-bold ${system.tone}`}>
+                    {system.label}
+                  </span>
+                ) : null}
               </div>
 
               <h2 className="text-2xl font-bold text-white sm:text-3xl lg:text-4xl">
@@ -403,8 +668,33 @@ export default function StartTrain() {
               </h2>
 
               <p className="mt-2 text-xs text-white/65 sm:text-sm">
-                با تمرکز روی فرم صحیح، حرکت را اجرا کن.
+                {system.hint || "با تمرکز روی فرم صحیح، حرکت را اجرا کن."}
               </p>
+
+              {groupPartners.length > 0 ? (
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <span className="text-[11px] font-semibold text-white/80">
+                    همراه {system.label}:
+                  </span>
+
+                  {groupPartners.map((partner) => (
+                    <button
+                      key={partner.id}
+                      type="button"
+                      onClick={() => goToExercise(partner.id)}
+                      className="rounded-full border border-white/30 bg-white/15 px-3 py-1 text-[11px] font-medium text-white backdrop-blur-sm transition hover:bg-white/25"
+                    >
+                      {partner.title} • {partner.sets} ست
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+
+              {isGrouped && nextTurn && nextTurn.exercise.groupId === current.groupId && nextTurn.round === turn.round ? (
+                <p className="mt-3 text-xs font-semibold text-white sm:text-sm">
+                  بعد از این ست، مستقیم برو سراغ {nextTurn.exercise.title} — این دو تا با هم یک ست حساب می‌شوند.
+                </p>
+              ) : null}
 
               <div className="mt-5 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3">
                 <HeroStat
@@ -417,15 +707,17 @@ export default function StartTrain() {
                   value={`${current.sets} ست`}
                 />
 
-                <HeroStat
-                  icon={
-                    <BoltOutlinedIcon
-                      sx={{ fontSize: 20, color: "white" }}
-                    />
-                  }
-                  label="وزن هدف"
-                  value={current.weightLabel}
-                />
+                {showWeight ? (
+                  <HeroStat
+                    icon={
+                      <BoltOutlinedIcon
+                        sx={{ fontSize: 20, color: "white" }}
+                      />
+                    }
+                    label="وزن هدف"
+                    value={current.weightLabel}
+                  />
+                ) : null}
 
                 <HeroStat
                   icon={
@@ -435,8 +727,8 @@ export default function StartTrain() {
                       className="h-5 w-5 object-contain brightness-0 invert"
                     />
                   }
-                  label="تعداد تکرار"
-                  value={`${current.reps ?? "—"} بار`}
+                  label={isDuration ? "زمان هدف" : isDistance ? "مسافت هدف" : "تعداد تکرار"}
+                  value={isDuration ? `${current.durationSeconds ?? "—"} ثانیه` : isDistance ? `${current.distanceM ?? "—"} متر` : `${currentRow.reps ?? "—"} بار`}
                 />
 
                 <HeroStat
@@ -446,21 +738,61 @@ export default function StartTrain() {
                     />
                   }
                   label="زمان استراحت"
-                  value={`${current.rest} ثانیه`}
+                  value={`${currentRow.rest ?? current.rest} ثانیه`}
                 />
+
+                {current.tempo ? (
+                  <HeroStat
+                    icon={
+                      <TimerOutlinedIcon
+                        sx={{ fontSize: 19, color: "white" }}
+                      />
+                    }
+                    label="تمپو"
+                    value={current.tempo}
+                  />
+                ) : null}
+
+                {current.rpe != null ? (
+                  <HeroStat
+                    icon={
+                      <BoltOutlinedIcon
+                        sx={{ fontSize: 20, color: "white" }}
+                      />
+                    }
+                    label="شدت (RPE)"
+                    value={`${current.rpe} از ۱۰`}
+                  />
+                ) : current.rir != null ? (
+                  <HeroStat
+                    icon={
+                      <BoltOutlinedIcon
+                        sx={{ fontSize: 20, color: "white" }}
+                      />
+                    }
+                    label="ذخیره تکرار (RIR)"
+                    value={`${current.rir} تکرار مانده`}
+                  />
+                ) : null}
               </div>
             </div>
           </section>
 
-          {/* Set progress */}
+          {/* Set plan */}
           <section className="mt-5 rounded-3xl border border-slate-100 bg-white p-4 shadow-sm sm:p-6 lg:p-7">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <h3 className="font-bold text-[#374151]">
-                  پیشرفت ست‌ها
+                  {isGrouped ? "برنامه راندهای این سوپرست" : "برنامه ست‌های این حرکت"}
                 </h3>
                 <p className="mt-1 text-xs text-[#9AA1AB]">
-                  هر ست را پس از انجام ثبت کن
+                  {isGrouped
+                    ? "هر راند یک ست از هر حرکت است؛ وقتی راند کامل شد، یک ست حساب می‌شود. روی راند بزن تا به آن بروی."
+                    : current.system === "pyramid"
+                      ? "تکرار و وزنه هر ست فرق می‌کند؛ روی ست فعلی تمرکز کن."
+                      : current.system === "restpause"
+                        ? "هر ردیف یک مینی‌ست است؛ استراحت کوتاه بینشان را رعایت کن."
+                        : "برای انتخاب ست، روی ردیف آن بزن."}
                 </p>
               </div>
 
@@ -481,12 +813,17 @@ export default function StartTrain() {
             <div className="mt-5 grid gap-2" style={{ gridTemplateColumns: `repeat(${totalSets}, minmax(0, 1fr))` }}>
               {Array.from({ length: totalSets }, (_, index) => {
                 const step = index + 1;
-                const isDone = step < currentStep;
+                const turnIndex = turns.findIndex(
+                  (item) => item.exercise.id === current.id && item.round === step
+                );
+                const isDone = turnIndex !== -1 && turnIndex < pos;
                 const isCurrent = step === currentStep;
 
                 return (
-                  <div
+                  <button
                     key={step}
+                    type="button"
+                    onClick={() => goToSet(step)}
                     className="flex min-w-0 flex-col items-center gap-2"
                   >
                     <div
@@ -514,12 +851,148 @@ export default function StartTrain() {
                             : "text-[#A0A7B1]"
                       }`}
                     >
-                      ست {SET_LABELS[index] ?? step}
+                      {isGrouped ? `راند ${SET_LABELS[index] ?? step}` : `ست ${SET_LABELS[index] ?? step}`}
                     </span>
-                  </div>
+                  </button>
                 );
               })}
             </div>
+
+            {/* Per-set table */}
+            {isGrouped ? (
+              <div className="mt-6 space-y-2">
+                {Array.from({ length: turn.roundTotal }, (_, index) => {
+                  const round = index + 1;
+                  const roundTurns = turns.filter(
+                    (item) =>
+                      item.exercise.groupId === current.groupId &&
+                      item.round === round
+                  );
+                  const isDone = roundTurns.length > 0 && roundTurns.every((item) => turns.indexOf(item) < pos);
+                  const isCurrent = round === turn.round;
+                  const lastRow = setRows(roundTurns[roundTurns.length - 1]?.exercise ?? current)[round - 1] ?? {};
+
+                  return (
+                    <button
+                      key={round}
+                      type="button"
+                      onClick={() => goToRound(round)}
+                      className={`flex w-full flex-wrap items-center gap-x-4 gap-y-1 rounded-2xl border px-4 py-3 text-right text-xs transition sm:text-sm ${
+                        isCurrent
+                          ? "border-blue-200 bg-blue-50/70 font-bold text-[#007BFF]"
+                          : isDone
+                            ? "border-slate-100 bg-white text-[#9AA1AB]"
+                            : "border-slate-100 bg-white text-[#374151] hover:bg-[#FAFBFD]"
+                      }`}
+                    >
+                      <span className="flex items-center gap-2">
+                        {isDone ? <CheckIcon fontSize="small" className="text-[#007BFF]" /> : null}
+                        راند {SET_LABELS[index] ?? round}
+                        {isCurrent ? <span className="text-[10px] font-semibold">• فعلی</span> : null}
+                      </span>
+
+                      {roundTurns.map((item) => {
+                        const row = setRows(item.exercise)[item.round - 1] ?? {};
+
+                        return (
+                          <span key={item.exercise.id}>
+                            {item.exercise.title}:{" "}
+                            {item.exercise.tracking === "duration"
+                              ? `${item.exercise.durationSeconds ?? "—"} ثانیه`
+                              : item.exercise.tracking === "distance"
+                                ? `${item.exercise.distanceM ?? "—"} متر`
+                                : row.reps === ""
+                                  ? "تا ناتوانی"
+                                  : `${row.reps} بار`}
+                            {row.weight ? `، ${row.weight} کیلو` : ""}
+                          </span>
+                        );
+                      })}
+
+                      <span className="mr-auto text-[#9AA1AB]">
+                        استراحت {lastRow.rest ?? 0} ثانیه
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="mt-6 overflow-hidden rounded-2xl border border-slate-100">
+                <div className="grid grid-cols-4 gap-2 bg-[#F5F7FB] px-4 py-2.5 text-[11px] font-semibold text-[#7B8491] sm:text-xs">
+                  <span>ست</span>
+                  <span className="text-center">{isDuration ? "زمان" : isDistance ? "مسافت" : "تکرار"}</span>
+                  <span className="text-center">وزنه</span>
+                  <span className="text-center">استراحت</span>
+                </div>
+
+                {rows.map((row, index) => {
+                  const step = index + 1;
+                  const turnIndex = turns.findIndex(
+                    (item) => item.exercise.id === current.id && item.round === step
+                  );
+                  const isDone = turnIndex !== -1 && turnIndex < pos;
+                  const isCurrent = step === currentStep;
+
+                  return (
+                    <button
+                      key={step}
+                      type="button"
+                      onClick={() => goToSet(step)}
+                      className={`grid w-full grid-cols-4 gap-2 px-4 py-3 text-xs transition sm:text-sm ${
+                        isCurrent
+                          ? "bg-blue-50/70 font-bold text-[#007BFF]"
+                          : isDone
+                            ? "bg-white text-[#9AA1AB]"
+                            : "bg-white text-[#374151] hover:bg-[#FAFBFD]"
+                      } ${index !== rows.length - 1 ? "border-b border-slate-100" : ""}`}
+                    >
+                      <span className="flex items-center gap-2 text-right">
+                        {isDone ? <CheckIcon fontSize="small" className="text-[#007BFF]" /> : null}
+                        ست {SET_LABELS[index] ?? step}
+                        {isCurrent ? <span className="text-[10px] font-semibold">• فعلی</span> : null}
+                      </span>
+                      <span className="text-center">
+                        {isDuration
+                          ? `${current.durationSeconds ?? "—"} ثانیه`
+                          : isDistance
+                            ? `${current.distanceM ?? "—"} متر`
+                            : row.reps === ""
+                              ? "تا ناتوانی"
+                              : `${row.reps} بار`}
+                      </span>
+                      <span className="text-center">
+                        {row.weight === "" ? "—" : `${row.weight} کیلو`}
+                      </span>
+                      <span className="text-center">{row.rest} ثانیه</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {current.setType ? (
+              <p className="mt-4 text-xs leading-6 text-[#6B6F77]">
+                نکته مربی: {current.setType}
+              </p>
+            ) : null}
+
+            {/* Rest timer */}
+            {restLeft != null ? (
+              <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-[#F2F7FF] px-4 py-3">
+                <div className="flex items-center gap-2 text-sm font-semibold text-[#007BFF]">
+                  <TimerOutlinedIcon fontSize="small" />
+                  استراحت: {restLeft} ثانیه مانده
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setRestLeft(null)}
+                  className="rounded-xl bg-white px-4 py-2 text-xs font-semibold text-[#007BFF] shadow-sm transition hover:bg-blue-50"
+                >
+                  رد کردن استراحت
+                </button>
+              </div>
+            ) : null}
 
             {/* Set form */}
             <div className="mt-8 border-t border-slate-100 pt-6">
@@ -528,14 +1001,16 @@ export default function StartTrain() {
                   ثبت عملکرد این ست
                 </h3>
                 <p className="mt-1 text-xs text-[#9AA1AB]">
-                  اطلاعات واقعی اجرای حرکت را وارد کن.
+                  تجویز مربی برای {isGrouped ? `راند ${turn.round}` : `ست ${currentStep}`}: {prescribedText}
+                  {currentRow.weight ? `، ${currentRow.weight} کیلو` : ""}
+                  {currentRow.rest ? `، ${currentRow.rest} ثانیه استراحت بعدش` : ""}
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className={`grid grid-cols-1 gap-4 ${showWeight ? "sm:grid-cols-2" : ""}`}>
                 <label className="block min-w-0">
                   <span className="mb-2 block text-sm font-medium text-[#596273]">
-                    تکرار انجام‌شده
+                    {amountLabel}
                   </span>
 
                   <div className="relative">
@@ -543,40 +1018,43 @@ export default function StartTrain() {
                       type="number"
                       min="1"
                       inputMode="numeric"
-                      placeholder="مثلاً ۱۲"
-                      value={reps}
-                      onChange={(event) => setReps(event.target.value)}
+                      placeholder={amountPlaceholder}
+                      value={amount}
+                      onChange={(event) => setAmount(event.target.value)}
                       className="w-full rounded-2xl border border-slate-200 bg-[#FAFBFD] px-4 py-3.5 text-sm text-[#374151] outline-none transition placeholder:text-[#B5BBC4] focus:border-[#007BFF] focus:bg-white focus:ring-4 focus:ring-blue-50"
                     />
 
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs text-[#A0A7B1]">
-                      تکرار
+                      {amountUnit}
                     </span>
                   </div>
                 </label>
 
-                <label className="block min-w-0">
-                  <span className="mb-2 block text-sm font-medium text-[#596273]">
-                    وزن انجام‌شده
-                  </span>
-
-                  <div className="relative">
-                    <input
-                      type="number"
-                      min="0"
-                      step="0.5"
-                      inputMode="decimal"
-                      placeholder="مثلاً ۲۰"
-                      value={weightKg}
-                      onChange={(event) => setWeightKg(event.target.value)}
-                      className="w-full rounded-2xl border border-slate-200 bg-[#FAFBFD] px-4 py-3.5 text-sm text-[#374151] outline-none transition placeholder:text-[#B5BBC4] focus:border-[#007BFF] focus:bg-white focus:ring-4 focus:ring-blue-50"
-                    />
-
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs text-[#A0A7B1]">
-                      کیلوگرم
+                {showWeight ? (
+                  <label className="block min-w-0">
+                    <span className="mb-2 block text-sm font-medium text-[#596273]">
+                      وزن انجام‌شده
+                      <span className="mr-1 text-xs font-normal text-[#9AA1AB]">(اختیاری)</span>
                     </span>
-                  </div>
-                </label>
+
+                    <div className="relative">
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.5"
+                        inputMode="decimal"
+                        placeholder={currentRow.weight ? `مثلاً ${currentRow.weight}` : "مثلاً ۲۰"}
+                        value={weightKg}
+                        onChange={(event) => setWeightKg(event.target.value)}
+                        className="w-full rounded-2xl border border-slate-200 bg-[#FAFBFD] px-4 py-3.5 text-sm text-[#374151] outline-none transition placeholder:text-[#B5BBC4] focus:border-[#007BFF] focus:bg-white focus:ring-4 focus:ring-blue-50"
+                      />
+
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs text-[#A0A7B1]">
+                        کیلوگرم
+                      </span>
+                    </div>
+                  </label>
+                ) : null}
               </div>
 
               {/* Actions */}
@@ -584,7 +1062,7 @@ export default function StartTrain() {
                 <button
                   type="button"
                   onClick={handleSkipSet}
-                  disabled={isLastSet || pending}
+                  disabled={isLastTurn || pending}
                   className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-[#DCEAFF] bg-[#F2F7FF] px-5 text-sm font-semibold text-[#5379B8] transition hover:bg-[#E7F1FF] disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto sm:min-w-[180px]"
                 >
                   <SkipNextRoundedIcon fontSize="small" />
@@ -593,11 +1071,26 @@ export default function StartTrain() {
 
                 <button
                   type="button"
-                  onClick={handleFinishSet}
+                  onClick={handleQuickLog}
                   disabled={
                     pending ||
-                    reps === "" ||
-                    Number(reps) <= 0
+                    (currentRow.reps === "" && !isDuration && !isDistance) ||
+                    (isDuration && current.durationSeconds == null) ||
+                    (isDistance && current.distanceM == null)
+                  }
+                  className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-[#007BFF] bg-white px-5 text-sm font-bold text-[#007BFF] transition hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:min-w-[200px]"
+                >
+                  <CheckIcon fontSize="small" />
+                  ثبت با مقادیر تجویز‌شده
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleFinishSet()}
+                  disabled={
+                    pending ||
+                    amount === "" ||
+                    Number(amount) <= 0
                   }
                   className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#007BFF] px-7 text-sm font-bold text-white shadow-lg shadow-blue-500/15 transition hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-50 sm:mr-auto sm:w-auto sm:min-w-[200px]"
                 >
@@ -643,60 +1136,77 @@ export default function StartTrain() {
 
             {upcoming.length > 0 ? (
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-                {upcoming.map((exercise, index) => (
-                  <button
-                    key={exercise.id}
-                    type="button"
-                    onClick={() => goToExercise(exercise.id)}
-                    className="group flex min-w-0 items-center gap-3 rounded-2xl border border-slate-100 bg-[#FAFBFD] p-3 text-right transition hover:border-blue-200 hover:bg-blue-50/50"
-                  >
-                    <div className="relative h-[76px] w-[100px] shrink-0 overflow-hidden rounded-xl bg-slate-200 sm:h-[84px] sm:w-[112px]">
-                      <img
-                        className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
-                        src={exercise.image}
-                        alt={exercise.title}
-                      />
+                {upcoming.map((exercise, index) => {
+                  const meta = SYSTEM_META[exercise.system] ?? SYSTEM_META.normal;
 
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/15">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full border border-white/80 bg-black/20 text-white backdrop-blur-sm">
-                          <PlayArrowRoundedIcon fontSize="small" />
+                  return (
+                    <button
+                      key={exercise.id}
+                      type="button"
+                      onClick={() => goToExercise(exercise.id)}
+                      className="group flex min-w-0 items-center gap-3 rounded-2xl border border-slate-100 bg-[#FAFBFD] p-3 text-right transition hover:border-blue-200 hover:bg-blue-50/50"
+                    >
+                      <div className="relative h-[76px] w-[100px] shrink-0 overflow-hidden rounded-xl bg-slate-200 sm:h-[84px] sm:w-[112px]">
+                        <img
+                          className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                          src={exercise.image}
+                          alt={exercise.title}
+                        />
+
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/15">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full border border-white/80 bg-black/20 text-white backdrop-blur-sm">
+                            <PlayArrowRoundedIcon fontSize="small" />
+                          </div>
+                        </div>
+
+                        <span className="absolute right-2 top-2 rounded-md bg-black/40 px-1.5 py-0.5 text-[10px] text-white">
+                          {index + 1}
+                        </span>
+                      </div>
+
+                      <div className="min-w-0 flex-1">
+                        <h4 className="truncate text-sm font-bold text-[#374151] transition group-hover:text-[#007BFF]">
+                          {exercise.title}
+                        </h4>
+
+                        {exercise.system !== "normal" ? (
+                          <span className={`mt-1.5 inline-block rounded-full px-2 py-0.5 text-[10px] font-bold ${meta.tone}`}>
+                            {meta.label}
+                            {exercise.groupId ? ` • ${exercise.groupIndex + 1} از ${exercise.groupSize}` : ""}
+                          </span>
+                        ) : null}
+
+                        <div className="mt-3 flex flex-wrap gap-x-3 gap-y-2">
+                          <ExerciseStat
+                            icon={Dumbel}
+                            label={`${exercise.sets} ست`}
+                          />
+
+                          <ExerciseStat
+                            icon={Refresh}
+                            label={
+                              exercise.tracking === "duration"
+                                ? `${exercise.durationSeconds ?? "—"} ثانیه`
+                                : exercise.tracking === "distance"
+                                  ? `${exercise.distanceM ?? "—"} متر`
+                                  : `${exercise.reps ?? "—"} تکرار`
+                            }
+                          />
+
+                          <ExerciseStat
+                            icon={ClockCircle}
+                            label={`${exercise.rest} ثانیه`}
+                          />
                         </div>
                       </div>
 
-                      <span className="absolute right-2 top-2 rounded-md bg-black/40 px-1.5 py-0.5 text-[10px] text-white">
-                        {index + 1}
-                      </span>
-                    </div>
-
-                    <div className="min-w-0 flex-1">
-                      <h4 className="truncate text-sm font-bold text-[#374151] transition group-hover:text-[#007BFF]">
-                        {exercise.title}
-                      </h4>
-
-                      <div className="mt-3 flex flex-wrap gap-x-3 gap-y-2">
-                        <ExerciseStat
-                          icon={Dumbel}
-                          label={`${exercise.sets} ست`}
-                        />
-
-                        <ExerciseStat
-                          icon={Refresh}
-                          label={`${exercise.reps ?? "—"} تکرار`}
-                        />
-
-                        <ExerciseStat
-                          icon={ClockCircle}
-                          label={`${exercise.rest} ثانیه`}
-                        />
-                      </div>
-                    </div>
-
-                    <ArrowBackRoundedIcon
-                      className="shrink-0 text-[#B7C0CC] transition group-hover:-translate-x-1 group-hover:text-[#007BFF]"
-                      fontSize="small"
-                    />
-                  </button>
-                ))}
+                      <ArrowBackRoundedIcon
+                        className="shrink-0 text-[#B7C0CC] transition group-hover:-translate-x-1 group-hover:text-[#007BFF]"
+                        fontSize="small"
+                      />
+                    </button>
+                  );
+                })}
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-[#FAFBFD] px-4 py-9 text-center">
@@ -741,7 +1251,7 @@ export default function StartTrain() {
             </div>
 
             <span className="inline-flex rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-600">
-              حرکت تکمیل شد
+              تمرین کامل شد
             </span>
 
             <h2 className="mt-4 text-xl font-bold text-[#374151]">
@@ -749,7 +1259,7 @@ export default function StartTrain() {
             </h2>
 
             <p className="mt-2 text-sm leading-7 text-[#929AA5]">
-              تمام ست‌های حرکت
+              تمام ست‌های
               <span className="mx-1 font-semibold text-[#596273]">
                 {current.title}
               </span>
@@ -773,20 +1283,9 @@ export default function StartTrain() {
             </div>
 
             <div className="flex flex-col gap-3">
-              {upcoming.length > 0 ? (
-                <button
-                  type="button"
-                  onClick={() => goToExercise(upcoming[0].id)}
-                  className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#007BFF] px-5 text-sm font-bold text-white transition hover:bg-blue-600"
-                >
-                  <PlayArrowRoundedIcon fontSize="small" />
-                  شروع حرکت بعدی
-                </button>
-              ) : (
-                <div className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
-                  تمام حرکات این برنامه ثبت شد 🎉
-                </div>
-              )}
+              <div className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
+                تمام حرکات این برنامه ثبت شد 🎉
+              </div>
 
               <button
                 type="button"
