@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
@@ -33,6 +32,7 @@ export default function Mytrain({
   emptyLabel = "برای امروز حرکتی ثبت نشده.",
 }) {
   const rows = exercises ?? SAMPLE;
+  const visibleRows = rows.slice(0, 4);
   const [isProgramModalOpen, setIsProgramModalOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -82,7 +82,7 @@ export default function Mytrain({
           </p>
         ) : null}
 
-        {rows.map((exercise, index) => (
+        {visibleRows.map((exercise, index) => (
           <div key={exercise.id} className="flex min-w-0 flex-col gap-3">
             <div
               className={`flex min-w-0 w-full flex-col gap-3 sm:gap-4 lg:flex-row lg:items-center ${
@@ -129,14 +129,14 @@ export default function Mytrain({
               ) : null}
             </div>
 
-            {hrTrue && index !== rows.length - 1 ? (
+            {hrTrue && index !== visibleRows.length - 1 ? (
               <hr className="border-0 border-t border-gray-200" />
             ) : null}
           </div>
         ))}
 
         {/* Show all */}
-        {showDetail ? (
+        {showDetail || rows.length > 4 ? (
           <div
             role="button"
             tabIndex={0}
